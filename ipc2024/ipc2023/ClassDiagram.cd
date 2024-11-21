@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="CAboutDlg">
+    <Position X="5.5" Y="7" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="CAboutDlg::__unnamed_enum_040e_1" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ipc2023Dlg.cpp</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAABAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ipc2023Dlg.cpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CBaseLayer">
+    <Position X="5.25" Y="1" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>QCBEAAAAAAAAgAAEAEAAAAEBABAAAAAYAAAAQAAAEAA=</HashCode>
+      <FileName>BaseLayer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CChatAppLayer">
+    <Position X="7.75" Y="1" Width="2" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Typedef Name="CChatAppLayer::CHAT_APP_HEADER" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ChatAppLayer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="CChatAppLayer::PCHAT_APP_HEADER" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ChatAppLayer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Struct Name="CChatAppLayer::_CHAT_APP_HEADER">
+        <TypeIdentifier>
+          <NewMemberFileName>ChatAppLayer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Enum Name="CChatAppLayer::__unnamed_enum_0404_1">
+        <TypeIdentifier>
+          <NewMemberFileName>ChatAppLayer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <InheritanceLine Type="CBaseLayer" FixedToPoint="true">
+      <Path>
+        <Point X="6.38" Y="1" />
+        <Point X="6.38" Y="0.625" />
+        <Point X="8.75" Y="0.625" />
+        <Point X="8.75" Y="1" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAQACgAAEIAAAAAAAQAACIQgAAAAAAAAAA=</HashCode>
+      <FileName>ChatAppLayer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CFileLayer">
+    <Position X="12.5" Y="1" Width="1.75" />
+    <InheritanceLine Type="CBaseLayer" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="6.927" Y="1" />
+        <Point X="6.927" Y="0.625" />
+        <Point X="13.375" Y="0.625" />
+        <Point X="13.375" Y="1" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAAAAAEAQAAAAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>FileLayer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Cipc2023App">
+    <Position X="5.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAABAAAAAAQAAAAAAAAAAAA=</HashCode>
+      <FileName>ipc2023.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Cipc2023Dlg">
+    <Position X="10.25" Y="1" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="Cipc2023Dlg::__unnamed_enum_040f_1" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ipc2023Dlg.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="Cipc2023Dlg::__unnamed_enum_040f_2" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ipc2023Dlg.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <InheritanceLine Type="CBaseLayer" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.833" Y="1" />
+        <Point X="5.833" Y="0.625" />
+        <Point X="11.125" Y="0.625" />
+        <Point X="11.125" Y="1" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>UAOAAAkAEIAAACgQALAAAAAIAEMAAAYQAAAAACIQCAA=</HashCode>
+      <FileName>ipc2023Dlg.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CLayerManager">
+    <Position X="12.5" Y="3" Width="2" />
+    <NestedTypes>
+      <Typedef Name="CLayerManager::NODE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>LayerManager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="CLayerManager::PNODE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>LayerManager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Struct Name="CLayerManager::_NODE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>LayerManager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>ADBAAAAAQAAABAAAAIAAAAAAAASIBBEhgAAACAAKCAA=</HashCode>
+      <FileName>LayerManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CEthernetLayer">
+    <Position X="2.75" Y="0.75" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Typedef Name="CEthernetLayer::ETHERNET_HEADER" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>EthernetLayer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="CEthernetLayer::PETHERNET_HEADER" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>EthernetLayer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Struct Name="CEthernetLayer::_ETHERNET_HEADER" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>EthernetLayer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAQACgACEEAAAAAAAQAAAAQgAAAAAAAAAA=</HashCode>
+      <FileName>EthernetLayer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
