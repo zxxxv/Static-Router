@@ -39,7 +39,7 @@
 												          TCP_HEADER_SIZE +		\
 												          IP_HEADER_SIZE ) )
 
-#define NI_COUNT_NIC			10
+#define NI_COUNT_NIC			15
 #define CHAR_DATA_MAX_SIZE		1474
 #define CHAT_HEADER_SIZE		26
 #define CHAT_LAYER_IDENTIFIER 0x2080	// Identifier for Ethernet layer to distinguish Chat Layer packets

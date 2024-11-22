@@ -87,9 +87,8 @@ private:
 	//CString Cipc2023Dlg::binaryToString(const unsigned char* ip);
 
 public:
-	CComboBox m_comboBox;
-	CString m_unSrcMac;
-	CString m_unDstMac;
+	CString m_iMacSrc;
+	CString m_oMacSrc;
 	UCHAR m_ucSrcAddrArray[6];
 	UCHAR m_ucGaprSrcAddrArray[6];
 	UCHAR m_ucDstAddrArray[6];
@@ -113,8 +112,12 @@ public:
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButtonArpDelete();
 	afx_msg void OnIpnFieldchangedIpaddress1(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnCbnSelchangeComboMac1();
 	CListCtrl m_ListCtrlR;
 	afx_msg void OnBnClickedButtonEnd();
 	afx_msg void OnBnClickedButtonStart();
+	afx_msg void OnCbnSelchangeComboMac();
+	afx_msg void OnCbnSelchangeComboMac2();
+
+	CComboBox m_comboBox1;
+	CComboBox m_comboBox2;
 };
