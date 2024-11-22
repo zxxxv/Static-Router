@@ -120,4 +120,5 @@ public:
 
 	CComboBox m_comboBox1;
 	CComboBox m_comboBox2;
+	afx_msg void OnBnClickedButtonRadd();
 };

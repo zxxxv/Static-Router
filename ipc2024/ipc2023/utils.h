@@ -1,6 +1,8 @@
 #pragma once
 #ifndef UTILS_H
 #define UTILS_H
+#include "stdafx.h"
+#include "pch.h"
 #include <vector>
 #include <string>
 #include <cstdio>

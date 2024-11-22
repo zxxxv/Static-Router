@@ -202,10 +202,12 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProxyDialog.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RoutingList.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="EthernetLayer.h" />
     <ClInclude Include="TimeoutObserver.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ARPCacheEntry.cpp" />
@@ -225,6 +227,8 @@
     </ClCompile>
     <ClCompile Include="NILayer.cpp" />
     <ClCompile Include="ProxyDialog.cpp" />
+    <ClCompile Include="RoutingList.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ipc2023.rc" />

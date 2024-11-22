@@ -98,6 +98,7 @@ BEGIN_MESSAGE_MAP(Cipc2023Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_START, &Cipc2023Dlg::OnBnClickedButtonStart)
 	ON_CBN_SELCHANGE(IDC_COMBO_MAC1, &Cipc2023Dlg::OnCbnSelchangeComboMac)
 	ON_CBN_SELCHANGE(IDC_COMBO_MAC2, &Cipc2023Dlg::OnCbnSelchangeComboMac2)
+	ON_BN_CLICKED(IDC_BUTTON_RADD, &Cipc2023Dlg::OnBnClickedButtonRadd)
 END_MESSAGE_MAP()
 
 
@@ -482,8 +483,16 @@ void Cipc2023Dlg::OnBnClickedButtonStart()
 	
 	// 내부 네트워크 어댑터 receive 쓰레드 시작
 	m_NI->PacketStartDriver();
+	// 외부 네트워크와 연결된 어댑터2 쓰레드로 동작 시키기
+
+}
+
+void Cipc2023Dlg::OnBnClickedButtonRadd()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
 // CtrlList 업데이트 수정하기 
 // 하나씩 추가 삭제 하는식으로 하지말고 Table에 직접 적용시키고 Table 전체 업데이트 시키기
-// 외부 네트워크와 연결된 어댑터2 쓰레드로 동작 시키기
+// Routing Table
+

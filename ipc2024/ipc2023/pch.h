@@ -22,5 +22,7 @@
 #include "TimeoutObserver.h"
 #include "ipc2023Dlg.h"
 #include "ARPProxyTable.h"
+#include "RoutingList.h"
+#include "utils.h"
 
 #endif //PCH_H
