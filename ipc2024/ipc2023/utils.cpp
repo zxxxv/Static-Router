@@ -18,13 +18,20 @@ namespace Converter {
 	bool MAC2B();
 	bool B2CS(const unsigned char* input);
 	std::string B2IP(const unsigned char* binarySeq) {
-		char buffer[16]; // IP 주소 형식은 최대 "255.255.255.255"로 15자 + null terminator
-		sprintf_s(buffer, "%d.%d.%d.%d",
-			static_cast<int>(binarySeq[0]),
-			static_cast<int>(binarySeq[1]),
-			static_cast<int>(binarySeq[2]),
-			static_cast<int>(binarySeq[3]));
-		return std::string(buffer);
+		return std::to_string(binarySeq[0]) + "." +
+			std::to_string(binarySeq[1]) + "." +
+			std::to_string(binarySeq[2]) + "." +
+			std::to_string(binarySeq[3]);
 	}
-	bool B2MAC(const unsigned char* input);
+	std::string B2MAC(const unsigned char* binarySeq) {
+		char buffer[6];
+		std::sprintf(buffer, "%02X:%02X:%02X:%02X:%02X:%02X",
+			binarySeq[0],
+			binarySeq[1],
+			binarySeq[2],
+			binarySeq[3],
+			binarySeq[4],
+			binarySeq[5]);
+		return std::string(buffer);
+	}	
 }

@@ -29,6 +29,7 @@ namespace RoutingEntry {
 		unsigned char m_gateway[4];
 		e_flag m_flag;
 		unsigned short m_interfaceFlag;
+		unsigned short m_metric;
 	};
 }
 
@@ -37,8 +38,8 @@ namespace Converter {
 	bool IP2B();
 	bool MAC2B();
 	bool B2CS(const unsigned char* input);
-	std::string B2IP(const unsigned char* input);
-	bool B2MAC(const unsigned char* input);
+	std::string B2IP(const unsigned char* binarySeq);
+	std::string B2MAC(const unsigned char* binarySeq);
 }
 
 #endif 
