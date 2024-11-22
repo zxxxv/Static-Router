@@ -9,6 +9,7 @@
 #define IDD_IPC2023_DIALOG              102
 #define IDR_MAINFRAME                   128
 #define IDD_DIALOG1                     130
+#define IDD_DIALOG2                     134
 #define IDC_BUTTON_ARP_DELETE           1009
 #define IDC_COMBO                       1010
 #define IDC_LIST_CTR                    1021
@@ -29,16 +30,22 @@
 #define IDC_COMBO_MAC2                  1038
 #define IDC_IPADDRESS1                  1040
 #define IDC_EDIT_MAC1                   1041
+#define IDC_IPADDRESS3                  1041
 #define IDC_IPADDRESS2                  1042
 #define IDC_EDIT_MAC2                   1043
+#define IDC_CHECK1                      1043
+#define IDC_CHECK2                      1044
+#define IDC_CHECK3                      1045
+#define IDC_COMBO1                      1046
+#define IDC_EDIT1                       1047
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        134
+#define _APS_NEXT_RESOURCE_VALUE        136
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1042
+#define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
