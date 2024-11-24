@@ -7,6 +7,7 @@
 #include "ipc2023Dlg.h"
 #include "afxdialogex.h"
 #include "ProxyDialog.h"
+#include "RoutingDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -83,6 +84,8 @@ void Cipc2023Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_MAC2, m_oMacSrc);
 	DDX_Control(pDX, IDC_COMBO_MAC1, m_comboBox1);
 	DDX_Control(pDX, IDC_COMBO_MAC2, m_comboBox2);
+	DDX_Control(pDX, IDC_IPADDRESS1, m_ip1);
+	DDX_Control(pDX, IDC_IPADDRESS2, m_ip2);
 }
 
 BEGIN_MESSAGE_MAP(Cipc2023Dlg, CDialogEx)
@@ -99,6 +102,7 @@ BEGIN_MESSAGE_MAP(Cipc2023Dlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO_MAC1, &Cipc2023Dlg::OnCbnSelchangeComboMac)
 	ON_CBN_SELCHANGE(IDC_COMBO_MAC2, &Cipc2023Dlg::OnCbnSelchangeComboMac2)
 	ON_BN_CLICKED(IDC_BUTTON_RADD, &Cipc2023Dlg::OnBnClickedButtonRadd)
+	ON_BN_CLICKED(IDC_BUTTON_RDELETE, &Cipc2023Dlg::OnBnClickedButtonRdelete)
 END_MESSAGE_MAP()
 
 
@@ -441,7 +445,6 @@ void Cipc2023Dlg::OnBnClickedProxyAdd() // 프록시 테이블 추가
 	}
 }
 
-
 void Cipc2023Dlg::OnBnClickedProxyDelete() // 프록시 테이블 삭제
 {
 	POSITION posP;
@@ -475,24 +478,59 @@ void Cipc2023Dlg::OnBnClickedProxyTable()
 void Cipc2023Dlg::OnBnClickedButtonEnd()
 {
 	// receive 쓰레드 종료
+	m_NI->StopPacketDriver();
+
 }
 
 void Cipc2023Dlg::OnBnClickedButtonStart()
 {
 	// GARP Send
+	INTERFACE interfaces[2];
 	
+	// 내부 인터페이스 IP 설정
+	unsigned char ip1[4];
+	m_ip1.GetAddress(ip1[0], ip1[1], ip1[2], ip1[3]); // 첫 번째 IP 입력
+	memcpy(interfaces[0].ipAddr, ip1, sizeof(ip1));
+
+	// 외부 인터페이스 IP 설정
+	unsigned char ip2[4];
+	m_ip2.GetAddress(ip2[0], ip2[1], ip2[2], ip2[3]); // 두 번째 IP 입력
+	memcpy(interfaces[1].ipAddr, ip2, sizeof(ip2));
+
+	// MAC 주소 변환 및 설정
+	Str2UCHAR(m_iMacSrc, m_ucGaprSrcAddrArray);
+	memcpy(interfaces[0].macAddr, m_ucGaprSrcAddrArray, sizeof(interfaces[0].macAddr));
+	memcpy(interfaces[1].macAddr, m_ucGaprSrcAddrArray, sizeof(interfaces[1].macAddr));
+
+	// 내부 인터페이스에 대해 GARP 패킷 생성 및 전송
+	//m_IP->SetSenderMac(interfaces[0].macAddr);
+	//m_IP->createGarpPacket(interfaces[0].ipAddr);
+
+	// 외부 인터페이스에 대해 GARP 패킷 생성 및 전송
+	//m_IP->SetSenderMac(interfaces[1].macAddr);
+	//m_IP->createGarpPacket(interfaces[1].ipAddr);
+
 	// 내부 네트워크 어댑터 receive 쓰레드 시작
-	m_NI->PacketStartDriver();
-	// 외부 네트워크와 연결된 어댑터2 쓰레드로 동작 시키기
+	//m_NI->PacketStartDriver(0); // 내부 인터페이스에 대해 드라이버 시작
+
+	// 외부 네트워크 어댑터 receive 쓰레드 시작
+	//m_NI->PacketStartDriver(1); // 외부 인터페이스에 대해 드라이버 시작
 
 }
 
-void Cipc2023Dlg::OnBnClickedButtonRadd()
+void Cipc2023Dlg::OnBnClickedButtonRadd() // Add Routing Entry
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	RoutingDialog dlg(nullptr, m_NI->m_pAdapterList);
+	if (dlg.DoModal() == IDOK)
+	{
+		
+	}
 }
 
-// CtrlList 업데이트 수정하기 
-// 하나씩 추가 삭제 하는식으로 하지말고 Table에 직접 적용시키고 Table 전체 업데이트 시키기
-// Routing Table
+void Cipc2023Dlg::OnBnClickedButtonRdelete() // Delete Routing Entry
+{
+	
+}
 
+// CtrlList 업데이트 수정하기
+// 하나씩 추가 삭제 하는식으로 하지말고 Table에 직접 적용시키고 Table 전체 업데이트 시키기

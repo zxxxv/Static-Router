@@ -12,6 +12,7 @@ CNILayer::CNILayer(char* pName, pcap_t* pAdapterObject, int iNumAdapter)
     : CBaseLayer(pName)
 {
     m_AdapterObject = NULL;
+    //memset(m_AdapterObjects, 0, sizeof(m_AdapterObjects));
     m_iNumAdapter = iNumAdapter;
     m_index = 0;
     m_thrdSwitch = FALSE;
@@ -20,10 +21,7 @@ CNILayer::CNILayer(char* pName, pcap_t* pAdapterObject, int iNumAdapter)
 
 CNILayer::~CNILayer()
 {
-    m_thrdSwitch = FALSE;
-    if (m_AdapterObject) {
-        pcap_close(m_AdapterObject);
-    }
+    StopPacketDriver();
 }
 
 //순서 2번
@@ -226,7 +224,7 @@ CNILayer의 멤버변수 m_iNumAdapter을 활용하여 선택한 어댑터에 대한 핸들러를 얻습�
 이를 멤버변수에 저장합니다.
 */
 
-void CNILayer::PacketStartDriver()
+BOOL CNILayer::PacketStartDriver(int index)
 {
     char errbuf[PCAP_ERRBUF_SIZE];
 
@@ -249,10 +247,51 @@ void CNILayer::PacketStartDriver()
 
     m_thrdSwitch = TRUE; //패킷 수신 스레드 활성화
     AfxBeginThread(ReadingThread, this); //패킷을 수신하는 스레드 시작
+    return TRUE;
 }
 
-//순서 7번
-//void CNILayer::StopPacketDriver()
+//BOOL CNILayer::PacketStartDriver(int index)
 //{
-//    m_thrdSwitch = FALSE;
+//    if (index < 0 || index >= m_iNumAdapter) {
+//        AfxMessageBox(_T("Invalid adapter index."));
+//        return FALSE;
+//    }
+//
+//    char errbuf[PCAP_ERRBUF_SIZE] = { 0 };
+//    pcap_t* adapterObject = pcap_open_live(m_pAdapterList[index]->name, 65536, 1, 2000, errbuf);
+//    if (!adapterObject) {
+//        CString err = CString(errbuf);
+//        AfxMessageBox(_T("Failed to open adapter: ") + err);
+//        return FALSE;
+//    }
+//
+//    m_AdapterObjects[index] = adapterObject; // 각 인덱스별 어댑터 객체 저장
+//    m_thrdSwitch = TRUE; // 수신 스레드 활성화
+//    AfxBeginThread(ReadingThread, this, THREAD_PRIORITY_NORMAL, 0, 0, (LPVOID)index); // 수신 스레드 시작
+//    return TRUE;
 //}
+
+//순서 7번
+//BOOL CNILayer::StopPacketDriver()
+//{
+//    m_thrdSwitch = FALSE; // 모든 스레드 종료
+//
+//    for (int i = 0; i < m_iNumAdapter; ++i) {
+//        if (m_AdapterObjects[i]) {
+//            pcap_close(m_AdapterObjects[i]); // 어댑터 닫기
+//            m_AdapterObjects[i] = NULL;
+//        }
+//    }
+//    return TRUE;
+//}
+
+BOOL CNILayer::StopPacketDriver()
+{
+    m_thrdSwitch = FALSE; // 스레드 종료
+    if (m_AdapterObject) {
+        pcap_close(m_AdapterObject); // 어댑터 닫기
+        m_AdapterObject = NULL;
+    }
+    return TRUE;
+}
+

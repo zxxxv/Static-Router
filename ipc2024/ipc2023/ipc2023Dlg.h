@@ -43,12 +43,6 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-//	UINT m_unDstAddr;
-//	UINT unSrcAddr;
-//	CString m_stMessage;
-//	CListBox m_ListChat;
-	
-	//afx_msg void OnTimer(UINT nIDEvent);
 
 
 public:
@@ -93,9 +87,7 @@ public:
 	UCHAR m_ucGaprSrcAddrArray[6];
 	UCHAR m_ucDstAddrArray[6];
 	UCHAR m_unused[100];
-	//ARPProxyTable proxyTable;
 	ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
-	afx_msg void OnCbnSelchangeCombo(); // 어댑터 선택
 	int m_index;
 	afx_msg void OnBnClickedButtonDelete();
 	CListCtrl m_ListCtrl;		// ARP 캐시 테이블
@@ -105,13 +97,8 @@ public:
 	CListCtrl m_ListCtrlP;		// 프록시 테이블
 	afx_msg void OnBnClickedProxyAdd();
 	afx_msg void OnBnClickedProxyDelete();
-	afx_msg void OnBnClickedButtonGarpSend();
 	CEdit m_garp_mac;			// 변경한 mac 주소
 	afx_msg void OnBnClickedProxyTable();
-	afx_msg void OnEnChangeGarpMac();
-	afx_msg void OnBnClickedButton2();
-	afx_msg void OnBnClickedButtonArpDelete();
-	afx_msg void OnIpnFieldchangedIpaddress1(NMHDR* pNMHDR, LRESULT* pResult);
 	CListCtrl m_ListCtrlR;
 	afx_msg void OnBnClickedButtonEnd();
 	afx_msg void OnBnClickedButtonStart();
@@ -121,4 +108,14 @@ public:
 	CComboBox m_comboBox1;
 	CComboBox m_comboBox2;
 	afx_msg void OnBnClickedButtonRadd();
+	CIPAddressCtrl m_ip1;
+	CIPAddressCtrl m_ip2;
+	afx_msg void OnBnClickedButtonRdelete();
+
+	typedef struct _INTERFACE {
+		
+		unsigned char macAddr[6];
+		unsigned char ipAddr[4];
+
+	} INTERFACE;
 };

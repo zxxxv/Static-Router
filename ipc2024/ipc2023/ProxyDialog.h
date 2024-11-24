@@ -42,5 +42,4 @@ public:
     CComboBox m_combop;
     CIPAddressCtrl m_ipaddressp;
     CEdit m_editp;
-    afx_msg void OnIpnFieldchangedIpaddressp(NMHDR* pNMHDR, LRESULT* pResult);
 };

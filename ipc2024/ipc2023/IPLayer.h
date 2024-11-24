@@ -43,7 +43,7 @@ public:
         - binary ip 주소, 각 entry의 OnTimer 함수 내에서 입력된다.
     */
 
-    void CIPLayer::createGarpPacket(unsigned char* mac);
+    BOOL CIPLayer::createGarpPacket(unsigned char* mac);
 
     unsigned char sender_mac[6];  // MAC 주소를 저장하는 변수
     unsigned char sender_ip[4];   // 나의 IP 주소를 저장하는 변수

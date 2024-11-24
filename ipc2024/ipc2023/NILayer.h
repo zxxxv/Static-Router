@@ -25,7 +25,8 @@ public:
 	BOOL			m_thrdSwitch;
 	unsigned char* m_ppayload;
 
-	void			PacketStartDriver();
+	BOOL			PacketStartDriver(int index);
+	BOOL			StopPacketDriver();
 
 	pcap_if_t*      GetAdapterObject(int iIndex);
 	void			SetAdapterIndex(int index);

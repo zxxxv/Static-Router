@@ -72,7 +72,7 @@
     <ClInclude Include="utils.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="RoutingTable.h">
+    <ClInclude Include="RoutingDialog.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -119,7 +119,7 @@
     <ClCompile Include="utils.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="RoutingTable.cpp">
+    <ClCompile Include="RoutingDialog.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
