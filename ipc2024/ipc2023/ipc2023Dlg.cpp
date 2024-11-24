@@ -164,9 +164,9 @@ BOOL Cipc2023Dlg::OnInitDialog()
 	m_ListCtrlR.InsertColumn(0, _T("Destination"), LVCFMT_LEFT, rt.Width() + 180);
 	m_ListCtrlR.InsertColumn(1, _T("NetMask"), LVCFMT_LEFT, rt.Width() + 180);
 	m_ListCtrlR.InsertColumn(2, _T("GateWay"), LVCFMT_LEFT, rt.Width() + 180);
-	m_ListCtrlR.InsertColumn(3, _T("Flag"), LVCFMT_LEFT, rt.Width() + 90);
-	m_ListCtrlR.InsertColumn(4, _T("Interface"), LVCFMT_LEFT, rt.Width() + 180);
-	m_ListCtrlR.InsertColumn(5, _T("Metric"), LVCFMT_LEFT, rt.Width() + 110);
+	m_ListCtrlR.InsertColumn(3, _T("Flag"), LVCFMT_LEFT, rt.Width() + 50);
+	m_ListCtrlR.InsertColumn(4, _T("Interface"), LVCFMT_LEFT, rt.Width() + 190);
+	m_ListCtrlR.InsertColumn(5, _T("Metric"), LVCFMT_LEFT, rt.Width() + 70);
 
 	//GetDlgItem(IDC_BUTTON_IP_SEND)->EnableWindow(FALSE);
 
@@ -342,7 +342,47 @@ void Cipc2023Dlg::OnCbnSelchangeComboMac()
 void Cipc2023Dlg::OnCbnSelchangeComboMac2()
 {
 	// 외부 어댑터 선택
+}
 
+void Cipc2023Dlg::UpdateRoutingTableListCtrl() // 라우팅 테이블 출력
+{
+	// 리스트 컨트롤 초기화
+	m_ListCtrlR.DeleteAllItems();
+
+	// 라우팅 테이블에서 모든 엔트리를 가져와 리스트 컨트롤에 추가
+	std::list<RoutingEntry::Fields> routingEntries = routingTable.getAllEntries();
+	int index = 0;
+	for (const auto& entry : routingEntries) {
+		CString strDestination, strNetmask, strGateway, strFlag, strInterface, strMetric;
+
+		strDestination.Format(_T("%d.%d.%d.%d"), entry.m_destination[0], entry.m_destination[1], entry.m_destination[2], entry.m_destination[3]);
+		strNetmask.Format(_T("%d.%d.%d.%d"), entry.m_subnetMask[0], entry.m_subnetMask[1], entry.m_subnetMask[2], entry.m_subnetMask[3]);
+		strGateway.Format(_T("%d.%d.%d.%d"), entry.m_gateway[0], entry.m_gateway[1], entry.m_gateway[2], entry.m_gateway[3]);
+		strFlag = GetFlagString(entry.m_flag);
+		strInterface = CString(m_NI->GetAdapterObject(entry.m_interfaceFlag)->description);
+		strMetric.Format(_T("%d"), entry.m_metric);
+
+		int nIndex = m_ListCtrlR.InsertItem(index++, strDestination);
+		m_ListCtrlR.SetItemText(nIndex, 1, strNetmask);
+		m_ListCtrlR.SetItemText(nIndex, 2, strGateway);
+		m_ListCtrlR.SetItemText(nIndex, 3, strFlag);
+		m_ListCtrlR.SetItemText(nIndex, 4, strInterface);
+		m_ListCtrlR.SetItemText(nIndex, 5, strMetric);
+	}
+}
+
+CString Cipc2023Dlg::GetFlagString(e_flag flag)
+{
+	switch (flag) {
+	case e_flag::none:
+		return _T("None");
+	case e_flag::up:
+		return _T("U");
+	case e_flag::gateway:
+		return _T("UG");
+	default:
+		return _T("");
+	}
 }
 
 void Cipc2023Dlg::OnBnClickedButtonDelete() // 삭제 버튼
@@ -489,12 +529,12 @@ void Cipc2023Dlg::OnBnClickedButtonStart()
 	
 	// 내부 인터페이스 IP 설정
 	unsigned char ip1[4];
-	m_ip1.GetAddress(ip1[0], ip1[1], ip1[2], ip1[3]); // 첫 번째 IP 입력
+	m_ip1.GetAddress(ip1[0], ip1[1], ip1[2], ip1[3]); // 내부 IP 입력
 	memcpy(interfaces[0].ipAddr, ip1, sizeof(ip1));
 
 	// 외부 인터페이스 IP 설정
 	unsigned char ip2[4];
-	m_ip2.GetAddress(ip2[0], ip2[1], ip2[2], ip2[3]); // 두 번째 IP 입력
+	m_ip2.GetAddress(ip2[0], ip2[1], ip2[2], ip2[3]); // 외부 IP 입력
 	memcpy(interfaces[1].ipAddr, ip2, sizeof(ip2));
 
 	// MAC 주소 변환 및 설정
@@ -518,19 +558,27 @@ void Cipc2023Dlg::OnBnClickedButtonStart()
 
 }
 
-void Cipc2023Dlg::OnBnClickedButtonRadd() // Add Routing Entry
+void Cipc2023Dlg::OnBnClickedButtonRadd() // Routing Entry 추가
 {
 	RoutingDialog dlg(nullptr, m_NI->m_pAdapterList);
 	if (dlg.DoModal() == IDOK)
 	{
-		
+		UpdateRoutingTableListCtrl();
 	}
 }
 
-void Cipc2023Dlg::OnBnClickedButtonRdelete() // Delete Routing Entry
+void Cipc2023Dlg::OnBnClickedButtonRdelete() // Routing Entry 삭제
 {
-	
-}
+	POSITION posR;
+	posR = m_ListCtrlR.GetFirstSelectedItemPosition();
+	int idx = m_ListCtrlR.GetNextSelectedItem(posR);
 
-// CtrlList 업데이트 수정하기
-// 하나씩 추가 삭제 하는식으로 하지말고 Table에 직접 적용시키고 Table 전체 업데이트 시키기
+	if (idx != -1) {
+		// 라우팅 테이블에서 엔트리 삭제
+		if (!routingTable.deleteEntry(idx)) {
+			AfxMessageBox(_T("엔트리 삭제 실패"));
+		}
+		// 라우팅 테이블 리스트 컨트롤 업데이트
+		UpdateRoutingTableListCtrl();
+	}
+}

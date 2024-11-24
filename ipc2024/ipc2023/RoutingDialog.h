@@ -15,7 +15,7 @@ class RoutingDialog : public CDialogEx
 public:
 	RoutingDialog(CWnd* pParent = nullptr, pcap_if_t** adapterList = nullptr);   // 표준 생성자입니다.
 	virtual ~RoutingDialog();
-
+	
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_DIALOG2 };
@@ -31,8 +31,7 @@ private:
 	CString m_strDeviceName; // 장치 이름을 저장할 멤버 변수
 
 public:
-	// m_combop;
-
+	RoutingList& routingTable = RoutingList::getInstance();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
 	BOOL OnInitDialog();

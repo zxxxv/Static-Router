@@ -2,10 +2,6 @@
 #include "pch.h"
 #include "routingList.h"
 
-RoutingList::RoutingList() {
-	initBuffEntry();
-}
-
 void RoutingList::initBuffEntry() {
 	std::memset(m_buffEnty.m_destination, 0, 4);
 	std::memset(m_buffEnty.m_subnetMask, 0, 4);
@@ -15,15 +11,31 @@ void RoutingList::initBuffEntry() {
 }
 
 bool RoutingList::isBuffEntry() {
-	if (std::memcmp(m_buffEnty.m_destination, "\0\0\0\0", 4) == 0) return false;
-	if (std::memcmp(m_buffEnty.m_subnetMask, "\0\0\0\0", 4) == 0) return false;
-	if (std::memcmp(m_buffEnty.m_gateway, "\0\0\0\0", 4) == 0) return false;
-	if (m_buffEnty.m_flag == e_flag::none) return false;
-	if (m_buffEnty.m_interfaceFlag == 0) return false;
+	// 모든 필드가 유효한지 체크하고 문제가 있다면 출력
+	if (std::memcmp(m_buffEnty.m_destination, "\0\0\0\0", 4) == 0) {
+		AfxMessageBox("Error: Destination 설정 오류");
+		return false;
+	}
+	if (std::memcmp(m_buffEnty.m_subnetMask, "\0\0\0\0", 4) == 0) {
+		AfxMessageBox("Error: NetMask 설정 오류");
+		return false;
+	}
+	if (std::memcmp(m_buffEnty.m_gateway, "\0\0\0\0", 4) == 0) {
+		AfxMessageBox("Error: Gateway 설정 오류");
+		return false;
+	}
+	if (m_buffEnty.m_flag == e_flag::none) {
+		AfxMessageBox("Error: Flag 설정 오류");
+		return false;
+	}
+	if (m_buffEnty.m_interfaceFlag == 0) {
+		AfxMessageBox("Error: Interface 설정 오류");
+		return false;
+	}
 
+	//AfxMessageBox("유효한 Buffer entry");
 	return true;
 }
-
 //bool RoutingList::setBuffEntry(e_field field, const unsigned char* binarySeq) {
 //	if (binarySeq == nullptr) return false;
 //
@@ -83,6 +95,10 @@ std::optional<Fields> RoutingList::getNextEntry(std::list<Fields>::iterator curr
 	auto nextIt = std::next(currentIt);
 	if (nextIt != m_list.end()) return *nextIt; // 다음 요소 반환
 	else return std::nullopt; // 리스트의 끝일 경우
+}
+
+std::list<RoutingEntry::Fields> RoutingList::getAllEntries() {
+    return m_list;
 }
 
 bool RoutingList::deleteEntry(int entryIndex) {

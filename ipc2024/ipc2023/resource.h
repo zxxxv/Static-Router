@@ -35,7 +35,6 @@
 #define IDC_EDIT_MAC2                   1043
 #define IDC_CHECK1                      1048
 #define IDC_CHECK2                      1049
-#define IDC_CHECK3                      1050
 #define IDC_COMBOR                      1051
 #define IDC_EDIT_RM                     1052
 #define IDC_IPADDRESSRN                 1053

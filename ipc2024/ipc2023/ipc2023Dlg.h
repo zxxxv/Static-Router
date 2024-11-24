@@ -9,6 +9,7 @@
 #include "NILayer.h"
 #include "IPLayer.h"
 #include "ARPProxyTable.h"
+#include "RoutingList.h"
 
 // Cipc2023Dlg 대화 상자
 class Cipc2023Dlg : public CDialogEx, public CBaseLayer
@@ -49,6 +50,8 @@ public:
 	BOOL			Receive(unsigned char* ppayload);
 	void UpdateListCtrlItem(const CString& ip, const CString& mac, const CString& status); // 캐시 테이블 변경
 	void TimeoutEntryDelete(const unsigned char* ip);
+	void UpdateRoutingTableListCtrl();
+	CString GetFlagString(e_flag flag);
 
 private:
 	CLayerManager	m_LayerMgr;
@@ -88,6 +91,7 @@ public:
 	UCHAR m_ucDstAddrArray[6];
 	UCHAR m_unused[100];
 	ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
+	RoutingList& routingTable = RoutingList::getInstance();
 	int m_index;
 	afx_msg void OnBnClickedButtonDelete();
 	CListCtrl m_ListCtrl;		// ARP 캐시 테이블
