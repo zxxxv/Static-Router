@@ -5,19 +5,11 @@ RoutingList::RoutingList() {
 }
 
 void RoutingList::initBuffEntry() {
-	std::memset(m_buffEnty.m_destination, 0, 4);
-	std::memset(m_buffEnty.m_subnetMask, 0, 4);
-	std::memset(m_buffEnty.m_gateway, 0, 4);
 	m_buffEnty.m_flag = e_flag::none;
-	m_buffEnty.m_interfaceFlag = 0;
 }
 
 bool RoutingList::isBuffEntry() {
-	if (std::memcmp(m_buffEnty.m_destination, "\0\0\0\0", 4) == 0) return false;
-	if (std::memcmp(m_buffEnty.m_subnetMask, "\0\0\0\0", 4) == 0) return false;
-	if (std::memcmp(m_buffEnty.m_gateway, "\0\0\0\0", 4) == 0) return false;
 	if (m_buffEnty.m_flag == e_flag::none) return false;
-	if (m_buffEnty.m_interfaceFlag == 0) return false;
 
 	return true;
 }
