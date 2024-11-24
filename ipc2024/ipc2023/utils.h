@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <cstdio>
+#include <afxstr.h>
 
 namespace RoutingEntry {
 	enum class e_flag {
@@ -36,12 +37,16 @@ namespace RoutingEntry {
 }
 
 namespace Converter {
-	bool CS2B();
-	bool IP2B();
-	bool MAC2B();
-	bool B2CS(const unsigned char* input);
+	std::string CS2STR(const CString& Cstr);
+	void CS2B(CString& mac, UCHAR* uchar);
+	void CS2B(CString& ip, UCHAR* uchar);
+	void STR2B(std::string& mac, UCHAR* uchar);
+	void STR2B(std::string& ip, UCHAR* uchar);
+	CString STR2CS(const std::string& string);
 	std::string B2IP(const unsigned char* binarySeq);
 	std::string B2MAC(const unsigned char* binarySeq);
 }
+
+void masking(const unsigned char ip[4], const unsigned char mask[4], unsigned char network[4]);
 
 #endif 

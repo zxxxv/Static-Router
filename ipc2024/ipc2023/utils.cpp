@@ -15,10 +15,32 @@ namespace RoutingEntry {
 }
 
 namespace Converter {
-	bool CS2B();
-	bool IP2B();
-	bool MAC2B();
-	bool B2CS(const unsigned char* input);
+	std::string CS2STR(const CString& cStr) {
+		return std::string(cStr.GetString());
+	}
+	void CS2B(CString& mac, UCHAR* uchar) {
+		const char* cstr = mac.GetString();
+		sscanf_s(mac, "%02x:%02x:%02x:%02x:%02x:%02x",
+				&uchar[0], &uchar[1], &uchar[2],
+				&uchar[3], &uchar[4], &uchar[5]);
+	}
+	void CS2B(CString& ip, UCHAR* uchar) {
+		const char* cstr = ip.GetString();
+		sscanf_s(ip, "%d.%d.%d.%d",
+			&uchar[0], &uchar[1], &uchar[2], &uchar[3]);
+	}
+	void STR2B(std::string& mac, UCHAR* uchar) {
+		sscanf_s(mac.c_str(), "%02x:%02x:%02x:%02x:%02x:%02x",
+			&uchar[0], &uchar[1], &uchar[2],
+			&uchar[3], &uchar[4], &uchar[5]);
+	}
+	void STR2B(std::string& ip, UCHAR* uchar) {
+		sscanf_s(ip.c_str(), "%d.%d.%d.%d",
+			&uchar[0], &uchar[1], &uchar[2], &uchar[3]);
+	}
+	CString STR2CS(const std::string& str) {
+		return CString(str.c_str());
+	}
 	std::string B2IP(const unsigned char* binarySeq) {
 		return std::to_string(binarySeq[0]) + "." +
 			std::to_string(binarySeq[1]) + "." +
@@ -36,4 +58,10 @@ namespace Converter {
 			binarySeq[5]);
 		return std::string(buffer);
 	}	
+}
+
+void masking(const unsigned char ip[4], const unsigned char mask[4], unsigned char network[4]) {
+	for (int i = 0; i < 4; ++i) {
+		network[i] = ip[i] & mask[i];
+	}
 }

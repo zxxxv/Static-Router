@@ -10,6 +10,7 @@ constexpr unsigned short MAX_FLAG_VALUE = 3;
 using namespace RoutingEntry;
 
 class RoutingList {
+
 public:
     static RoutingList& getInstance() {
         static RoutingList instance;
@@ -25,7 +26,9 @@ public:
     bool editEntry(int entryIndex, e_field field, const unsigned short srt);
     void printList();
     std::list<RoutingEntry::Fields> RoutingList::getAllEntries();
-
+    
+    Fields findEntry(const unsigned char* dst);
+    RoutingList();
 private:
     RoutingList() { initBuffEntry(); };
     ~RoutingList() = default;
@@ -35,6 +38,8 @@ private:
     std::list<RoutingEntry::Fields> m_list;
     Fields m_buffEnty;
 
-    std::optional<Fields> getNextEntry(std::list<Fields>::iterator currentIt);
+    std::optional<std::list<Fields>::iterator> getNextEntry(std::list<Fields>::iterator currentIt);
+	  bool isMatchingEntry(std::list<Fields>::iterator currentIt, const unsigned char* dst);
 
 };
+
