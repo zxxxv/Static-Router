@@ -58,7 +58,7 @@ bool RoutingList::isBuffEntry() {
 //	return true;
 //};
 
-bool RoutingList::setBuffEntry(const unsigned char* dst, const unsigned char* mask, const unsigned char* gate, e_flag flag, const unsigned short intf) {
+bool RoutingList::setBuffEntry(const unsigned char* dst, const unsigned char* mask, const unsigned char* gate, e_flag flag, const unsigned short intf, const unsigned short metr) {
 	if (dst == nullptr) return false;
 	if (mask == nullptr) return false;
 	if (gate == nullptr) return false;
@@ -67,6 +67,7 @@ bool RoutingList::setBuffEntry(const unsigned char* dst, const unsigned char* ma
 	memcpy(m_buffEnty.m_gateway, gate, 4);
 	m_buffEnty.m_flag = flag;
 	m_buffEnty.m_interfaceFlag = intf;
+	m_buffEnty.m_metric = metr;
 
 	return true;
 }
