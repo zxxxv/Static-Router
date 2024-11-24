@@ -7,6 +7,7 @@
 #include "ipc2023Dlg.h"
 #include "afxdialogex.h"
 #include "ProxyDialog.h"
+#include "RoutingDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -49,8 +50,6 @@ END_MESSAGE_MAP()
 
 // Cipc2023Dlg 대화 상자
 
-
-
 Cipc2023Dlg::Cipc2023Dlg(CWnd* pParent /*=nullptr*/) // Cipc2023Dlg의 생성자 구현
 	: CDialogEx(IDD_IPC2023_DIALOG, pParent)
 	, CBaseLayer("ChatDlg") // CBaseLayer의 생성자를 호출하여 ChatDlg라는 레이어를 생성한다.
@@ -81,6 +80,12 @@ void Cipc2023Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST_CTR, m_ListCtrl);
 	DDX_Control(pDX, IDC_LIST_CTR_P, m_ListCtrlP);
 	DDX_Control(pDX, IDC_LIST_CTR_RTABLE, m_ListCtrlR);
+	DDX_Text(pDX, IDC_EDIT_MAC1, m_iMacSrc);
+	DDX_Text(pDX, IDC_EDIT_MAC2, m_oMacSrc);
+	DDX_Control(pDX, IDC_COMBO_MAC1, m_comboBox1);
+	DDX_Control(pDX, IDC_COMBO_MAC2, m_comboBox2);
+	DDX_Control(pDX, IDC_IPADDRESS1, m_ip1);
+	DDX_Control(pDX, IDC_IPADDRESS2, m_ip2);
 }
 
 BEGIN_MESSAGE_MAP(Cipc2023Dlg, CDialogEx)
@@ -94,6 +99,10 @@ BEGIN_MESSAGE_MAP(Cipc2023Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_PROXY_TABLE, &Cipc2023Dlg::OnBnClickedProxyTable)
 	ON_BN_CLICKED(IDC_BUTTON_END, &Cipc2023Dlg::OnBnClickedButtonEnd)
 	ON_BN_CLICKED(IDC_BUTTON_START, &Cipc2023Dlg::OnBnClickedButtonStart)
+	ON_CBN_SELCHANGE(IDC_COMBO_MAC1, &Cipc2023Dlg::OnCbnSelchangeComboMac)
+	ON_CBN_SELCHANGE(IDC_COMBO_MAC2, &Cipc2023Dlg::OnCbnSelchangeComboMac2)
+	ON_BN_CLICKED(IDC_BUTTON_RADD, &Cipc2023Dlg::OnBnClickedButtonRadd)
+	ON_BN_CLICKED(IDC_BUTTON_RDELETE, &Cipc2023Dlg::OnBnClickedButtonRdelete)
 END_MESSAGE_MAP()
 
 
@@ -155,9 +164,9 @@ BOOL Cipc2023Dlg::OnInitDialog()
 	m_ListCtrlR.InsertColumn(0, _T("Destination"), LVCFMT_LEFT, rt.Width() + 180);
 	m_ListCtrlR.InsertColumn(1, _T("NetMask"), LVCFMT_LEFT, rt.Width() + 180);
 	m_ListCtrlR.InsertColumn(2, _T("GateWay"), LVCFMT_LEFT, rt.Width() + 180);
-	m_ListCtrlR.InsertColumn(3, _T("Flag"), LVCFMT_LEFT, rt.Width() + 90);
-	m_ListCtrlR.InsertColumn(4, _T("Interface"), LVCFMT_LEFT, rt.Width() + 180);
-	m_ListCtrlR.InsertColumn(5, _T("Metric"), LVCFMT_LEFT, rt.Width() + 110);
+	m_ListCtrlR.InsertColumn(3, _T("Flag"), LVCFMT_LEFT, rt.Width() + 50);
+	m_ListCtrlR.InsertColumn(4, _T("Interface"), LVCFMT_LEFT, rt.Width() + 190);
+	m_ListCtrlR.InsertColumn(5, _T("Metric"), LVCFMT_LEFT, rt.Width() + 70);
 
 	//GetDlgItem(IDC_BUTTON_IP_SEND)->EnableWindow(FALSE);
 
@@ -267,7 +276,7 @@ void Cipc2023Dlg::SetDlgState(int state)
 {
 	UpdateData(TRUE);
 
-	//CComboBox* pComboBox = (CComboBox*)GetDlgItem(IDC_COMBO);
+	CComboBox* pComboBox1 = (CComboBox*)GetDlgItem(IDC_COMBO_MAC1);
 
 	switch (state)
 	{
@@ -287,8 +296,8 @@ void Cipc2023Dlg::SetDlgState(int state)
 		for (int i = 0; i < NI_COUNT_NIC; ++i) {
 			pcap_if_t* tempAdater = m_NI->GetAdapterObject(i);
 			if (!tempAdater) continue;
-			//pComboBox->AddString(tempAdater->description);
-			//pComboBox->SetCurSel(0);
+			pComboBox1->AddString(tempAdater->description);
+			pComboBox1->SetCurSel(0);
 		}
 	}
 
@@ -315,17 +324,65 @@ void Cipc2023Dlg::UCHAR2Str(UCHAR* src, CString& dst)
 		src[3], src[4], src[5]);
 }
 
-void Cipc2023Dlg::OnCbnSelchangeCombo()
+void Cipc2023Dlg::OnCbnSelchangeComboMac()
 {
+	// 내부 어댑터 선택
 	UpdateData(TRUE);
-	m_index = m_comboBox.GetCurSel();
+	m_index = m_comboBox1.GetCurSel();
 	m_NI->SetAdapterIndex(m_index);
 	pcap_if_t* selectedAdapter = m_NI->GetAdapterObject(m_index);
 	CString selectedAdapterAdress = m_NI->GetNICardAddress(selectedAdapter->name);
-	m_unSrcMac = selectedAdapterAdress;
-	//CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_SRC);
-	//pSrcEdit->SetWindowTextA(m_unSrcMac);
+	m_iMacSrc = selectedAdapterAdress;
+	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC1);
+	pSrcEdit->SetWindowTextA(m_iMacSrc);
 	UpdateData(FALSE);
+}
+
+
+void Cipc2023Dlg::OnCbnSelchangeComboMac2()
+{
+	// 외부 어댑터 선택
+}
+
+void Cipc2023Dlg::UpdateRoutingTableListCtrl() // 라우팅 테이블 출력
+{
+	// 리스트 컨트롤 초기화
+	m_ListCtrlR.DeleteAllItems();
+
+	// 라우팅 테이블에서 모든 엔트리를 가져와 리스트 컨트롤에 추가
+	std::list<RoutingEntry::Fields> routingEntries = routingTable.getAllEntries();
+	int index = 0;
+	for (const auto& entry : routingEntries) {
+		CString strDestination, strNetmask, strGateway, strFlag, strInterface, strMetric;
+
+		strDestination.Format(_T("%d.%d.%d.%d"), entry.m_destination[0], entry.m_destination[1], entry.m_destination[2], entry.m_destination[3]);
+		strNetmask.Format(_T("%d.%d.%d.%d"), entry.m_subnetMask[0], entry.m_subnetMask[1], entry.m_subnetMask[2], entry.m_subnetMask[3]);
+		strGateway.Format(_T("%d.%d.%d.%d"), entry.m_gateway[0], entry.m_gateway[1], entry.m_gateway[2], entry.m_gateway[3]);
+		strFlag = GetFlagString(entry.m_flag);
+		strInterface = CString(m_NI->GetAdapterObject(entry.m_interfaceFlag)->description);
+		strMetric.Format(_T("%d"), entry.m_metric);
+
+		int nIndex = m_ListCtrlR.InsertItem(index++, strDestination);
+		m_ListCtrlR.SetItemText(nIndex, 1, strNetmask);
+		m_ListCtrlR.SetItemText(nIndex, 2, strGateway);
+		m_ListCtrlR.SetItemText(nIndex, 3, strFlag);
+		m_ListCtrlR.SetItemText(nIndex, 4, strInterface);
+		m_ListCtrlR.SetItemText(nIndex, 5, strMetric);
+	}
+}
+
+CString Cipc2023Dlg::GetFlagString(e_flag flag)
+{
+	switch (flag) {
+	case e_flag::none:
+		return _T("None");
+	case e_flag::up:
+		return _T("U");
+	case e_flag::gateway:
+		return _T("UG");
+	default:
+		return _T("");
+	}
 }
 
 void Cipc2023Dlg::OnBnClickedButtonDelete() // 삭제 버튼
@@ -349,7 +406,7 @@ void Cipc2023Dlg::OnBnClickedButtonDelete() // 삭제 버튼
 		m_ListCtrl.DeleteItem(idx);
 		// ARP 캐시 테이블에 있는 엔트리 제거하기
 		//m_ARP->onEntryTimeout(value);
-		m_ARP->removeEntry(value);
+		m_IP->removeEntry(value);
 		
 		//m_ARP->printCache();
 	}
@@ -383,10 +440,9 @@ void Cipc2023Dlg::UpdateListCtrlItem(const CString& ip, const CString& mac, cons
 	}
 }
 
-
 void Cipc2023Dlg::OnBnClickedArpTable()
 {
-	m_ARP->printCache();
+	m_IP->printCache();
 }
 
 void Cipc2023Dlg::TimeoutEntryDelete(const unsigned char* ip)
@@ -425,11 +481,9 @@ void Cipc2023Dlg::OnBnClickedProxyAdd() // 프록시 테이블 추가
 		unsigned char macBytes[6] = { 0 };
 		_stscanf_s(macAddress, _T("%hhx:%hhx:%hhx:%hhx:%hhx:%hhx"), &macBytes[0], &macBytes[1], &macBytes[2], &macBytes[3], &macBytes[4], &macBytes[5]);
 
-
 		proxyTable.AddEntry(deviceName, ipBytes, macBytes);
 	}
 }
-
 
 void Cipc2023Dlg::OnBnClickedProxyDelete() // 프록시 테이블 삭제
 {
@@ -463,11 +517,68 @@ void Cipc2023Dlg::OnBnClickedProxyTable()
 
 void Cipc2023Dlg::OnBnClickedButtonEnd()
 {
-	// 종료?
-}
+	// receive 쓰레드 종료
+	m_NI->StopPacketDriver();
 
+}
 
 void Cipc2023Dlg::OnBnClickedButtonStart()
 {
-	// GARP 보내야됨?
+	// GARP Send
+	INTERFACE interfaces[2];
+	
+	// 내부 인터페이스 IP 설정
+	unsigned char ip1[4];
+	m_ip1.GetAddress(ip1[0], ip1[1], ip1[2], ip1[3]); // 내부 IP 입력
+	memcpy(interfaces[0].ipAddr, ip1, sizeof(ip1));
+
+	// 외부 인터페이스 IP 설정
+	unsigned char ip2[4];
+	m_ip2.GetAddress(ip2[0], ip2[1], ip2[2], ip2[3]); // 외부 IP 입력
+	memcpy(interfaces[1].ipAddr, ip2, sizeof(ip2));
+
+	// MAC 주소 변환 및 설정
+	Str2UCHAR(m_iMacSrc, m_ucGaprSrcAddrArray);
+	memcpy(interfaces[0].macAddr, m_ucGaprSrcAddrArray, sizeof(interfaces[0].macAddr));
+	memcpy(interfaces[1].macAddr, m_ucGaprSrcAddrArray, sizeof(interfaces[1].macAddr));
+
+	// 내부 인터페이스에 대해 GARP 패킷 생성 및 전송
+	//m_IP->SetSenderMac(interfaces[0].macAddr);
+	//m_IP->createGarpPacket(interfaces[0].ipAddr);
+
+	// 외부 인터페이스에 대해 GARP 패킷 생성 및 전송
+	//m_IP->SetSenderMac(interfaces[1].macAddr);
+	//m_IP->createGarpPacket(interfaces[1].ipAddr);
+
+	// 내부 네트워크 어댑터 receive 쓰레드 시작
+	//m_NI->PacketStartDriver(0); // 내부 인터페이스에 대해 드라이버 시작
+
+	// 외부 네트워크 어댑터 receive 쓰레드 시작
+	//m_NI->PacketStartDriver(1); // 외부 인터페이스에 대해 드라이버 시작
+
+}
+
+void Cipc2023Dlg::OnBnClickedButtonRadd() // Routing Entry 추가
+{
+	RoutingDialog dlg(nullptr, m_NI->m_pAdapterList);
+	if (dlg.DoModal() == IDOK)
+	{
+		UpdateRoutingTableListCtrl();
+	}
+}
+
+void Cipc2023Dlg::OnBnClickedButtonRdelete() // Routing Entry 삭제
+{
+	POSITION posR;
+	posR = m_ListCtrlR.GetFirstSelectedItemPosition();
+	int idx = m_ListCtrlR.GetNextSelectedItem(posR);
+
+	if (idx != -1) {
+		// 라우팅 테이블에서 엔트리 삭제
+		if (!routingTable.deleteEntry(idx)) {
+			AfxMessageBox(_T("엔트리 삭제 실패"));
+		}
+		// 라우팅 테이블 리스트 컨트롤 업데이트
+		UpdateRoutingTableListCtrl();
+	}
 }

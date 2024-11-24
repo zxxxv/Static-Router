@@ -1,19 +1,19 @@
+#include "stdafx.h"
+#include "pch.h"
 #include "routingList.h"
-
-RoutingList::RoutingList() {
-	initBuffEntry();
-}
 
 void RoutingList::initBuffEntry() {
 	m_buffEnty.m_flag = e_flag::none;
 }
 
 bool RoutingList::isBuffEntry() {
-	if (m_buffEnty.m_flag == e_flag::none) return false;
-
+	if (m_buffEnty.m_flag == e_flag::none) {
+		AfxMessageBox("Error: Flag ì„¤ì • ì˜¤ë¥˜");
+		return false;
+	}
+	//AfxMessageBox("ìœ íš¨í•œ Buffer entry");
 	return true;
 }
-
 //bool RoutingList::setBuffEntry(e_field field, const unsigned char* binarySeq) {
 //	if (binarySeq == nullptr) return false;
 //
@@ -71,8 +71,8 @@ bool RoutingList::addEntry() {
 
 std::optional<std::list<Fields>::iterator> RoutingList::getNextEntry(std::list<Fields>::iterator currentIt) {
 	auto nextIt = std::next(currentIt);
-	if (nextIt != m_list.end()) return nextIt; // ´ÙÀ½ iterator ¹İÈ¯
-	else return std::nullopt; // ¸®½ºÆ®ÀÇ ³¡ÀÏ °æ¿ì nullptr ¹İÈ¯
+	if (nextIt != m_list.end()) return nextIt; // ë‹¤ìŒ iterator ë°˜í™˜
+	else return std::nullopt; // ë¦¬ìŠ¤íŠ¸ì˜ ëì¼ ê²½ìš° nullptr ë°˜í™˜
 }
 
 bool RoutingList::isMatchingEntry(std::list<Fields>::iterator currentIt, const unsigned char* dst)
@@ -83,23 +83,27 @@ bool RoutingList::isMatchingEntry(std::list<Fields>::iterator currentIt, const u
 	masking(dst, currentIt->m_subnetMask, network);
 
 	if (memcmp(currentIt->m_destination, network, 4)) return true;
-	// memcmp´Â °°À» ¶§ 0À» ¸®ÅÏ
+	// memcmpëŠ” ê°™ì„ ë•Œ 0ì„ ë¦¬í„´
 
 	return false;
 }
 
+std::list<RoutingEntry::Fields> RoutingList::getAllEntries() {
+    return m_list;
+}
+
 bool RoutingList::deleteEntry(int entryIndex) {
-	if (entryIndex >= m_list.size()) return false; // À¯È¿ÇÏÁö ¾ÊÀº ÀÎµ¦½ºÀÏ °æ¿ì
-	auto it = m_list.begin(); // ¸®½ºÆ®ÀÇ ½ÃÀÛ ¹İº¹ÀÚ
-	std::advance(it, entryIndex);  // index ¸¸Å­ ÀÌµ¿
-	m_list.erase(it);         // ÇØ´ç ¿ä¼Ò Á¦°Å
+	if (entryIndex >= m_list.size()) return false; // ìœ íš¨í•˜ì§€ ì•Šì€ ì¸ë±ìŠ¤ì¼ ê²½ìš°
+	auto it = m_list.begin(); // ë¦¬ìŠ¤íŠ¸ì˜ ì‹œì‘ ë°˜ë³µì
+	std::advance(it, entryIndex);  // index ë§Œí¼ ì´ë™
+	m_list.erase(it);         // í•´ë‹¹ ìš”ì†Œ ì œê±°
 	return true;
 };
 
 bool RoutingList::editEntry(int entryIndex, e_field field, const unsigned char* binarySeq) {
-	if (entryIndex >= m_list.size()) return false; // À¯È¿ÇÏÁö ¾ÊÀº ÀÎµ¦½ºÀÏ °æ¿ì
-	auto it = m_list.begin(); // ¸®½ºÆ®ÀÇ ½ÃÀÛ ¹İº¹ÀÚ
-	std::advance(it, entryIndex);  // index ¸¸Å­ ÀÌµ¿
+	if (entryIndex >= m_list.size()) return false; // ìœ íš¨í•˜ì§€ ì•Šì€ ì¸ë±ìŠ¤ì¼ ê²½ìš°
+	auto it = m_list.begin(); // ë¦¬ìŠ¤íŠ¸ì˜ ì‹œì‘ ë°˜ë³µì
+	std::advance(it, entryIndex);  // index ë§Œí¼ ì´ë™
 
 	if (binarySeq == nullptr) return false;
 
@@ -121,9 +125,9 @@ bool RoutingList::editEntry(int entryIndex, e_field field, const unsigned char* 
 };
 
 bool RoutingList::editEntry(int entryIndex, e_field field, const unsigned short srt) {
-	if (entryIndex >= m_list.size()) return false; // À¯È¿ÇÏÁö ¾ÊÀº ÀÎµ¦½ºÀÏ °æ¿ì
-	auto it = m_list.begin(); // ¸®½ºÆ®ÀÇ ½ÃÀÛ ¹İº¹ÀÚ
-	std::advance(it, entryIndex);  // index ¸¸Å­ ÀÌµ¿
+	if (entryIndex >= m_list.size()) return false; // ìœ íš¨í•˜ì§€ ì•Šì€ ì¸ë±ìŠ¤ì¼ ê²½ìš°
+	auto it = m_list.begin(); // ë¦¬ìŠ¤íŠ¸ì˜ ì‹œì‘ ë°˜ë³µì
+	std::advance(it, entryIndex);  // index ë§Œí¼ ì´ë™
 
 	switch (field) {
 	case e_field::flag:
@@ -143,24 +147,24 @@ bool RoutingList::editEntry(int entryIndex, e_field field, const unsigned short 
 Fields RoutingList::findEntry(const unsigned char* dst)
 {
 	std::list<Fields>::iterator it = m_list.begin();
-	// ¸Â´Â ¿£Æ®¸® À§Ä¡ Ã£±â
+	// ë§ëŠ” ì—”íŠ¸ë¦¬ ìœ„ì¹˜ ì°¾ê¸°
 	while (it != m_list.end()) {
 		if (isMatchingEntry(it, dst)) {
-			// ip°¡ ÇöÀç ¿£Æ®¸®¿Í ¸ÅÄªµÈ °æ¿ì. iterator°¡ ÇöÀç ¿£Æ®¸®¸¦ °¡¸®Å²´Ù.
+			// ipê°€ í˜„ì¬ ì—”íŠ¸ë¦¬ì™€ ë§¤ì¹­ëœ ê²½ìš°. iteratorê°€ í˜„ì¬ ì—”íŠ¸ë¦¬ë¥¼ ê°€ë¦¬í‚¨ë‹¤.
 			break;
 		}
 		else {
 			auto nextIt = getNextEntry(it);
-			// ÇöÀç ¿£Æ®¸®¿¡¼­ Å½»ö ½ÇÆĞ ½Ã ´ÙÀ½ ¿£Æ®¸®·Î ÀÌµ¿.
-			// getNextEntry´Â ´ÙÀ½ ¿£Æ®¸®°¡ Á¸ÀçÇÒ ¶§, NextIt¸¦ ¹İÈ¯ / ¾øÀ» ¶§, nullptrÀ» ¹İÈ¯ÇÑ´Ù.
+			// í˜„ì¬ ì—”íŠ¸ë¦¬ì—ì„œ íƒìƒ‰ ì‹¤íŒ¨ ì‹œ ë‹¤ìŒ ì—”íŠ¸ë¦¬ë¡œ ì´ë™.
+			// getNextEntryëŠ” ë‹¤ìŒ ì—”íŠ¸ë¦¬ê°€ ì¡´ì¬í•  ë•Œ, NextItë¥¼ ë°˜í™˜ / ì—†ì„ ë•Œ, nullptrì„ ë°˜í™˜í•œë‹¤.
 			if (!nextIt) return m_buffEnty;
-			// nextIt°¡ nullptrÀÌ¸é(´ÙÀ½ ¿£Æ®¸®°¡ Á¸ÀçÇÏÁö ¾ÊÀ» ¶§) m_buffEnty¸¦ ¹İÈ¯ÇÑ´Ù.(e_flag°¡ noneÀÎ entry)
+			// nextItê°€ nullptrì´ë©´(ë‹¤ìŒ ì—”íŠ¸ë¦¬ê°€ ì¡´ì¬í•˜ì§€ ì•Šì„ ë•Œ) m_buffEntyë¥¼ ë°˜í™˜í•œë‹¤.(e_flagê°€ noneì¸ entry)
 			else it = *nextIt;
-			// nextIt°¡ nullptrÀÌ ¾Æ´Ï¸é, ´ÙÀ½ ¿£Æ®¸®°¡ Á¸ÀçÇÑ´Ù´Â ÀÇ¹ÌÀÌ¸ç, NextIt¿¡ ´ëÇØ while¹®À» ¹İº¹ÇÑ´Ù.
+			// nextItê°€ nullptrì´ ì•„ë‹ˆë©´, ë‹¤ìŒ ì—”íŠ¸ë¦¬ê°€ ì¡´ì¬í•œë‹¤ëŠ” ì˜ë¯¸ì´ë©°, NextItì— ëŒ€í•´ whileë¬¸ì„ ë°˜ë³µí•œë‹¤.
 		}
 	}
 
-	// ÇöÀç ¿£Æ®¸®¸¦ ¹İÈ¯ÇÑ´Ù.
+	// í˜„ì¬ ì—”íŠ¸ë¦¬ë¥¼ ë°˜í™˜í•œë‹¤.
 	return *it;
 }
 

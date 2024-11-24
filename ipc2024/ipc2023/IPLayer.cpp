@@ -74,7 +74,7 @@ void CIPLayer::createRequestPacket() {
     }
 }
 
-void CIPLayer::createGarpPacket(unsigned char* mac) {
+BOOL CIPLayer::createGarpPacket(unsigned char* mac) {
     // ARP Header
     // Source IP		: Sender's
     // Destination IP	: Sender's
@@ -96,6 +96,8 @@ void CIPLayer::createGarpPacket(unsigned char* mac) {
     memcpy(arpHeader.target_mac, broadcast_mac, 6);
 
     createPacket(0x0001);
+
+    return TRUE;
 }
 
 void CIPLayer::createReplyPacket(unsigned char* payload_data) {
