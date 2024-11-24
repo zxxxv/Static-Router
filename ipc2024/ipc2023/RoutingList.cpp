@@ -69,10 +69,23 @@ bool RoutingList::addEntry() {
 	return true;
 };
 
-std::optional<Fields> RoutingList::getNextEntry(std::list<Fields>::iterator currentIt) {
+std::optional<std::list<Fields>::iterator> RoutingList::getNextEntry(std::list<Fields>::iterator currentIt) {
 	auto nextIt = std::next(currentIt);
-	if (nextIt != m_list.end()) return *nextIt; // 다음 요소 반환
-	else return std::nullopt; // 리스트의 끝일 경우
+	if (nextIt != m_list.end()) return nextIt; // 다음 iterator 반환
+	else return std::nullopt; // 리스트의 끝일 경우 nullptr 반환
+}
+
+bool RoutingList::isMatchingEntry(std::list<Fields>::iterator currentIt, const unsigned char* dst)
+{	
+	if (!dst) return false;
+
+	unsigned char network[4];
+	masking(dst, currentIt->m_subnetMask, network);
+
+	if (memcmp(currentIt->m_destination, network, 4)) return true;
+	// memcmp는 같을 때 0을 리턴
+
+	return false;
 }
 
 bool RoutingList::deleteEntry(int entryIndex) {
@@ -125,7 +138,31 @@ bool RoutingList::editEntry(int entryIndex, e_field field, const unsigned short 
 	}
 
 	return true;
-};
+}
+
+Fields RoutingList::findEntry(const unsigned char* dst)
+{
+	std::list<Fields>::iterator it = m_list.begin();
+	// 맞는 엔트리 위치 찾기
+	while (it != m_list.end()) {
+		if (isMatchingEntry(it, dst)) {
+			// ip가 현재 엔트리와 매칭된 경우. iterator가 현재 엔트리를 가리킨다.
+			break;
+		}
+		else {
+			auto nextIt = getNextEntry(it);
+			// 현재 엔트리에서 탐색 실패 시 다음 엔트리로 이동.
+			// getNextEntry는 다음 엔트리가 존재할 때, NextIt를 반환 / 없을 때, nullptr을 반환한다.
+			if (!nextIt) return m_buffEnty;
+			// nextIt가 nullptr이면(다음 엔트리가 존재하지 않을 때) m_buffEnty를 반환한다.(e_flag가 none인 entry)
+			else it = *nextIt;
+			// nextIt가 nullptr이 아니면, 다음 엔트리가 존재한다는 의미이며, NextIt에 대해 while문을 반복한다.
+		}
+	}
+
+	// 현재 엔트리를 반환한다.
+	return *it;
+}
 
 void RoutingList::printList() {
 	for (const auto& it : m_list) {

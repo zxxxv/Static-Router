@@ -17,7 +17,8 @@ private:
 	프로젝트 -> 속성 -> C/C++ -> 언어 -> C++ Language Standard 에서 변경
 	optional을 사용하지 않으면 반환 값을 nullptr로 설정할 수 없음.
 	*/
-	std::optional<Fields> getNextEntry(std::list<Fields>::iterator currentIt);
+	std::optional<std::list<Fields>::iterator> getNextEntry(std::list<Fields>::iterator currentIt);
+	bool isMatchingEntry(std::list<Fields>::iterator currentIt, const unsigned char* dst);
 public:
 	RoutingList();
 	void initBuffEntry();
@@ -29,5 +30,6 @@ public:
 	bool deleteEntry(int entryIndex);
 	bool editEntry(int entryIndex, e_field field, const unsigned char* input);
 	bool editEntry(int entryIndex, e_field field, const unsigned short srt);
+	Fields findEntry(const unsigned char* dst);
 	void printList();
 };

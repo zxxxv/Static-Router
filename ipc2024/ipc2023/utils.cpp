@@ -57,3 +57,9 @@ namespace Converter {
 		return std::string(buffer);
 	}	
 }
+
+void masking(const unsigned char ip[4], const unsigned char mask[4], unsigned char network[4]) {
+	for (int i = 0; i < 4; ++i) {
+		network[i] = ip[i] & mask[i];
+	}
+}

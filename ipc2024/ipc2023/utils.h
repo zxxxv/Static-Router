@@ -45,4 +45,6 @@ namespace Converter {
 	std::string B2MAC(const unsigned char* binarySeq);
 }
 
+void masking(const unsigned char ip[4], const unsigned char mask[4], unsigned char network[4]);
+
 #endif 
