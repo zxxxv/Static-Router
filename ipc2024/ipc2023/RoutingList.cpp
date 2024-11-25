@@ -82,7 +82,7 @@ bool RoutingList::isMatchingEntry(std::list<Fields>::iterator currentIt, const u
 	unsigned char network[4];
 	masking(dst, currentIt->m_subnetMask, network);
 
-	if (memcmp(currentIt->m_destination, network, 4)) return true;
+	if (!memcmp(currentIt->m_destination, network, 4)) return true;
 	// memcmp는 같을 때 0을 리턴
 
 	return false;
@@ -148,7 +148,7 @@ Fields RoutingList::findEntry(const unsigned char* dst)
 {
 	std::list<Fields>::iterator it = m_list.begin();
 	// 맞는 엔트리 위치 찾기
-	while (it != m_list.end()) {
+	while (true) {
 		if (isMatchingEntry(it, dst)) {
 			// ip가 현재 엔트리와 매칭된 경우. iterator가 현재 엔트리를 가리킨다.
 			break;

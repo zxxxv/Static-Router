@@ -8,6 +8,7 @@
 #include "afxdialogex.h"
 #include "ProxyDialog.h"
 #include "RoutingDialog.h"
+#include "utils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -361,6 +362,14 @@ void Cipc2023Dlg::UpdateRoutingTableListCtrl() // 라우팅 테이블 출력
 		strFlag = GetFlagString(entry.m_flag);
 		strInterface = CString(m_NI->GetAdapterObject(entry.m_interfaceFlag)->description);
 		strMetric.Format(_T("%d"), entry.m_metric);
+
+		
+		/*
+		strDestination = Converter::B2CS_IP(entry.m_destination);
+		strNetmask = Converter::B2CS_IP(entry.m_subnetMask);
+		strGateway = Converter::B2CS_IP(entry.m_gateway);
+		*/
+		
 
 		int nIndex = m_ListCtrlR.InsertItem(index++, strDestination);
 		m_ListCtrlR.SetItemText(nIndex, 1, strNetmask);

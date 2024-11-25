@@ -37,14 +37,17 @@ namespace RoutingEntry {
 }
 
 namespace Converter {
+	// B는 unsigned char 배열을 의미.(초기에 이름을 잘못 고름)
+	CString B2CS_IP(const unsigned char* binarySeq);
+	CString B2CS_MAC(const unsigned char* binarySeq);
 	std::string CS2STR(const CString& Cstr);
 	void CS2B(CString& mac, UCHAR* uchar);
 	void CS2B(CString& ip, UCHAR* uchar);
 	void STR2B(std::string& mac, UCHAR* uchar);
 	void STR2B(std::string& ip, UCHAR* uchar);
 	CString STR2CS(const std::string& string);
-	std::string B2IP(const unsigned char* binarySeq);
-	std::string B2MAC(const unsigned char* binarySeq);
+	std::string B2STR_IP(const unsigned char* binarySeq);
+	std::string B2STR_MAC(const unsigned char* binarySeq);
 }
 
 void masking(const unsigned char ip[4], const unsigned char mask[4], unsigned char network[4]);

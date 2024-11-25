@@ -15,6 +15,20 @@ namespace RoutingEntry {
 }
 
 namespace Converter {
+	CString B2CS_IP(const unsigned char* binarySeq)
+	{
+		CString result;
+		result.Format(_T("%d.%d.%d.%d"), binarySeq[0], binarySeq[1], binarySeq[2], binarySeq[3]);
+		return result;
+	}
+	CString B2CS_MAC(const unsigned char* binarySeq)
+	{
+		CString result;
+		result.Format(_T("%02x:%02x:%02x:%02x:%02x:%02x"), 
+			binarySeq[0], binarySeq[1], binarySeq[2], 
+			binarySeq[3], binarySeq[4], binarySeq[5]);
+		return result;
+	}
 	std::string CS2STR(const CString& cStr) {
 		return std::string(cStr.GetString());
 	}
@@ -41,21 +55,17 @@ namespace Converter {
 	CString STR2CS(const std::string& str) {
 		return CString(str.c_str());
 	}
-	std::string B2IP(const unsigned char* binarySeq) {
+	std::string B2STR_IP(const unsigned char* binarySeq) {
 		return std::to_string(binarySeq[0]) + "." +
 			std::to_string(binarySeq[1]) + "." +
 			std::to_string(binarySeq[2]) + "." +
 			std::to_string(binarySeq[3]);
 	}
-	std::string B2MAC(const unsigned char* binarySeq) {
+	std::string B2STR_MAC(const unsigned char* binarySeq) {
 		char buffer[6];
 		sprintf_s(buffer, "%02X:%02X:%02X:%02X:%02X:%02X",
-			binarySeq[0],
-			binarySeq[1],
-			binarySeq[2],
-			binarySeq[3],
-			binarySeq[4],
-			binarySeq[5]);
+			binarySeq[0], binarySeq[1], binarySeq[2],
+			binarySeq[3], binarySeq[4], binarySeq[5]);
 		return std::string(buffer);
 	}	
 }
