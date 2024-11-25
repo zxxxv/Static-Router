@@ -48,6 +48,10 @@
 #define FILE_HEADER_SIZE 26				// Changed to represent File Layer header size correctly as 12 bytes
 #define FILE_LAYER_IDENTIFIER 0x2090	// Identifier for Ethernet layer to distinguish File Layer packets
 
+
+#define INNER					0
+#define OUTER					1
+
 //#define ARP_HEADER_SIZE 28
 
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

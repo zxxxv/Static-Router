@@ -17,12 +17,13 @@ static char THIS_FILE[] = __FILE__;
 CEthernetLayer::CEthernetLayer(char* pName)
     : CBaseLayer(pName)
 {
-    ResetHeader(0);
-    ResetHeader(1);
+    ResetHeader(INNER);
+    ResetHeader(OUTER);
 }
 
 CEthernetLayer::~CEthernetLayer()
 {
+
 }
 
 // 24.10.06 memset(m_sHeader.enet_data, ETHER_MAX_DATA_SIZE, 6) ¼öÁ¤

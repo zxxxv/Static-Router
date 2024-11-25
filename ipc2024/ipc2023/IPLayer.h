@@ -17,10 +17,10 @@ public:
     virtual ~CIPLayer();
 
     // ARP 요청 패킷 생성 함수
-    void createRequestPacket(int index);
+    void createRequestPacket(int index, int io);
 
     // ARP 응답 패킷 생성 함수
-    void createReplyPacket(unsigned char* payload_data, int index);
+    void createReplyPacket(unsigned char* payload_data, int io);
 
     // ARP 패킷을 전송하는 함수
     BOOL Send(unsigned char* ppayload, int nlength);
@@ -28,9 +28,9 @@ public:
     // 수신한 ARP 패킷을 처리하는 함수
     BOOL Receive(unsigned char* payload_data, int index);
 
-    void createPacket(unsigned short op_code);
+    void createPacket(unsigned short op_code, int io);
 
-    BOOL SetEthernetDest(unsigned char* target_mac);
+    BOOL SetEthernetDest(unsigned char* target_mac, int io);
 
     //dlg에서 나의 맥, 아이피
     void CIPLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* ipAddr1, unsigned char* macAddr2, unsigned char* ipAddr2);
@@ -47,7 +47,7 @@ public:
         - binary ip 주소, 각 entry의 OnTimer 함수 내에서 입력된다.
     */
 
-    BOOL CIPLayer::createGarpPacket(int index);
+    BOOL CIPLayer::createGarpPacket(int io);
 
 
     //unsigned char sender_mac[6];  // MAC 주소를 저장하는 변수
@@ -75,14 +75,14 @@ public:
         unsigned char   target_ip[4];      // target protocol address (4 bytes)
     } ARP_HEADER, * PARP_HEADER;
 private:
-    void ResetARPHeader();
+    void ResetARPHeader(int io);
     INTERFACE_CARD interfaces[2];
 
 #define ARP_HEADER_SIZE 28
 #define ARP_LAYER_IDENTIFIER 0x0806
 
 protected:
-    ARP_HEADER   arpHeader;   /// 객체 ARP 해더
+    ARP_HEADER   arpHeader[2];   /// 객체 ARP 해더
 
     std::unordered_map<std::string, ARPCacheEntry*> cache;
 };
