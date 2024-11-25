@@ -150,12 +150,14 @@ BOOL CNILayer::Send(unsigned char* payload_data, int payload_data_len)
     }
     return TRUE;
 }
+
 //순서 6번
 /*
 패킷을 수신하여 상위 레이어로 전달하는 함수입니다.
 이 함수는 수신된 패킷을 상위 레이어로 전달합니다.
  mp_aUpperLayer[0]->Receive()를 호출하여 패킷 데이터를 상위 레이어로 전달하는 기능을 수행합니다.
  */
+
 BOOL CNILayer::Receive(unsigned char* payload_data)
 {
     BOOL bSuccess = FALSE;
@@ -171,7 +173,6 @@ BOOL CNILayer::Receive(unsigned char* payload_data)
 멀티스레드를 사용해 패킷 수신 작업이 비동기적으로 처리되므로,
 네트워크에서 패킷이 도착할 때마다 처리할 수 있습니다.
 */
-
 
 UINT CNILayer::ReadingThread(LPVOID pParam)
 {
@@ -224,7 +225,7 @@ CNILayer의 멤버변수 m_iNumAdapter을 활용하여 선택한 어댑터에 대한 핸들러를 얻습�
 이를 멤버변수에 저장합니다.
 */
 
-BOOL CNILayer::PacketStartDriver(int index)
+void CNILayer::PacketStartDriver(int index)
 {
     char errbuf[PCAP_ERRBUF_SIZE];
 
@@ -247,7 +248,6 @@ BOOL CNILayer::PacketStartDriver(int index)
 
     m_thrdSwitch = TRUE; //패킷 수신 스레드 활성화
     AfxBeginThread(ReadingThread, this); //패킷을 수신하는 스레드 시작
-    return TRUE;
 }
 
 //BOOL CNILayer::PacketStartDriver(int index)

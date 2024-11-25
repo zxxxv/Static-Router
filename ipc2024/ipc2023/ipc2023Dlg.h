@@ -87,9 +87,8 @@ public:
 	CString m_iMacSrc;
 	CString m_oMacSrc;
 	UCHAR m_ucSrcAddrArray[6];
-	UCHAR m_ucGaprSrcAddrArray[6];
 	UCHAR m_ucDstAddrArray[6];
-	UCHAR m_unused[100];
+	//UCHAR m_unused[100];
 	ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
 	RoutingList& routingTable = RoutingList::getInstance();
 	int m_index;
@@ -116,10 +115,10 @@ public:
 	CIPAddressCtrl m_ip2;
 	afx_msg void OnBnClickedButtonRdelete();
 
-	typedef struct _INTERFACE {
+	typedef struct _INTERFACE_CARD {
 		
 		unsigned char macAddr[6];
 		unsigned char ipAddr[4];
 
-	} INTERFACE;
+	} INTERFACE_CARD;
 };

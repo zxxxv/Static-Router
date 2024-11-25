@@ -25,7 +25,7 @@ public:
 	BOOL			m_thrdSwitch;
 	unsigned char* m_ppayload;
 
-	BOOL			PacketStartDriver(int index);
+	void			PacketStartDriver(int index);
 	BOOL			StopPacketDriver();
 
 	pcap_if_t*      GetAdapterObject(int iIndex);
@@ -42,8 +42,7 @@ public:
 	CNILayer(char* pName, pcap_t* pAdapterObject = NULL, int iNumAdapter = 0);
 	virtual ~CNILayer();
 
-	//
-	pcap_if_t* m_pAdapterList[NI_COUNT_NIC];//
+	pcap_if_t* m_pAdapterList[NI_COUNT_NIC];
 
 protected:
 	int			m_iNumAdapter;

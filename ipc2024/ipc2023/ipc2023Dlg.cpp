@@ -525,7 +525,7 @@ void Cipc2023Dlg::OnBnClickedButtonEnd()
 void Cipc2023Dlg::OnBnClickedButtonStart()
 {
 	// GARP Send
-	INTERFACE interfaces[2];
+	INTERFACE_CARD interfaces[2];
 	
 	// 내부 인터페이스 IP 설정
 	unsigned char ip1[4];
@@ -538,24 +538,26 @@ void Cipc2023Dlg::OnBnClickedButtonStart()
 	memcpy(interfaces[1].ipAddr, ip2, sizeof(ip2));
 
 	// MAC 주소 변환 및 설정
-	Str2UCHAR(m_iMacSrc, m_ucGaprSrcAddrArray);
-	memcpy(interfaces[0].macAddr, m_ucGaprSrcAddrArray, sizeof(interfaces[0].macAddr));
-	memcpy(interfaces[1].macAddr, m_ucGaprSrcAddrArray, sizeof(interfaces[1].macAddr));
+	unsigned char inner[6];
+	unsigned char outer[6];
+	Str2UCHAR(m_iMacSrc, inner);
+	Str2UCHAR(m_oMacSrc, outer);
+	memcpy(interfaces[0].macAddr, inner, sizeof(interfaces[0].macAddr));
+	memcpy(interfaces[1].macAddr, outer, sizeof(interfaces[1].macAddr));
 
-	// 내부 인터페이스에 대해 GARP 패킷 생성 및 전송
-	//m_IP->SetSenderMac(interfaces[0].macAddr);
-	//m_IP->createGarpPacket(interfaces[0].ipAddr);
-
-	// 외부 인터페이스에 대해 GARP 패킷 생성 및 전송
-	//m_IP->SetSenderMac(interfaces[1].macAddr);
-	//m_IP->createGarpPacket(interfaces[1].ipAddr);
+	m_IP->SetInterfaceInfo(interfaces[0].macAddr, interfaces[0].ipAddr, interfaces[1].macAddr, interfaces[1].ipAddr);
 
 	// 내부 네트워크 어댑터 receive 쓰레드 시작
-	//m_NI->PacketStartDriver(0); // 내부 인터페이스에 대해 드라이버 시작
+	m_NI->PacketStartDriver(0); // 내부 인터페이스 드라이버 시작
 
 	// 외부 네트워크 어댑터 receive 쓰레드 시작
-	//m_NI->PacketStartDriver(1); // 외부 인터페이스에 대해 드라이버 시작
+	//m_NI->PacketStartDriver(1); // 외부 인터페이스 드라이버 시작
 
+	// 내부 인터페이스에 대해 GARP 패킷 생성 및 전송
+	m_IP->createGarpPacket(0);
+
+	// 외부 인터페이스에 대해 GARP 패킷 생성 및 전송
+	//m_IP->createGarpPacket(1);
 }
 
 void Cipc2023Dlg::OnBnClickedButtonRadd() // Routing Entry 추가

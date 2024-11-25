@@ -28,7 +28,7 @@ public:
     std::list<RoutingEntry::Fields> RoutingList::getAllEntries();
     
     Fields findEntry(const unsigned char* dst);
-    RoutingList();
+
 private:
     RoutingList() { initBuffEntry(); };
     ~RoutingList() = default;
@@ -39,7 +39,7 @@ private:
     Fields m_buffEnty;
 
     std::optional<std::list<Fields>::iterator> getNextEntry(std::list<Fields>::iterator currentIt);
-	  bool isMatchingEntry(std::list<Fields>::iterator currentIt, const unsigned char* dst);
+	bool isMatchingEntry(std::list<Fields>::iterator currentIt, const unsigned char* dst);
 
 };
 

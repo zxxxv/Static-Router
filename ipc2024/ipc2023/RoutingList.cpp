@@ -14,39 +14,6 @@ bool RoutingList::isBuffEntry() {
 	//AfxMessageBox("유효한 Buffer entry");
 	return true;
 }
-//bool RoutingList::setBuffEntry(e_field field, const unsigned char* binarySeq) {
-//	if (binarySeq == nullptr) return false;
-//
-//	switch (field) {
-//	case e_field::dst:
-//		memcpy(m_buffEnty.m_destination, binarySeq, 4);
-//		break;
-//	case e_field::mask:
-//		memcpy(m_buffEnty.m_subnetMask, binarySeq, 4);
-//		break;
-//	case e_field::gate:
-//		memcpy(m_buffEnty.m_gateway, binarySeq, 4);
-//		break;
-//	default:
-//		return false;
-//	}
-//	return true;
-//};
-//
-//bool RoutingList::setBuffEntry(e_field field, const unsigned short srt) {
-//	switch (field) {
-//	case e_field::flag:
-//		if (srt > MAX_FLAG_VALUE) return false;
-//		m_buffEnty.m_flag = static_cast<e_flag> (srt);
-//		break;
-//	case e_field::intf:
-//		m_buffEnty.m_interfaceFlag = srt;
-//		break;
-//	default:
-//		return false;
-//	}
-//	return true;
-//};
 
 bool RoutingList::setBuffEntry(const unsigned char* dst, const unsigned char* mask, const unsigned char* gate, e_flag flag, const unsigned short intf, const unsigned short metr) {
 	if (dst == nullptr) return false;

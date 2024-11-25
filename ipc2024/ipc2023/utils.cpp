@@ -18,23 +18,23 @@ namespace Converter {
 	std::string CS2STR(const CString& cStr) {
 		return std::string(cStr.GetString());
 	}
-	void CS2B(CString& mac, UCHAR* uchar) {
+	void macCS2B(CString& mac, UCHAR* uchar) {
 		const char* cstr = mac.GetString();
-		sscanf_s(mac, "%02x:%02x:%02x:%02x:%02x:%02x",
+		sscanf_s(cstr, "%02x:%02x:%02x:%02x:%02x:%02x",
 				&uchar[0], &uchar[1], &uchar[2],
 				&uchar[3], &uchar[4], &uchar[5]);
 	}
-	void CS2B(CString& ip, UCHAR* uchar) {
+	void ipCS2B(CString& ip, UCHAR* uchar) {
 		const char* cstr = ip.GetString();
-		sscanf_s(ip, "%d.%d.%d.%d",
+		sscanf_s(cstr, "%d.%d.%d.%d",
 			&uchar[0], &uchar[1], &uchar[2], &uchar[3]);
 	}
-	void STR2B(std::string& mac, UCHAR* uchar) {
+	void macSTR2B(std::string& mac, UCHAR* uchar) {
 		sscanf_s(mac.c_str(), "%02x:%02x:%02x:%02x:%02x:%02x",
 			&uchar[0], &uchar[1], &uchar[2],
 			&uchar[3], &uchar[4], &uchar[5]);
 	}
-	void STR2B(std::string& ip, UCHAR* uchar) {
+	void ipSTR2B(std::string& ip, UCHAR* uchar) {
 		sscanf_s(ip.c_str(), "%d.%d.%d.%d",
 			&uchar[0], &uchar[1], &uchar[2], &uchar[3]);
 	}

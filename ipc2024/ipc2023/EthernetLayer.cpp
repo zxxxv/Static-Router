@@ -17,7 +17,8 @@ static char THIS_FILE[] = __FILE__;
 CEthernetLayer::CEthernetLayer(char* pName)
     : CBaseLayer(pName)
 {
-    ResetHeader();
+    ResetHeader(0);
+    ResetHeader(1);
 }
 
 CEthernetLayer::~CEthernetLayer()
@@ -25,33 +26,33 @@ CEthernetLayer::~CEthernetLayer()
 }
 
 // 24.10.06 memset(m_sHeader.enet_data, ETHER_MAX_DATA_SIZE, 6) 수정
-void CEthernetLayer::ResetHeader()
+void CEthernetLayer::ResetHeader(int io)
 {
     // 이더넷 목적지 주소, 나의 주소, 타입, Data를 초기화함
-    memset(m_sHeader.enet_dstaddr, 0, 6);
-    memset(m_sHeader.enet_srcaddr, 0, 6);
-    memset(m_sHeader.enet_data, 0, ETHER_MAX_DATA_SIZE);
-    m_sHeader.enet_type = 0;
+    memset(m_sHeader[io].enet_dstaddr, 0, 6);
+    memset(m_sHeader[io].enet_srcaddr, 0, 6);
+    memset(m_sHeader[io].enet_data, 0, ETHER_MAX_DATA_SIZE);
+    m_sHeader[io].enet_type = 0;
 }
 
-void CEthernetLayer::SetSourceAddress(unsigned char* pAddress)
+void CEthernetLayer::SetSourceAddress(unsigned char* pAddress, int io)
 {
     // 받은 나의 주소를 이더넷 source 주소로 설정
-    memcpy(m_sHeader.enet_srcaddr, pAddress, 6);
+    memcpy(m_sHeader[io].enet_srcaddr, pAddress, 6);
 }
 
-void CEthernetLayer::SetDestinAddress(unsigned char* pAddress)
+void CEthernetLayer::SetDestinAddress(unsigned char* pAddress, int io)
 {
     // 받은 목적지 주소를 이더넷 destination 주소로 설정
-    memcpy(m_sHeader.enet_dstaddr, pAddress, 6);
+    memcpy(m_sHeader[io].enet_dstaddr, pAddress, 6);
 }
 
 // 24.09.29 unsigned short type 으로 받아서 enet_type 추가
-BOOL CEthernetLayer::Send(unsigned char* payload_data, int payload_data_len, unsigned short type)
+BOOL CEthernetLayer::Send(unsigned char* payload_data, int payload_data_len, unsigned short type, int io)
 {
     // ChatApp 계층에서 받은 App 계층의 Frame 길이만큼 Ethernet계층의 data로 넣는다
-    memcpy(m_sHeader.enet_data, payload_data, payload_data_len);
-    m_sHeader.enet_type = TO_BIG_ENDIAN_16(type);
+    memcpy(m_sHeader[io].enet_data, payload_data, payload_data_len);
+    m_sHeader[io].enet_type = TO_BIG_ENDIAN_16(type);
     //m_sHeader.enet_type = type;
     BOOL bSuccess = FALSE;
 
@@ -62,7 +63,7 @@ BOOL CEthernetLayer::Send(unsigned char* payload_data, int payload_data_len, uns
 }
 
 // 24.09.29 enet_type 확인 후 fileTrans 혹은 chatApp으로 보냄/ chatApp: 0x2080, fileTrans: 0x2090
-BOOL CEthernetLayer::Receive(unsigned char* payload_data)
+BOOL CEthernetLayer::Receive(unsigned char* payload_data, int io)
 {
     // payload_data를 이더넷 헤더 구조체로 넣는다
     PETHERNET_HEADER pFrame = (PETHERNET_HEADER)payload_data;
@@ -71,11 +72,11 @@ BOOL CEthernetLayer::Receive(unsigned char* payload_data)
     unsigned char broadcastAddr[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
     // 목적지 주소가 나의 주소가 아니면서, 브로드 캐스트가 아니면 무시
-    if (memcmp(pFrame->enet_dstaddr, m_sHeader.enet_srcaddr, 6) != 0 &&
+    if (memcmp(pFrame->enet_dstaddr, m_sHeader[io].enet_srcaddr, 6) != 0 &&
         memcmp(pFrame->enet_dstaddr, broadcastAddr, 6) != 0)
         return FALSE;
     // 내가 보낸 값이 나에게 온건지
-    if (memcmp(pFrame->enet_srcaddr, m_sHeader.enet_srcaddr, 6) == 0)
+    if (memcmp(pFrame->enet_srcaddr, m_sHeader[io].enet_srcaddr, 6) == 0)
         return FALSE;
     
     unsigned short type = TO_BIG_ENDIAN_16(pFrame->enet_type);
