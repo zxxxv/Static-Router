@@ -70,22 +70,31 @@ BOOL CEthernetLayer::Receive(unsigned char* payload_data, int io)
     PETHERNET_HEADER pFrame = (PETHERNET_HEADER)payload_data;
 
     BOOL bSuccess = FALSE;
-    unsigned char broadcastAddr[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
+    
     // 목적지 주소가 나의 주소가 아니면서, 브로드 캐스트가 아니면 무시
     if (memcmp(pFrame->enet_dstaddr, m_sHeader[io].enet_srcaddr, 6) != 0 &&
         memcmp(pFrame->enet_dstaddr, broadcastAddr, 6) != 0)
         return FALSE;
-    // 내가 보낸 값이 나에게 온건지
+    // 내가 보낸 패킷이 나에게 온건지
     if (memcmp(pFrame->enet_srcaddr, m_sHeader[io].enet_srcaddr, 6) == 0)
         return FALSE;
     
     unsigned short type = TO_BIG_ENDIAN_16(pFrame->enet_type);
-    if (type == 0x0806)
-        bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pFrame->enet_data);
 
-    /*if (pFrame->enet_type == 0x0806)
-        bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pFrame->enet_data);*/
+    switch (io) {
+        case INNER:
+            if (type == ARP_LAYER_IDENTIFIER)
+                return mp_aUpperLayer[0]->ArpReceive((unsigned char*)pFrame->enet_data, INNER);
+            if (type == IP_LAYER_IDENTIFIER)
+                return mp_aUpperLayer[0]->IpReceive((unsigned char*)pFrame->enet_data, INNER);
+            break;
 
-    return bSuccess;
+        case OUTER:
+            if (type == ARP_LAYER_IDENTIFIER)
+                return mp_aUpperLayer[0]->ArpReceive((unsigned char*)pFrame->enet_data, OUTER);
+            if (type == IP_LAYER_IDENTIFIER)
+                return mp_aUpperLayer[0]->IpReceive((unsigned char*)pFrame->enet_data, OUTER);
+            break;
+    }
+    return FALSE;
 }

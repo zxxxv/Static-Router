@@ -16,7 +16,8 @@ class CEthernetLayer
     : public CBaseLayer
 {
 private:
-    inline void      ResetHeader(int io);
+    inline void         ResetHeader(int io);
+    unsigned char       broadcastAddr[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 public:
     BOOL         Receive(unsigned char* payload_data_len, int io);
@@ -31,9 +32,9 @@ public:
 
     typedef struct _ETHERNET_HEADER {
 
-        unsigned char   enet_dstaddr[6];      // destination address of ethernet layer
-        unsigned char   enet_srcaddr[6];      // source address of ethernet layer
-        unsigned short   enet_type;      // type of ethernet layer
+        unsigned char   enet_dstaddr[6];                // destination address of ethernet layer
+        unsigned char   enet_srcaddr[6];                // source address of ethernet layer
+        unsigned short  enet_type;                      // type of ethernet layer
         unsigned char   enet_data[ETHER_MAX_DATA_SIZE]; // frame data
 
     } ETHERNET_HEADER, * PETHERNET_HEADER;

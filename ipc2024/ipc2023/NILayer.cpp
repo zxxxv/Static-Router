@@ -161,7 +161,18 @@ BOOL CNILayer::Send(unsigned char* payload_data, int payload_data_len)
 BOOL CNILayer::Receive(unsigned char* payload_data)
 {
     BOOL bSuccess = FALSE;
-    bSuccess = mp_aUpperLayer[0]->Receive(payload_data);
+    bSuccess = mp_aUpperLayer[0]->Receive(payload_data, INNER);
+    /*int adapter;
+    switch (adapter){
+
+        case INNER:
+            bSuccess = mp_aUpperLayer[0]->Receive(payload_data, INNER);
+            break;
+
+        case OUTER:
+            bSuccess = mp_aUpperLayer[0]->Receive(payload_data, OUTER);
+            break;
+    }*/
     return bSuccess;
 }
 
@@ -225,7 +236,7 @@ CNILayer의 멤버변수 m_iNumAdapter을 활용하여 선택한 어댑터에 대한 핸들러를 얻습�
 이를 멤버변수에 저장합니다.
 */
 
-void CNILayer::PacketStartDriver(int index)
+BOOL CNILayer::PacketStartDriver(int index)
 {
     char errbuf[PCAP_ERRBUF_SIZE];
 
@@ -248,6 +259,7 @@ void CNILayer::PacketStartDriver(int index)
 
     m_thrdSwitch = TRUE; //패킷 수신 스레드 활성화
     AfxBeginThread(ReadingThread, this); //패킷을 수신하는 스레드 시작
+    return TRUE;
 }
 
 //BOOL CNILayer::PacketStartDriver(int index)
