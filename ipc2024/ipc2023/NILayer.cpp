@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "pch.h"
 #include "NILayer.h"
+#include "utils.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -8,39 +9,38 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
-CNILayer::CNILayer(char* pName, pcap_t* pAdapterObject, int iNumAdapter)
+CNILayer::CNILayer(char* pName, int iNumAdapter)
     : CBaseLayer(pName)
 {
-    m_AdapterObject = NULL;
-    //memset(m_AdapterObjects, 0, sizeof(m_AdapterObjects));
+    m_adapters.reserve(2);
+    m_adapters.emplace_back(this); // ê¸°ë³¸ ìƒì„±ì í˜¸ì¶œ
+    m_adapters.emplace_back(this); 
     m_iNumAdapter = iNumAdapter;
     m_index = 0;
-    m_thrdSwitch = FALSE;
     SetAdapterList();
 }
 
 CNILayer::~CNILayer()
 {
-    StopPacketDriver();
+    // StopPacketDriver();
 }
 
-//¼ø¼­ 2¹ø
 /*
-½Ã½ºÅÛ¿¡ ¿¬°áµÈ ¸ğµç ³×Æ®¿öÅ© ¾î´ğÅÍ ¸®½ºÆ®¸¦ ¼³Á¤ÇÕ´Ï´Ù.
-ÀÌ ÇÔ¼ö´Â pcap_findalldevs() ÇÔ¼ö¸¦ »ç¿ëÇØ ½Ã½ºÅÛÀÇ ³×Æ®¿öÅ© ¾î´ğÅÍ ¸ñ·ÏÀ» ºÒ·¯¿Í
-m_pAdapterList¿¡ ÀúÀåÇÕ´Ï´Ù. °¢ ¾î´ğÅÍ´Â »ç¿ëÀÚ°¡ ³ªÁß¿¡ ¼±ÅÃÇÒ ¼ö ÀÖÀ¸¸ç,
-¸ñ·ÏÀ» ÃÊ±âÈ­ÇÏ¿© »ç¿ë °¡´ÉÇÑ ¸ğµç ¾î´ğÅÍ¸¦ ¹è¿­¿¡ ÀúÀåÇÕ´Ï´Ù.
+ì‹œìŠ¤í…œì— ì—°ê²°ëœ ëª¨ë“  ë„¤íŠ¸ì›Œí¬ ì–´ëŒ‘í„° ë¦¬ìŠ¤íŠ¸ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+ì´ í•¨ìˆ˜ëŠ” pcap_findalldevs() í•¨ìˆ˜ë¥¼ ì‚¬ìš©í•´ ì‹œìŠ¤í…œì˜ ë„¤íŠ¸ì›Œí¬ ì–´ëŒ‘í„° ëª©ë¡ì„ ë¶ˆëŸ¬ì™€
+m_pAdapterListì— ì €ì¥í•©ë‹ˆë‹¤. ê° ì–´ëŒ‘í„°ëŠ” ì‚¬ìš©ìê°€ ë‚˜ì¤‘ì— ì„ íƒí•  ìˆ˜ ìˆìœ¼ë©°,
+ëª©ë¡ì„ ì´ˆê¸°í™”í•˜ì—¬ ì‚¬ìš© ê°€ëŠ¥í•œ ëª¨ë“  ì–´ëŒ‘í„°ë¥¼ ë°°ì—´ì— ì €ì¥í•©ë‹ˆë‹¤.
 */
 
 void CNILayer::SetAdapterList() // Retrieve and set the device list
 {
     /*
     struct pcap_if_t {
-        struct pcap_if *next;          // ´ÙÀ½ ³×Æ®¿öÅ© ÀÎÅÍÆäÀÌ½º¸¦ °¡¸®Å°´Â Æ÷ÀÎÅÍ
-        char *name;                    // ³×Æ®¿öÅ© ÀÎÅÍÆäÀÌ½º ÀÌ¸§ (¿¹: "eth0", "en0" µî)
-        char *description;             // ÀÎÅÍÆäÀÌ½º ¼³¸í (¿¹: "Intel(R) Ethernet Connection")
-        struct pcap_addr *addresses;   // ÀÎÅÍÆäÀÌ½ºÀÇ ÁÖ¼Ò ¸ñ·ÏÀ» °¡¸®Å°´Â Æ÷ÀÎÅÍ
-        bpf_u_int32 flags;             // ÀÎÅÍÆäÀÌ½º ÇÃ·¡±× (¿¹: PCAP_IF_LOOPBACK µî)
+        struct pcap_if *next;          // ë‹¤ìŒ ë„¤íŠ¸ì›Œí¬ ì¸í„°í˜ì´ìŠ¤ë¥¼ ê°€ë¦¬í‚¤ëŠ” í¬ì¸í„°
+        char *name;                    // ë„¤íŠ¸ì›Œí¬ ì¸í„°í˜ì´ìŠ¤ ì´ë¦„ (ì˜ˆ: "eth0", "en0" ë“±)
+        char *description;             // ì¸í„°í˜ì´ìŠ¤ ì„¤ëª… (ì˜ˆ: "Intel(R) Ethernet Connection")
+        struct pcap_addr *addresses;   // ì¸í„°í˜ì´ìŠ¤ì˜ ì£¼ì†Œ ëª©ë¡ì„ ê°€ë¦¬í‚¤ëŠ” í¬ì¸í„°
+        bpf_u_int32 flags;             // ì¸í„°í˜ì´ìŠ¤ í”Œë˜ê·¸ (ì˜ˆ: PCAP_IF_LOOPBACK ë“±)
     };
     */
     pcap_if_t* AdtList;
@@ -52,13 +52,13 @@ void CNILayer::SetAdapterList() // Retrieve and set the device list
 
     if (pcap_findalldevs(&AdtList, errbuf) == -1) {
         /*
-        pcap_findalldevs: »ç¿ë °¡´ÉÇÑ ³×Æ®¿öÅ© ÀåÄ¡µéÀÇ ÀÌ¸§À» LinkedListÀÇ ÇüÅÂ·Î ¹İÈ¯ÇÏ´Â ÇÔ¼ö
+        pcap_findalldevs: ì‚¬ìš© ê°€ëŠ¥í•œ ë„¤íŠ¸ì›Œí¬ ì¥ì¹˜ë“¤ì˜ ì´ë¦„ì„ LinkedListì˜ í˜•íƒœë¡œ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
             # parameter
-            - pcap_if_t **: »ç¿ë °¡´ÉÇÑ ³×Æ®¿öÅ© ÀåÄ¡µéÀÌ ÀúÀåµÉ LinkedList
-            - char * : ¿¡·¯ ¹öÆÛ
+            - pcap_if_t **: ì‚¬ìš© ê°€ëŠ¥í•œ ë„¤íŠ¸ì›Œí¬ ì¥ì¹˜ë“¤ì´ ì €ì¥ë  LinkedList
+            - char * : ì—ëŸ¬ ë²„í¼
             # return value
-            - 0 : Á¤»óÀûÀ¸·Î ÇÔ¼ö°¡ ¼öÇàµÉ °æ¿ì
-            - -1 : ¿À·ù°¡ ¹ß»ıÇÒ °æ¿ì / ¿¡·¯ ¹öÆÛ¿¡ ¿¡·¯ ¸Ş½ÃÁö ÀúÀå
+            - 0 : ì •ìƒì ìœ¼ë¡œ í•¨ìˆ˜ê°€ ìˆ˜í–‰ë  ê²½ìš°
+            - -1 : ì˜¤ë¥˜ê°€ ë°œìƒí•  ê²½ìš° / ì—ëŸ¬ ë²„í¼ì— ì—ëŸ¬ ë©”ì‹œì§€ ì €ì¥
         */
         AfxMessageBox(_T("Not exist NICard"));
         return;
@@ -76,9 +76,10 @@ void CNILayer::SetAdapterList() // Retrieve and set the device list
     m_iNumAdapter = devCount; // Store the number of adapters
 }
 
-//¼ø¼­ 3¹ø
 /*
-´ëÈ­»óÀÚ ÄŞº¸¹Ú½º¿¡¼­ ÀåÄ¡¸¦ ¼±ÅÃÇÏ¸é CNILayerÀÇ ¸â¹öº¯¼öÀÎ m_iNumAdapter¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+ëŒ€í™”ìƒì ì½¤ë³´ë°•ìŠ¤ì—ì„œ ì¥ì¹˜ë¥¼ ì„ íƒí•˜ë©´ CNILayerì˜ ë©¤ë²„ë³€ìˆ˜ì¸ m_indexë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+ì´ëŠ” ì½¤ë³´ë°•ìŠ¤ì˜ ì¥ì¹˜ ì„ íƒê³¼ PacketStartDriverê°€ ë¶„ë¦¬ë˜ì–´ ìˆê¸° ë•Œë¬¸.
+PacketStartDriverì—ì„œ ì°¸ì¡°í•  ì¥ì¹˜ë¥¼ ì‹ë³„í•´ì•¼ í•˜ê¸° ë•Œë¬¸ì— m_indexì˜ ì„¤ì •ì´ í•„ìš”í•˜ë‹¤.
 */
 
 void CNILayer::SetAdapterIndex(int index)
@@ -86,224 +87,22 @@ void CNILayer::SetAdapterIndex(int index)
     m_index = index;
 }
 
-pcap_if_t* CNILayer::GetAdapterObject(int index)
-{
-    if (index < 0 || index >= m_iNumAdapter) {
-        return nullptr;  // ÀÎµ¦½º°¡ ¹üÀ§¸¦ ¹ş¾î³ª¸é nullptr ¹İÈ¯
-    }
-    return m_pAdapterList[index];
+Adapter CNILayer::GetAdapterObject(int index)
+{ 
+    return m_adapters[index];
 }
 
-//¼ø¼­4¹ø
-/*³×Æ®¿öÅ© ¾î´ğÅÍÀÇ MAC ÁÖ¼Ò¸¦ °¡Á®¿À´Â ÇÔ¼ö
-ÀÌ ÇÔ¼ö´Â ÁöÁ¤µÈ ¾î´ğÅÍ ÀÌ¸§À» »ç¿ëÇÏ¿© ÇØ´ç ¾î´ğÅÍÀÇ MAC ÁÖ¼Ò¸¦ °¡Á®¿É´Ï´Ù.
-PacketOpenAdapter()¿Í PacketRequest() ÇÔ¼ö¸¦ ÅëÇØ MAC ÁÖ¼Ò¸¦ ¾ò¾î¿Â ÈÄ,
-±× °ªÀ» ¹İÈ¯ÇÕ´Ï´Ù.
-*/
-
-CString CNILayer::GetNICardAddress(char* adapter_name)
-{
-
-    PPACKET_OID_DATA OidData; //MACÁÖ¼Ò ÀúÀå
-    LPADAPTER Adapter = 0; //³×Æ®¿öÅ© ¾î´ğÅÍ¸¦ °¡¸®Å°´Â Æ÷ÀÎÅÍ
-
-
-    OidData = (PPACKET_OID_DATA)malloc(6 + sizeof(PACKET_OID_DATA));
-    OidData->Oid = OID_802_3_CURRENT_ADDRESS; //ÁÖ¼Ò¸¦ ºÒ·¯¿À´Â Ç¥ÁØ»ó¼ö *°ª(0x01010102)
-    OidData->Length = 6;
-
-    Adapter = PacketOpenAdapter(adapter_name); // ¾î´ğÅÍ ¿­°í  ¾î´ğÅÍ ÇÚµéÀ» ÅëÇØ ¾î´ğÅÍ Á¢±Ù ±ÇÇÑ
-
-    PacketRequest(Adapter, FALSE, OidData); //¾î´ğÅÍÀÌ¸§, (F)ÀĞ±â¿äÃ» (T)º¯°æ¿äÃ», ÀÌ ÇÊµå¿¡ ³×Æ®¿öÅ© ¾î´ğÅÍÀÇ MAC ÁÖ¼Ò°¡ ÀúÀå
-
-    CString NICardAddress;
-
-    NICardAddress.Format("%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
-        (OidData->Data)[0],
-        (OidData->Data)[1],
-        (OidData->Data)[2],
-        (OidData->Data)[3],
-        (OidData->Data)[4],
-        (OidData->Data)[5]);
-
-    PacketCloseAdapter(Adapter);
-    free(OidData);
-    return NICardAddress;
-
-}
-
-//¼ø¼­ 5¹ø
 /*
-³×Æ®¿öÅ© ÆĞÅ¶À» Àü¼ÛÇÏ´Â ÇÔ¼öÀÔ´Ï´Ù.
-ÀÌ ÇÔ¼ö´Â ÁÖ¾îÁø µ¥ÀÌÅÍ¸¦ ³×Æ®¿öÅ©·Î Àü¼ÛÇÕ´Ï´Ù.
-pcap_sendpacket() ÇÔ¼ö¸¦ È£ÃâÇÏ¿© ÆĞÅ¶À» Àü¼ÛÇÏ¸ç,
-Àü¼ÛÀÌ ¼º°øÇß´ÂÁö ¿©ºÎ¿¡ µû¶ó TRUE ¶Ç´Â FALSE¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
-*/
+íŒ¨í‚·ì„ ìˆ˜ì‹ í•˜ì—¬ ìƒìœ„ ë ˆì´ì–´ë¡œ ì „ë‹¬í•˜ëŠ” í•¨ìˆ˜ì…ë‹ˆë‹¤.
+ì´ í•¨ìˆ˜ëŠ” ìˆ˜ì‹ ëœ íŒ¨í‚·ì„ ìƒìœ„ ë ˆì´ì–´ë¡œ ì „ë‹¬í•©ë‹ˆë‹¤.
+ mp_aUpperLayer[0]->Receive()ë¥¼ í˜¸ì¶œí•˜ì—¬ íŒ¨í‚· ë°ì´í„°ë¥¼ ìƒìœ„ ë ˆì´ì–´ë¡œ ì „ë‹¬í•˜ëŠ” ê¸°ëŠ¥ì„ ìˆ˜í–‰í•©ë‹ˆë‹¤.
 
-BOOL CNILayer::Send(unsigned char* payload_data, int payload_data_len)
-{
-    if (pcap_sendpacket(m_AdapterObject, payload_data, payload_data_len)) {
-        char *err = pcap_geterr(m_AdapterObject);
-        AfxMessageBox(_T("Packet Send Failed"));
-        AfxMessageBox(_T(err));
-        return FALSE;
-    }
-    return TRUE;
-}
-
-//¼ø¼­ 6¹ø
-/*
-ÆĞÅ¶À» ¼ö½ÅÇÏ¿© »óÀ§ ·¹ÀÌ¾î·Î Àü´ŞÇÏ´Â ÇÔ¼öÀÔ´Ï´Ù.
-ÀÌ ÇÔ¼ö´Â ¼ö½ÅµÈ ÆĞÅ¶À» »óÀ§ ·¹ÀÌ¾î·Î Àü´ŞÇÕ´Ï´Ù.
- mp_aUpperLayer[0]->Receive()¸¦ È£ÃâÇÏ¿© ÆĞÅ¶ µ¥ÀÌÅÍ¸¦ »óÀ§ ·¹ÀÌ¾î·Î Àü´ŞÇÏ´Â ±â´ÉÀ» ¼öÇàÇÕ´Ï´Ù.
+ Adapterì—ì„œ ReadingThreadë¥¼ ëŒë¦¬ë©´ì„œ ì´ Recieveí•¨ìˆ˜ë¥¼ í˜¸ì¶œí•¨.
  */
 
-BOOL CNILayer::Receive(unsigned char* payload_data)
+BOOL CNILayer::Receive(unsigned char* payload_data, int adtID)
 {
     BOOL bSuccess = FALSE;
-    bSuccess = mp_aUpperLayer[0]->Receive(payload_data, INNER);
-    /*int adapter;
-    switch (adapter){
-
-        case INNER:
-            bSuccess = mp_aUpperLayer[0]->Receive(payload_data, INNER);
-            break;
-
-        case OUTER:
-            bSuccess = mp_aUpperLayer[0]->Receive(payload_data, OUTER);
-            break;
-    }*/
+    bSuccess = mp_aUpperLayer[0]->Receive(payload_data, adtID);
     return bSuccess;
 }
-
-//¼ø¼­ 7¹ø
-/*
-¸ÖÆ¼½º·¹µå¿¡¼­ ÆĞÅ¶À» ºñµ¿±âÀûÀ¸·Î ¼ö½ÅÇÏ´Â ÇÔ¼öÀÔ´Ï´Ù
-ÀÌ ÇÔ¼ö´Â pcap_next_ex()¸¦ »ç¿ëÇØ ÆĞÅ¶À» ºñµ¿±âÀûÀ¸·Î ¼ö½ÅÇÏ¸ç,
-¼ö½ÅµÈ ÆĞÅ¶À» Receive()¸¦ ÅëÇØ »óÀ§ ·¹ÀÌ¾î·Î Àü´ŞÇÕ´Ï´Ù.
-¸ÖÆ¼½º·¹µå¸¦ »ç¿ëÇØ ÆĞÅ¶ ¼ö½Å ÀÛ¾÷ÀÌ ºñµ¿±âÀûÀ¸·Î Ã³¸®µÇ¹Ç·Î,
-³×Æ®¿öÅ©¿¡¼­ ÆĞÅ¶ÀÌ µµÂøÇÒ ¶§¸¶´Ù Ã³¸®ÇÒ ¼ö ÀÖ½À´Ï´Ù.
-*/
-
-UINT CNILayer::ReadingThread(LPVOID pParam)
-{
-    CNILayer* pNI = (CNILayer*)pParam;
-    struct pcap_pkthdr* header;
-    const u_char* pkt_data;
-    int result;
-
-    for (; pNI->m_thrdSwitch;)
-    {
-        for (result = pcap_next_ex(pNI->m_AdapterObject, &header, &pkt_data)
-            ; result >= 0; result = pcap_next_ex(pNI->m_AdapterObject, &header, &pkt_data))
-            /*
-            pcap_next_ex: ÆĞÅ¶À» ÀĞ¾î¿À´Â ÇÔ¼ö
-            # parameter
-            - pcap_t *p : ³×Æ®¿öÅ© ÀåÄ¡ ÇÚµé·¯
-            - struct pcap_pkthdr **pkt_header : Ä¸Ã³ÇÑ ÆĞÅ¶ÀÇ Çì´õ¿¡ ´ëÇÑ Æ÷ÀÎÅÍ
-                - ÇÔ¼ö¸¦ °ÅÄ¡¸ç ÀúÀåµÊ.
-            - const u_char **pkt_data : Ä¸Ã³ÇÑ ÆĞÅ¶ÀÇ µ¥ÀÌÅÍ
-                - ÇÔ¼ö¸¦ °ÅÄ¡¸ç ÀúÀåµÊ
-            # return value
-            - 1 : ¼º°ø
-            - 0 : Å¸ÀÓ¾Æ¿ô ½Ã°£ µ¿¾È ÆĞÅ¶ÀÌ µµÂøÇÏÁö ¾ÊÀ½
-            - -1 : ÆĞÅ¶ ÀĞ´Â µµÁß ¿À·ù ¹ß»ı
-            - -2 : ÆĞÅ¶ Ä¸Ã³°¡ EOF¿¡ µµ´Ş
-            */
-        {
-            if (result == 0)
-            {
-                continue;
-            }
-            pNI->Receive((u_char*)pkt_data);
-        }
-
-        if (result < 0)
-        {
-            AfxMessageBox(_T("Packet Read Error"));
-            break;
-        }
-    }
-
-    return 0;
-}
-
-//¼ø¼­ 1¹ø
-/*
-³×Æ®¿öÅ© ÆĞÅ¶À» ¼ö½ÅÇÏ±â À§ÇÑ µå¶óÀÌ¹ö¸¦ ½ÃÀÛÇÏ°í ³×Æ®¿öÅ© ¾î´ğÅÍ·ÎºÎÅÍ ÆĞÅ¶À» ¼ö½ÅÇÏ±â À§ÇÑ ÁØºñ¸¦ ÇÕ´Ï´Ù.
-´ëÈ­»óÀÚ¿¡¼­ ¼³Á¤ ¹öÆ°À» ´©¸£¸é È°¼ºÈ­°¡ µË´Ï´Ù.
-CNILayerÀÇ ¸â¹öº¯¼ö m_iNumAdapterÀ» È°¿ëÇÏ¿© ¼±ÅÃÇÑ ¾î´ğÅÍ¿¡ ´ëÇÑ ÇÚµé·¯¸¦ ¾ò½À´Ï´Ù.
-ÀÌ¸¦ ¸â¹öº¯¼ö¿¡ ÀúÀåÇÕ´Ï´Ù.
-*/
-
-BOOL CNILayer::PacketStartDriver(int index)
-{
-    char errbuf[PCAP_ERRBUF_SIZE];
-
-    m_AdapterObject = pcap_open_live(m_pAdapterList[m_index]->name, 65536, 1, 2000, errbuf);
-    /*
-    pcap_open_live: ÀÎÀÚ·Î ÁÖ¾îÁø ³×Æ®¿öÅ© ÀåÄ¡¿¡ ´ëÇÑ ¶óÀÌºê ÆĞÅ¶ Ä¸Ã³¸¦ ½ÃÀÛÇÏ´Â ÇÔ¼ö
-        # paremeter
-        - const char *device: Ä¸Ã³ÇÒ ³×Æ®¿öÅ© ÀåÄ¡ ÀÌ¸§
-        - int snaplen: Ä¸Ã³ÇÒ ÃÖ´ë ¹ÙÀÌÆ® ¼ö
-        - int promisc: ÇÁ·Î¹Ì½º Å¥ ¸ğµå ¼³Á¤
-            - 1: ¸ğµç ÆĞÅ¶ Ä¸Ã³
-            - 0: ÇØ´ç ÀåÄ¡ÀÇ ÆĞÅ¶¸¸ Ä¸Ã³
-        - int to_ms: ÆĞÅ¶À» Ä¸Ã³ÇÒ ¶§ ´ë±âÇÒ ÃÖ´ë ½Ã°£
-            - ¼³Á¤ ½Ã°£ µ¿¾È ÆĞÅ¶ÀÌ µµÂøÇÏÁö ¾ÊÀ¸¸é timeout
-        - char *errbuf: ¿À·ù ¸Ş½ÃÁö¸¦ ÀúÀåÇÒ ¹öÆÛ
-        # return value
-        - pcap_t*: ¶óÀÌºê ÆĞÅ¶ Ä¸Ã³°¡ ¼º°øÀûÀ¸·Î ¿­¸®¸é ÇØ´ç ÀåÄ¡¿¡ ´ëÇÑ ÇÚµé·¯¸¦ ¹İÈ¯
-        - NULL: ¿À·ù°¡ ¹ß»ıÇÏ¸é NULL ¸®ÅÏ / errbuf¿¡ ¿¡·¯ ¸Ş½ÃÁö ÀúÀå.
-    */
-
-    m_thrdSwitch = TRUE; //ÆĞÅ¶ ¼ö½Å ½º·¹µå È°¼ºÈ­
-    AfxBeginThread(ReadingThread, this); //ÆĞÅ¶À» ¼ö½ÅÇÏ´Â ½º·¹µå ½ÃÀÛ
-    return TRUE;
-}
-
-//BOOL CNILayer::PacketStartDriver(int index)
-//{
-//    if (index < 0 || index >= m_iNumAdapter) {
-//        AfxMessageBox(_T("Invalid adapter index."));
-//        return FALSE;
-//    }
-//
-//    char errbuf[PCAP_ERRBUF_SIZE] = { 0 };
-//    pcap_t* adapterObject = pcap_open_live(m_pAdapterList[index]->name, 65536, 1, 2000, errbuf);
-//    if (!adapterObject) {
-//        CString err = CString(errbuf);
-//        AfxMessageBox(_T("Failed to open adapter: ") + err);
-//        return FALSE;
-//    }
-//
-//    m_AdapterObjects[index] = adapterObject; // °¢ ÀÎµ¦½ºº° ¾î´ğÅÍ °´Ã¼ ÀúÀå
-//    m_thrdSwitch = TRUE; // ¼ö½Å ½º·¹µå È°¼ºÈ­
-//    AfxBeginThread(ReadingThread, this, THREAD_PRIORITY_NORMAL, 0, 0, (LPVOID)index); // ¼ö½Å ½º·¹µå ½ÃÀÛ
-//    return TRUE;
-//}
-
-//¼ø¼­ 7¹ø
-//BOOL CNILayer::StopPacketDriver()
-//{
-//    m_thrdSwitch = FALSE; // ¸ğµç ½º·¹µå Á¾·á
-//
-//    for (int i = 0; i < m_iNumAdapter; ++i) {
-//        if (m_AdapterObjects[i]) {
-//            pcap_close(m_AdapterObjects[i]); // ¾î´ğÅÍ ´İ±â
-//            m_AdapterObjects[i] = NULL;
-//        }
-//    }
-//    return TRUE;
-//}
-
-BOOL CNILayer::StopPacketDriver()
-{
-    m_thrdSwitch = FALSE; // ½º·¹µå Á¾·á
-    if (m_AdapterObject) {
-        pcap_close(m_AdapterObject); // ¾î´ğÅÍ ´İ±â
-        m_AdapterObject = NULL;
-    }
-    return TRUE;
-}
-
