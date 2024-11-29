@@ -47,10 +47,10 @@ public:
 
 
 public:
-	BOOL			Receive(unsigned char* ppayload);
+	BOOL			Receive(unsigned char* ppayload, int io);
 	void UpdateListCtrlItem(const CString& ip, const CString& mac, const CString& status); // 캐시 테이블 변경
 	void TimeoutEntryDelete(const unsigned char* ip);
-	void UpdateRoutingTableListCtrl();
+	void UpdateRoutingTable();
 	CString GetFlagString(e_flag flag);
 
 private:
@@ -58,8 +58,8 @@ private:
 	int				m_nAckReady;
 
 	enum {
-		IPC_INITIALIZING,
-		IPC_READYTOSEND,
+		IPC_ROUTERSTART,
+		IPC_ROUTEREND,
 		IPC_WAITFORACK,
 		IPC_ERROR,
 		IPC_COMBO_SET
@@ -70,7 +70,7 @@ private:
 	void Str2UCHAR(CString& src, UCHAR* dst);
 	void UCHAR2Str(UCHAR* src, CString& dst);
 
-	BOOL			m_bSendReady;
+	BOOL			m_routerReady;
 
 	// Implementation
 	UINT			m_wParam;

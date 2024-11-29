@@ -24,7 +24,6 @@ protected:
 	std::vector<Adapter> m_adapters;
 	 
 public:
-
 	Adapter     GetAdapterObject(int iIndex); //
 	void			SetAdapterIndex(int index);
 	void			SetAdapterList();
@@ -35,7 +34,7 @@ public:
 	CNILayer(char* pName, int iNumAdapter = 0);
 	virtual ~CNILayer();
 
-	// ³» ÀåÄ¡ÀÇ ¸ðµç ¾î´ðÅÍ¸¦ ÀÓ½Ã·Î ´ã¾ÆµÎ±â À§ÇÑ ¹è¿­
+	// ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Ó½Ã·ï¿½ ï¿½ï¿½ÆµÎ±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­
 	pcap_if_t* m_pAdapterList[NI_COUNT_NIC];
 
 protected:
