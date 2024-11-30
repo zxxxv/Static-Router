@@ -30,7 +30,6 @@
 #define ETHER_MAX_DATA_SIZE		( ETHER_MAX_SIZE - ETHER_HEADER_SIZE )
 
 #define TCP_HEADER_SIZE			20
-#define IP_HEADER_SIZE			20
 
 #define APP_HEADER_SIZE			( sizeof(unsigned int) * 2 +				\
 								  sizeof(unsigned short) +					\
@@ -41,12 +40,19 @@
 
 #define NI_COUNT_NIC			15
 #define CHAR_DATA_MAX_SIZE		1474
-#define CHAT_HEADER_SIZE		26
-#define CHAT_LAYER_IDENTIFIER 0x2080	// Identifier for Ethernet layer to distinguish Chat Layer packets
 
-#define FILE_DATA_MAX_SIZE 1474
-#define FILE_HEADER_SIZE 26				// Changed to represent File Layer header size correctly as 12 bytes
-#define FILE_LAYER_IDENTIFIER 0x2090	// Identifier for Ethernet layer to distinguish File Layer packets
+#define ARP_HEADER_SIZE			28
+#define ARP_LAYER_IDENTIFIER	0x0806
+
+#define IP_HEADER_SIZE			20
+#define IP_LAYER_IDENTIFIER		0x0800
+
+#define ICMP_HEADER_SIZE		8
+#define ICMP_DATA_SIZE			32
+
+
+#define INNER					0
+#define OUTER					1
 
 //#define ARP_HEADER_SIZE 28
 

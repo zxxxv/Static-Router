@@ -13,7 +13,7 @@ CNILayer::CNILayer(char* pName, int iNumAdapter)
     : CBaseLayer(pName)
 {
     m_adapters.reserve(2);
-    m_adapters.emplace_back(this); // ±âº» »ı¼ºÀÚ È£Ãâ
+    m_adapters.emplace_back(this); // ê¸°ë³¸ ìƒì„±ì í˜¸ì¶œ
     m_adapters.emplace_back(this); 
     m_iNumAdapter = iNumAdapter;
     m_index = 0;
@@ -26,21 +26,21 @@ CNILayer::~CNILayer()
 }
 
 /*
-½Ã½ºÅÛ¿¡ ¿¬°áµÈ ¸ğµç ³×Æ®¿öÅ© ¾î´ğÅÍ ¸®½ºÆ®¸¦ ¼³Á¤ÇÕ´Ï´Ù.
-ÀÌ ÇÔ¼ö´Â pcap_findalldevs() ÇÔ¼ö¸¦ »ç¿ëÇØ ½Ã½ºÅÛÀÇ ³×Æ®¿öÅ© ¾î´ğÅÍ ¸ñ·ÏÀ» ºÒ·¯¿Í
-m_pAdapterList¿¡ ÀúÀåÇÕ´Ï´Ù. °¢ ¾î´ğÅÍ´Â »ç¿ëÀÚ°¡ ³ªÁß¿¡ ¼±ÅÃÇÒ ¼ö ÀÖÀ¸¸ç,
-¸ñ·ÏÀ» ÃÊ±âÈ­ÇÏ¿© »ç¿ë °¡´ÉÇÑ ¸ğµç ¾î´ğÅÍ¸¦ ¹è¿­¿¡ ÀúÀåÇÕ´Ï´Ù.
+ì‹œìŠ¤í…œì— ì—°ê²°ëœ ëª¨ë“  ë„¤íŠ¸ì›Œí¬ ì–´ëŒ‘í„° ë¦¬ìŠ¤íŠ¸ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+ì´ í•¨ìˆ˜ëŠ” pcap_findalldevs() í•¨ìˆ˜ë¥¼ ì‚¬ìš©í•´ ì‹œìŠ¤í…œì˜ ë„¤íŠ¸ì›Œí¬ ì–´ëŒ‘í„° ëª©ë¡ì„ ë¶ˆëŸ¬ì™€
+m_pAdapterListì— ì €ì¥í•©ë‹ˆë‹¤. ê° ì–´ëŒ‘í„°ëŠ” ì‚¬ìš©ìê°€ ë‚˜ì¤‘ì— ì„ íƒí•  ìˆ˜ ìˆìœ¼ë©°,
+ëª©ë¡ì„ ì´ˆê¸°í™”í•˜ì—¬ ì‚¬ìš© ê°€ëŠ¥í•œ ëª¨ë“  ì–´ëŒ‘í„°ë¥¼ ë°°ì—´ì— ì €ì¥í•©ë‹ˆë‹¤.
 */
 
 void CNILayer::SetAdapterList() // Retrieve and set the device list
 {
     /*
     struct pcap_if_t {
-        struct pcap_if *next;          // ´ÙÀ½ ³×Æ®¿öÅ© ÀÎÅÍÆäÀÌ½º¸¦ °¡¸®Å°´Â Æ÷ÀÎÅÍ
-        char *name;                    // ³×Æ®¿öÅ© ÀÎÅÍÆäÀÌ½º ÀÌ¸§ (¿¹: "eth0", "en0" µî)
-        char *description;             // ÀÎÅÍÆäÀÌ½º ¼³¸í (¿¹: "Intel(R) Ethernet Connection")
-        struct pcap_addr *addresses;   // ÀÎÅÍÆäÀÌ½ºÀÇ ÁÖ¼Ò ¸ñ·ÏÀ» °¡¸®Å°´Â Æ÷ÀÎÅÍ
-        bpf_u_int32 flags;             // ÀÎÅÍÆäÀÌ½º ÇÃ·¡±× (¿¹: PCAP_IF_LOOPBACK µî)
+        struct pcap_if *next;          // ë‹¤ìŒ ë„¤íŠ¸ì›Œí¬ ì¸í„°í˜ì´ìŠ¤ë¥¼ ê°€ë¦¬í‚¤ëŠ” í¬ì¸í„°
+        char *name;                    // ë„¤íŠ¸ì›Œí¬ ì¸í„°í˜ì´ìŠ¤ ì´ë¦„ (ì˜ˆ: "eth0", "en0" ë“±)
+        char *description;             // ì¸í„°í˜ì´ìŠ¤ ì„¤ëª… (ì˜ˆ: "Intel(R) Ethernet Connection")
+        struct pcap_addr *addresses;   // ì¸í„°í˜ì´ìŠ¤ì˜ ì£¼ì†Œ ëª©ë¡ì„ ê°€ë¦¬í‚¤ëŠ” í¬ì¸í„°
+        bpf_u_int32 flags;             // ì¸í„°í˜ì´ìŠ¤ í”Œë˜ê·¸ (ì˜ˆ: PCAP_IF_LOOPBACK ë“±)
     };
     */
     pcap_if_t* AdtList;
@@ -52,13 +52,13 @@ void CNILayer::SetAdapterList() // Retrieve and set the device list
 
     if (pcap_findalldevs(&AdtList, errbuf) == -1) {
         /*
-        pcap_findalldevs: »ç¿ë °¡´ÉÇÑ ³×Æ®¿öÅ© ÀåÄ¡µéÀÇ ÀÌ¸§À» LinkedListÀÇ ÇüÅÂ·Î ¹İÈ¯ÇÏ´Â ÇÔ¼ö
+        pcap_findalldevs: ì‚¬ìš© ê°€ëŠ¥í•œ ë„¤íŠ¸ì›Œí¬ ì¥ì¹˜ë“¤ì˜ ì´ë¦„ì„ LinkedListì˜ í˜•íƒœë¡œ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
             # parameter
-            - pcap_if_t **: »ç¿ë °¡´ÉÇÑ ³×Æ®¿öÅ© ÀåÄ¡µéÀÌ ÀúÀåµÉ LinkedList
-            - char * : ¿¡·¯ ¹öÆÛ
+            - pcap_if_t **: ì‚¬ìš© ê°€ëŠ¥í•œ ë„¤íŠ¸ì›Œí¬ ì¥ì¹˜ë“¤ì´ ì €ì¥ë  LinkedList
+            - char * : ì—ëŸ¬ ë²„í¼
             # return value
-            - 0 : Á¤»óÀûÀ¸·Î ÇÔ¼ö°¡ ¼öÇàµÉ °æ¿ì
-            - -1 : ¿À·ù°¡ ¹ß»ıÇÒ °æ¿ì / ¿¡·¯ ¹öÆÛ¿¡ ¿¡·¯ ¸Ş½ÃÁö ÀúÀå
+            - 0 : ì •ìƒì ìœ¼ë¡œ í•¨ìˆ˜ê°€ ìˆ˜í–‰ë  ê²½ìš°
+            - -1 : ì˜¤ë¥˜ê°€ ë°œìƒí•  ê²½ìš° / ì—ëŸ¬ ë²„í¼ì— ì—ëŸ¬ ë©”ì‹œì§€ ì €ì¥
         */
         AfxMessageBox(_T("Not exist NICard"));
         return;
@@ -77,9 +77,9 @@ void CNILayer::SetAdapterList() // Retrieve and set the device list
 }
 
 /*
-´ëÈ­»óÀÚ ÄŞº¸¹Ú½º¿¡¼­ ÀåÄ¡¸¦ ¼±ÅÃÇÏ¸é CNILayerÀÇ ¸â¹öº¯¼öÀÎ m_index¸¦ ¼³Á¤ÇÕ´Ï´Ù.
-ÀÌ´Â ÄŞº¸¹Ú½ºÀÇ ÀåÄ¡ ¼±ÅÃ°ú PacketStartDriver°¡ ºĞ¸®µÇ¾î ÀÖ±â ¶§¹®.
-PacketStartDriver¿¡¼­ ÂüÁ¶ÇÒ ÀåÄ¡¸¦ ½Äº°ÇØ¾ß ÇÏ±â ¶§¹®¿¡ m_indexÀÇ ¼³Á¤ÀÌ ÇÊ¿äÇÏ´Ù.
+ëŒ€í™”ìƒì ì½¤ë³´ë°•ìŠ¤ì—ì„œ ì¥ì¹˜ë¥¼ ì„ íƒí•˜ë©´ CNILayerì˜ ë©¤ë²„ë³€ìˆ˜ì¸ m_indexë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+ì´ëŠ” ì½¤ë³´ë°•ìŠ¤ì˜ ì¥ì¹˜ ì„ íƒê³¼ PacketStartDriverê°€ ë¶„ë¦¬ë˜ì–´ ìˆê¸° ë•Œë¬¸.
+PacketStartDriverì—ì„œ ì°¸ì¡°í•  ì¥ì¹˜ë¥¼ ì‹ë³„í•´ì•¼ í•˜ê¸° ë•Œë¬¸ì— m_indexì˜ ì„¤ì •ì´ í•„ìš”í•˜ë‹¤.
 */
 
 void CNILayer::SetAdapterIndex(int index)
@@ -93,11 +93,11 @@ Adapter CNILayer::GetAdapterObject(int index)
 }
 
 /*
-ÆĞÅ¶À» ¼ö½ÅÇÏ¿© »óÀ§ ·¹ÀÌ¾î·Î Àü´ŞÇÏ´Â ÇÔ¼öÀÔ´Ï´Ù.
-ÀÌ ÇÔ¼ö´Â ¼ö½ÅµÈ ÆĞÅ¶À» »óÀ§ ·¹ÀÌ¾î·Î Àü´ŞÇÕ´Ï´Ù.
- mp_aUpperLayer[0]->Receive()¸¦ È£ÃâÇÏ¿© ÆĞÅ¶ µ¥ÀÌÅÍ¸¦ »óÀ§ ·¹ÀÌ¾î·Î Àü´ŞÇÏ´Â ±â´ÉÀ» ¼öÇàÇÕ´Ï´Ù.
+íŒ¨í‚·ì„ ìˆ˜ì‹ í•˜ì—¬ ìƒìœ„ ë ˆì´ì–´ë¡œ ì „ë‹¬í•˜ëŠ” í•¨ìˆ˜ì…ë‹ˆë‹¤.
+ì´ í•¨ìˆ˜ëŠ” ìˆ˜ì‹ ëœ íŒ¨í‚·ì„ ìƒìœ„ ë ˆì´ì–´ë¡œ ì „ë‹¬í•©ë‹ˆë‹¤.
+ mp_aUpperLayer[0]->Receive()ë¥¼ í˜¸ì¶œí•˜ì—¬ íŒ¨í‚· ë°ì´í„°ë¥¼ ìƒìœ„ ë ˆì´ì–´ë¡œ ì „ë‹¬í•˜ëŠ” ê¸°ëŠ¥ì„ ìˆ˜í–‰í•©ë‹ˆë‹¤.
 
- Adapter¿¡¼­ ReadingThread¸¦ µ¹¸®¸é¼­ ÀÌ RecieveÇÔ¼ö¸¦ È£ÃâÇÔ.
+ Adapterì—ì„œ ReadingThreadë¥¼ ëŒë¦¬ë©´ì„œ ì´ Recieveí•¨ìˆ˜ë¥¼ í˜¸ì¶œí•¨.
  */
 
 BOOL CNILayer::Receive(unsigned char* payload_data, int adtID)
