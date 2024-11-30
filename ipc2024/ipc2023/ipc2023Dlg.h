@@ -9,6 +9,7 @@
 #include "NILayer.h"
 #include "IPLayer.h"
 #include "ARPProxyTable.h"
+#include "RoutingList.h"
 
 // Cipc2023Dlg 대화 상자
 class Cipc2023Dlg : public CDialogEx, public CBaseLayer
@@ -43,26 +44,22 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-//	UINT m_unDstAddr;
-//	UINT unSrcAddr;
-//	CString m_stMessage;
-//	CListBox m_ListChat;
-	
-	//afx_msg void OnTimer(UINT nIDEvent);
 
 
 public:
-	BOOL			Receive(unsigned char* ppayload);
+	BOOL			Receive(unsigned char* ppayload, int io);
 	void UpdateListCtrlItem(const CString& ip, const CString& mac, const CString& status); // 캐시 테이블 변경
 	void TimeoutEntryDelete(const unsigned char* ip);
+	void UpdateRoutingTable();
+	CString GetFlagString(e_flag flag);
 
 private:
 	CLayerManager	m_LayerMgr;
 	int				m_nAckReady;
 
 	enum {
-		IPC_INITIALIZING,
-		IPC_READYTOSEND,
+		IPC_ROUTERSTART,
+		IPC_ROUTEREND,
 		IPC_WAITFORACK,
 		IPC_ERROR,
 		IPC_COMBO_SET
@@ -73,7 +70,7 @@ private:
 	void Str2UCHAR(CString& src, UCHAR* dst);
 	void UCHAR2Str(UCHAR* src, CString& dst);
 
-	BOOL			m_bSendReady;
+	BOOL			m_routerReady;
 
 	// Implementation
 	UINT			m_wParam;
@@ -87,16 +84,13 @@ private:
 	//CString Cipc2023Dlg::binaryToString(const unsigned char* ip);
 
 public:
-	CComboBox m_comboBox;
-	CString m_unSrcMac;
-	CString m_unDstMac;
+	CString m_iMacSrc;
+	CString m_oMacSrc;
 	UCHAR m_ucSrcAddrArray[6];
-	UCHAR m_ucGaprSrcAddrArray[6];
 	UCHAR m_ucDstAddrArray[6];
-	UCHAR m_unused[100];
-	//ARPProxyTable proxyTable;
+	//UCHAR m_unused[100];
 	ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
-	afx_msg void OnCbnSelchangeCombo(); // 어댑터 선택
+	RoutingList& routingTable = RoutingList::getInstance();
 	int m_index;
 	afx_msg void OnBnClickedButtonDelete();
 	CListCtrl m_ListCtrl;		// ARP 캐시 테이블
@@ -106,15 +100,25 @@ public:
 	CListCtrl m_ListCtrlP;		// 프록시 테이블
 	afx_msg void OnBnClickedProxyAdd();
 	afx_msg void OnBnClickedProxyDelete();
-	afx_msg void OnBnClickedButtonGarpSend();
 	CEdit m_garp_mac;			// 변경한 mac 주소
 	afx_msg void OnBnClickedProxyTable();
-	afx_msg void OnEnChangeGarpMac();
-	afx_msg void OnBnClickedButton2();
-	afx_msg void OnBnClickedButtonArpDelete();
-	afx_msg void OnIpnFieldchangedIpaddress1(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnCbnSelchangeComboMac1();
 	CListCtrl m_ListCtrlR;
 	afx_msg void OnBnClickedButtonEnd();
 	afx_msg void OnBnClickedButtonStart();
+	afx_msg void OnCbnSelchangeComboMac();
+	afx_msg void OnCbnSelchangeComboMac2();
+
+	CComboBox m_comboBox1;
+	CComboBox m_comboBox2;
+	afx_msg void OnBnClickedButtonRadd();
+	CIPAddressCtrl m_ip1;
+	CIPAddressCtrl m_ip2;
+	afx_msg void OnBnClickedButtonRdelete();
+
+	typedef struct _INTERFACE_CARD {
+		
+		unsigned char macAddr[6];
+		unsigned char ipAddr[4];
+
+	} INTERFACE_CARD;
 };

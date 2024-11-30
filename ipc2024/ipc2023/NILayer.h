@@ -13,40 +13,34 @@
 #include <pcap.h>
 #include <Packet32.h>
 #include <iphlpapi.h>
+#include "Adapter.h"
+#include <vector>
 #pragma comment (lib, "iphlpapi.lib")
 
 class CNILayer
 	: public CBaseLayer
 {
 protected:
-	pcap_t* m_AdapterObject;
-
+	std::vector<Adapter> m_adapters;
+	 
 public:
-	BOOL			m_thrdSwitch;
-	unsigned char* m_ppayload;
-
-	void			PacketStartDriver();
-
-	pcap_if_t*      GetAdapterObject(int iIndex);
+	Adapter     GetAdapterObject(int iIndex); //
 	void			SetAdapterIndex(int index);
 	void			SetAdapterList();
 
-	static UINT		ReadingThread(LPVOID pParam);
-
-	BOOL			Receive(unsigned char* payload_data);
+	BOOL			Receive(unsigned char* payload_data, int adtID);
 	BOOL			Send(unsigned char* payload_data, int payload_data_len);
 
-	CString GetNICardAddress(char* adapter_name);
-
-	CNILayer(char* pName, pcap_t* pAdapterObject = NULL, int iNumAdapter = 0);
+	CNILayer(char* pName, int iNumAdapter = 0);
 	virtual ~CNILayer();
 
-	//
-	pcap_if_t* m_pAdapterList[NI_COUNT_NIC];//
+	// �� ��ġ�� ��� ����͸� �ӽ÷� ��Ƶα� ���� �迭
+	pcap_if_t* m_pAdapterList[NI_COUNT_NIC];
 
 protected:
 	int			m_iNumAdapter;
 	int			m_index;
+	// int			m_tempAdtID;
 };
 
 #endif // !defined(AFX_NILayer_H__7857C9C2_B459_4DC8_B9B3_4E6C8B587B29__INCLUDED_)
