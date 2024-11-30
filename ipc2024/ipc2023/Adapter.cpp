@@ -3,14 +3,14 @@
 
 bool Adapter::StopPacketDriver()
 {   
-    m_thrdSwitch = FALSE; // ½º·¹µå ½ÇÇà ÇÃ·¡±× ºñÈ°¼ºÈ­
+    m_thrdSwitch = FALSE; // ìŠ¤ë ˆë“œ ì‹¤í–‰ í”Œëž˜ê·¸ ë¹„í™œì„±í™”
     if (m_pThread) {
-        // ½º·¹µå°¡ Á¾·áµÉ ¶§±îÁö ´ë±â
+        // ìŠ¤ë ˆë“œê°€ ì¢…ë£Œë  ë•Œê¹Œì§€ ëŒ€ê¸°
         WaitForSingleObject((HANDLE)m_pThread->m_hThread, INFINITE);
-        m_pThread = nullptr; // ½º·¹µå ÇÚµé ÃÊ±âÈ­
+        m_pThread = nullptr; // ìŠ¤ë ˆë“œ í•¸ë“¤ ì´ˆê¸°í™”
     }
     if (m_adapterHandler) {
-        pcap_close(m_adapterHandler); // ¾î´ðÅÍ ÇÚµé ´Ý±â
+        pcap_close(m_adapterHandler); // ì–´ëŒ‘í„° í•¸ë“¤ ë‹«ê¸°
         m_adapterHandler = nullptr;
     }
     return TRUE;
@@ -18,16 +18,16 @@ bool Adapter::StopPacketDriver()
 
 std::string Adapter::GetNICardAddress(char* adapter_name)
 {   
-    PPACKET_OID_DATA OidData; //MACÁÖ¼Ò ÀúÀå
+    PPACKET_OID_DATA OidData; //MACì£¼ì†Œ ì €ìž¥
     LPADAPTER Adapter = 0;
 
     OidData = (PPACKET_OID_DATA)malloc(6 + sizeof(PACKET_OID_DATA));
-    OidData->Oid = OID_802_3_CURRENT_ADDRESS; //ÁÖ¼Ò¸¦ ºÒ·¯¿À´Â Ç¥ÁØ»ó¼ö *°ª(0x01010102)
+    OidData->Oid = OID_802_3_CURRENT_ADDRESS; //ì£¼ì†Œë¥¼ ë¶ˆëŸ¬ì˜¤ëŠ” í‘œì¤€ìƒìˆ˜ *ê°’(0x01010102)
     OidData->Length = 6;
 
-    Adapter = PacketOpenAdapter(adapter_name); // ¾î´ðÅÍ ¿­°í  ¾î´ðÅÍ ÇÚµéÀ» ÅëÇØ ¾î´ðÅÍ Á¢±Ù ±ÇÇÑ
+    Adapter = PacketOpenAdapter(adapter_name); // ì–´ëŒ‘í„° ì—´ê³   ì–´ëŒ‘í„° í•¸ë“¤ì„ í†µí•´ ì–´ëŒ‘í„° ì ‘ê·¼ ê¶Œí•œ
 
-    PacketRequest(Adapter, FALSE, OidData); //¾î´ðÅÍÀÌ¸§, (F)ÀÐ±â¿äÃ» (T)º¯°æ¿äÃ», ÀÌ ÇÊµå¿¡ ³×Æ®¿öÅ© ¾î´ðÅÍÀÇ MAC ÁÖ¼Ò°¡ ÀúÀå
+    PacketRequest(Adapter, FALSE, OidData); //ì–´ëŒ‘í„°ì´ë¦„, (F)ì½ê¸°ìš”ì²­ (T)ë³€ê²½ìš”ì²­, ì´ í•„ë“œì— ë„¤íŠ¸ì›Œí¬ ì–´ëŒ‘í„°ì˜ MAC ì£¼ì†Œê°€ ì €ìž¥
 
     std::string NICardAddress = Converter::B2MAC(OidData->Data);
 
@@ -49,18 +49,18 @@ UINT Adapter::ReadingThread(LPVOID pParam) //
         for (result = pcap_next_ex(curAdapter->getHandler(), &header, &pkt_data)
             ; result >= 0; result = pcap_next_ex(curAdapter->getHandler(), &header, &pkt_data))
             /*
-            pcap_next_ex: ÆÐÅ¶À» ÀÐ¾î¿À´Â ÇÔ¼ö
+            pcap_next_ex: íŒ¨í‚·ì„ ì½ì–´ì˜¤ëŠ” í•¨ìˆ˜
             # parameter
-            - pcap_t *p : ³×Æ®¿öÅ© ÀåÄ¡ ÇÚµé·¯
-            - struct pcap_pkthdr **pkt_header : Ä¸Ã³ÇÑ ÆÐÅ¶ÀÇ Çì´õ¿¡ ´ëÇÑ Æ÷ÀÎÅÍ
-                - ÇÔ¼ö¸¦ °ÅÄ¡¸ç ÀúÀåµÊ.
-            - const u_char **pkt_data : Ä¸Ã³ÇÑ ÆÐÅ¶ÀÇ µ¥ÀÌÅÍ
-                - ÇÔ¼ö¸¦ °ÅÄ¡¸ç ÀúÀåµÊ
+            - pcap_t *p : ë„¤íŠ¸ì›Œí¬ ìž¥ì¹˜ í•¸ë“¤ëŸ¬
+            - struct pcap_pkthdr **pkt_header : ìº¡ì²˜í•œ íŒ¨í‚·ì˜ í—¤ë”ì— ëŒ€í•œ í¬ì¸í„°
+                - í•¨ìˆ˜ë¥¼ ê±°ì¹˜ë©° ì €ìž¥ë¨.
+            - const u_char **pkt_data : ìº¡ì²˜í•œ íŒ¨í‚·ì˜ ë°ì´í„°
+                - í•¨ìˆ˜ë¥¼ ê±°ì¹˜ë©° ì €ìž¥ë¨
             # return value
-            - 1 : ¼º°ø
-            - 0 : Å¸ÀÓ¾Æ¿ô ½Ã°£ µ¿¾È ÆÐÅ¶ÀÌ µµÂøÇÏÁö ¾ÊÀ½
-            - -1 : ÆÐÅ¶ ÀÐ´Â µµÁß ¿À·ù ¹ß»ý
-            - -2 : ÆÐÅ¶ Ä¸Ã³°¡ EOF¿¡ µµ´Þ
+            - 1 : ì„±ê³µ
+            - 0 : íƒ€ìž„ì•„ì›ƒ ì‹œê°„ ë™ì•ˆ íŒ¨í‚·ì´ ë„ì°©í•˜ì§€ ì•ŠìŒ
+            - -1 : íŒ¨í‚· ì½ëŠ” ë„ì¤‘ ì˜¤ë¥˜ ë°œìƒ
+            - -2 : íŒ¨í‚· ìº¡ì²˜ê°€ EOFì— ë„ë‹¬
             */
         {
             if (result == 0)
@@ -86,8 +86,9 @@ Adapter::~Adapter()
     m_pNILayer = nullptr;
 }
 
-bool Adapter::PacketStartDriver(pcap_if_t* pcap_if_t, int adtID)
-{
+
+bool Adapter::initAdapter(pcap_if_t* pcap_if_t, int adtID) {
+    if (pcap_if_t == nullptr) return false;
     m_devName = pcap_if_t->name;
     m_description = pcap_if_t->description;
     m_macAddr = GetNICardAddress(pcap_if_t->name);
@@ -95,10 +96,14 @@ bool Adapter::PacketStartDriver(pcap_if_t* pcap_if_t, int adtID)
     char errbuf[PCAP_ERRBUF_SIZE];
 
     m_adapterHandler = pcap_open_live(pcap_if_t->name, 65536, 1, 2000, errbuf);
-    m_thrdSwitch = TRUE;
-
-    m_pThread = AfxBeginThread(ReadingThread, this);
     return true;
+}
+
+bool Adapter::PacketStartDriver()
+{
+    m_thrdSwitch = TRUE;
+    if(m_pThread = AfxBeginThread(ReadingThread, this)) return true;
+    return false;
 }
 
 bool Adapter::Send(unsigned char* payload_data, int payload_data_len)
