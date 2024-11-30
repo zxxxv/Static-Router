@@ -318,9 +318,9 @@ void Cipc2023Dlg::OnCbnSelchangeComboMac() // 0
 	temp = m_NI->m_pAdapterList[m_index];
 	m_NI->GetAdapterObject(0).initAdapter(temp, 0);
 	CString selectedAdapterAdress = m_NI->GetAdapterObject(0).getMacAddr();
-	m_oMacSrc = selectedAdapterAdress;
-	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC2);
-	pSrcEdit->SetWindowTextA(m_oMacSrc);
+	m_iMacSrc = selectedAdapterAdress;
+	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC1);
+	pSrcEdit->SetWindowTextA(m_iMacSrc);
 	UpdateData(FALSE);
 }
 

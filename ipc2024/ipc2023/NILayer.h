@@ -23,7 +23,7 @@ class CNILayer
 protected:
 	void			SetAdapterList();
 public:
-	Adapter     GetAdapterObject(int iIndex); //
+	Adapter&     GetAdapterObject(int iIndex); //
 	void			SetAdapterIndex(int index);
 	BOOL			Receive(unsigned char* payload_data, int adtID);
 	// BOOL			Send(unsigned char* payload_data, int payload_data_len);

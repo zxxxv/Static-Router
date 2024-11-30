@@ -87,7 +87,7 @@ void CNILayer::SetAdapterIndex(int index)
     m_index = index;
 }
 
-Adapter CNILayer::GetAdapterObject(int index)
+Adapter& CNILayer::GetAdapterObject(int index)
 {
     return m_adapters[index];
 }
