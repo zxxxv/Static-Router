@@ -61,7 +61,7 @@ BOOL CEthernetLayer::Send(unsigned char* payload_data, int payload_data_len, uns
     BOOL bSuccess = FALSE;
 
     // 만든 이더넷 data에 이더넷 헤드를 추가해서 NI 계층으로 보냄
-    bSuccess = mp_UnderLayer->Send((unsigned char*)&m_sHeader, payload_data_len + ETHER_HEADER_SIZE); //1514
+    //bSuccess = mp_UnderLayer->Send((unsigned char*)&m_sHeader, payload_data_len + ETHER_HEADER_SIZE); //1514
 
     return bSuccess;
 }

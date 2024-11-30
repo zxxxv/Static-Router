@@ -5,6 +5,7 @@
 #include <pcap.h>
 #include "pch.h"
 #include "NILayer.h"
+#include "RoutingList.h"
 
 class CNILayer;
 

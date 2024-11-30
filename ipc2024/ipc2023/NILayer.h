@@ -30,7 +30,7 @@ public:
 	void			SetAdapterList();
 
 	BOOL			Receive(unsigned char* payload_data, int adtID);
-	BOOL			Send(unsigned char* payload_data, int payload_data_len);
+	//BOOL			Send(unsigned char* payload_data, int payload_data_len);
 
 	CNILayer(char* pName, int iNumAdapter = 0);
 	virtual ~CNILayer();

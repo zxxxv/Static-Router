@@ -86,15 +86,13 @@ private:
 	//CString Cipc2023Dlg::binaryToString(const unsigned char* ip);
 
 public:
-	//Adapter m_inner;
-	//Adapter m_outer;
 	CString m_iMacSrc;
 	CString m_oMacSrc;
 	UCHAR m_ucSrcAddrArray[6];
 	UCHAR m_ucDstAddrArray[6];
 	//UCHAR m_unused[100];
 	ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
-	RoutingList& routingTable = RoutingList::getInstance();
+	RoutingList& routingTable = RoutingList::GetInstance();
 	int m_index;
 	CListCtrl m_ListCtrl;		// ARP 캐시 테이블
 	CIPAddressCtrl m_ipSource;	// 내 IP 주소

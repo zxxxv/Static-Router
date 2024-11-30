@@ -15,11 +15,12 @@ public:
     /////////////////////// IP
     
     //목적지 IP를 기준으로 Ethernet 헤더의 목적지 MAC 주소를 업데이트하는 함수
-    void UpdateEthernetDestMac(const unsigned char* destIp);
+    BOOL UpdateEthernetDestMac(const unsigned char* destIp, int io);
 
     // 수신한 IP 패킷 처리하는 함수
     BOOL IpReceive(unsigned char* payload_data, int io);
-
+    BOOL IpSend(unsigned char* ppayload, int nlength, int io);
+    unsigned char* Routing(unsigned char* ip);
 
     /////////////////////// ARP
     // ARP 요청 패킷 생성 함수
@@ -50,7 +51,7 @@ public:
     //void SetSenderMac(const unsigned char* macAddress);
 
     //dlg에서 브로드캐스트 보낼 ip 받아오는 함수
-    void SetTargetInfo(const unsigned char* target_ip);
+    //void SetTargetInfo(const unsigned char* target_ip);
 
     void onEntryTimeout(const unsigned char* ip) override;
     /*
@@ -63,6 +64,7 @@ public:
 
     unsigned char target_ip[4];   // 타겟 IP 주소를 저장하는 변수
     ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
+    RoutingList& routingTable = RoutingList::GetInstance();
     
     typedef struct _INTERFACE_CARD {
 
@@ -105,7 +107,8 @@ private:
     INTERFACE_CARD interfaces[2];
 
     const unsigned char broadcast_mac[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-    const unsigned char defaultMac[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    unsigned char defaultMac[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    unsigned char defaultIp[4] = { 0, 0, 0, 0 };
 
 protected:
     ARP_HEADER   arpHeader[2];   /// 객체 ARP 해더

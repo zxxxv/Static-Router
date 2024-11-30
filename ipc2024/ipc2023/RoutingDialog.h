@@ -31,7 +31,7 @@ private:
 	CString m_strDeviceName; // 장치 이름을 저장할 멤버 변수
 
 public:
-	RoutingList& routingTable = RoutingList::getInstance();
+	RoutingList& routingTable = RoutingList::GetInstance();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
 	BOOL OnInitDialog();

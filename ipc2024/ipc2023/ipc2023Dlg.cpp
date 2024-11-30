@@ -311,10 +311,12 @@ void Cipc2023Dlg::OnCbnSelchangeComboMac() // 0
 {
 	// 내부 어댑터 선택
 	UpdateData(TRUE);
+	pcap_if_t* temp;
 	m_index = m_comboBox1.GetCurSel();
-	m_NI->SetAdapterIndex(m_index);
-	m_NI->GetAdapterObject(m_index);
-	CString selectedAdapterAdress = Converter::STR2CS(m_inner.getDevName());
+	//m_NI->SetAdapterIndex(m_index);
+	temp = m_NI->m_pAdapterList[m_index];
+	m_NI->m_adapters[0].initAdapter(temp, 0);
+	CString selectedAdapterAdress = Converter::STR2CS(m_NI->m_adapters[0].getMacAddr());
 	m_iMacSrc = selectedAdapterAdress;
 	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC1);
 	pSrcEdit->SetWindowTextA(m_iMacSrc);
@@ -327,7 +329,7 @@ void Cipc2023Dlg::OnCbnSelchangeComboMac2() // 1
 	UpdateData(TRUE);
 	pcap_if_t* temp;
 	m_index = m_comboBox2.GetCurSel();
-	m_NI->SetAdapterIndex(m_index);
+	//m_NI->SetAdapterIndex(m_index);
 	temp = m_NI->m_pAdapterList[m_index];
 	m_NI->m_adapters[1].initAdapter(temp, 1);
 	CString selectedAdapterAdress = Converter::STR2CS(m_NI->m_adapters[1].getMacAddr());
@@ -505,19 +507,14 @@ void Cipc2023Dlg::OnBnClickedButtonStart()
 	BOOL ready1 = FALSE;
 	BOOL ready2 = FALSE;
 
-	//// 내부 네트워크 어댑터 receive 쓰레드 시작
-	//if (m_inner.PacketStartDriver(m_inner.getHandler(), INNER)) {
-	//	if (m_IP->createGarpPacket(0)) {// GARP 패킷 전송
-	//		ready1 = TRUE;
-	//	}
-	//			
-	//}
-	//// 외부 네트워크 어댑터 receive 쓰레드 시작
-	//if (m_outer.PacketStartDriver(m_outer.getHandler(), OUTER)) {
-	//	if (m_IP->createGarpPacket(1)) {// GARP 패킷 전송
-	//		ready2 = TRUE;
-	//	}
-	//}
+	//PacketStartDriver
+
+	if (m_IP->createGarpPacket(0)) {// GARP 패킷 전송
+		ready1 = TRUE;
+	}
+	if (m_IP->createGarpPacket(1)) {// GARP 패킷 전송
+		ready2 = TRUE;
+	}
 	if (ready1 && ready2) {
 		m_routerReady = TRUE;
 		SetDlgState(IPC_ROUTERSTART);
