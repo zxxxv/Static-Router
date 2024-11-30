@@ -23,10 +23,13 @@ CEthernetLayer::CEthernetLayer(char* pName)
 
 CEthernetLayer::~CEthernetLayer()
 {
-
 }
 
-// 24.10.06 memset(m_sHeader.enet_data, ETHER_MAX_DATA_SIZE, 6) 수정
+void CEthernetLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* macAddr2) {
+    memcpy(interfaces[0].macAddr, macAddr1, 6);    // 내부 MAC 주소 설정
+    memcpy(interfaces[1].macAddr, macAddr2, 6);    // 외부 MAC 주소 설정
+}
+
 void CEthernetLayer::ResetHeader(int io)
 {
     // 이더넷 목적지 주소, 나의 주소, 타입, Data를 초기화함
@@ -72,28 +75,21 @@ BOOL CEthernetLayer::Receive(unsigned char* payload_data, int io)
     BOOL bSuccess = FALSE;
     
     // 목적지 주소가 나의 주소가 아니면서, 브로드 캐스트가 아니면 무시
-    if (memcmp(pFrame->enet_dstaddr, m_sHeader[io].enet_srcaddr, 6) != 0 &&
+    if (memcmp(pFrame->enet_dstaddr, interfaces[io].macAddr, 6) != 0 &&
         memcmp(pFrame->enet_dstaddr, broadcastAddr, 6) != 0)
         return FALSE;
     // 내가 보낸 패킷이 나에게 온건지
-    if (memcmp(pFrame->enet_srcaddr, m_sHeader[io].enet_srcaddr, 6) == 0)
+    if (memcmp(pFrame->enet_srcaddr, interfaces[io].macAddr, 6) == 0)
         return FALSE;
     
     unsigned short type = TO_BIG_ENDIAN_16(pFrame->enet_type);
 
-    switch (io) {
-        case INNER:
-            if (type == ARP_LAYER_IDENTIFIER)
-                return mp_aUpperLayer[0]->ArpReceive((unsigned char*)pFrame->enet_data, INNER);
-            if (type == IP_LAYER_IDENTIFIER)
-                return mp_aUpperLayer[0]->IpReceive((unsigned char*)pFrame->enet_data, INNER);
+    switch (type) {
+        case ARP_LAYER_IDENTIFIER:
+                return mp_aUpperLayer[0]->ArpReceive((unsigned char*)pFrame->enet_data, io);
             break;
-
-        case OUTER:
-            if (type == ARP_LAYER_IDENTIFIER)
-                return mp_aUpperLayer[0]->ArpReceive((unsigned char*)pFrame->enet_data, OUTER);
-            if (type == IP_LAYER_IDENTIFIER)
-                return mp_aUpperLayer[0]->IpReceive((unsigned char*)pFrame->enet_data, OUTER);
+        case IP_LAYER_IDENTIFIER:
+                return mp_aUpperLayer[0]->IpReceive((unsigned char*)pFrame->enet_data, io);
             break;
     }
     return FALSE;

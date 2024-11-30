@@ -92,17 +92,16 @@ BEGIN_MESSAGE_MAP(Cipc2023Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	//ON_CBN_SELCHANGE(IDC_COMBO, &Cipc2023Dlg::OnCbnSelchangeCombo)
-	ON_BN_CLICKED(IDC_ARP_TABLE, &Cipc2023Dlg::OnBnClickedArpTable)
 	ON_BN_CLICKED(IDC_PROXY_ADD, &Cipc2023Dlg::OnBnClickedProxyAdd)
 	ON_BN_CLICKED(IDC_PROXY_DELETE, &Cipc2023Dlg::OnBnClickedProxyDelete)
-	ON_BN_CLICKED(IDC_PROXY_TABLE, &Cipc2023Dlg::OnBnClickedProxyTable)
+	//ON_BN_CLICKED(IDC_PROXY_TABLE, &Cipc2023Dlg::OnBnClickedProxyTable)
 	ON_BN_CLICKED(IDC_BUTTON_END, &Cipc2023Dlg::OnBnClickedButtonEnd)
 	ON_BN_CLICKED(IDC_BUTTON_START, &Cipc2023Dlg::OnBnClickedButtonStart)
 	ON_CBN_SELCHANGE(IDC_COMBO_MAC1, &Cipc2023Dlg::OnCbnSelchangeComboMac)
 	ON_CBN_SELCHANGE(IDC_COMBO_MAC2, &Cipc2023Dlg::OnCbnSelchangeComboMac2)
 	ON_BN_CLICKED(IDC_BUTTON_RADD, &Cipc2023Dlg::OnBnClickedButtonRadd)
 	ON_BN_CLICKED(IDC_BUTTON_RDELETE, &Cipc2023Dlg::OnBnClickedButtonRdelete)
+	ON_BN_CLICKED(IDC_BUTTON_ARP_DELETE, &Cipc2023Dlg::OnBnClickedButtonArpDelete)
 END_MESSAGE_MAP()
 
 
@@ -224,33 +223,10 @@ HCURSOR Cipc2023Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-BOOL Cipc2023Dlg::Receive(unsigned char* ppayload, int io)
-{
-	unsigned char* mac = ppayload;
-	unsigned char* ip = ppayload + 6;
-
-	// IP, MAC, Status를 CString으로 변환
-	CString strIP, strMAC, strStatus;
-
-	// IP 변환
-	strIP.Format(_T("%d.%d.%d.%d"), ip[0], ip[1], ip[2], ip[3]);
-
-	// MAC 변환
-	strMAC.Format(_T("%02X:%02X:%02X:%02X:%02X:%02X"),
-		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
-	// Status 변환
-	strStatus.Format(_T("%s"), "complete");
-
-	//CString message;
-	//message.Format(_T("변경 IP: %s, MAC: %s, Status: %s"), strIP, strMAC, strStatus);
-	//AfxMessageBox(message);
-
-	// 리스트 컨트롤 업데이트
-	UpdateListCtrlItem(strIP, strMAC, strStatus);
-
-	return TRUE;
-}
+//BOOL Cipc2023Dlg::Receive(unsigned char* ppayload, int io)
+//{
+//	return TRUE;
+//}
 
 BOOL Cipc2023Dlg::PreTranslateMessage(MSG* pMsg)
 {
@@ -299,11 +275,11 @@ void Cipc2023Dlg::SetDlgState(int state)
 	case IPC_ERROR:		break;
 	case IPC_COMBO_SET:
 		for (int i = 0; i < NI_COUNT_NIC; ++i) {
-			pcap_if_t* tempAdater = m_NI->GetAdapterObject(i);
-			if (!tempAdater) continue;
-			pComboBox1->AddString(tempAdater->description);
+			Adapter adt = m_NI->GetAdapterObject(i);
+			//if (!adt) continue;
+			pComboBox1->AddString(CString(adt.getDescription().c_str()));
 			pComboBox1->SetCurSel(0);
-			pComboBox2->AddString(tempAdater->description);
+			pComboBox2->AddString(CString(adt.getDescription().c_str()));
 			pComboBox2->SetCurSel(0);
 		}
 	}
@@ -337,8 +313,8 @@ void Cipc2023Dlg::OnCbnSelchangeComboMac()
 	UpdateData(TRUE);
 	m_index = m_comboBox1.GetCurSel();
 	m_NI->SetAdapterIndex(m_index);
-	pcap_if_t* selectedAdapter = m_NI->GetAdapterObject(m_index);
-	CString selectedAdapterAdress = m_NI->GetNICardAddress(selectedAdapter->name);
+	m_inner = m_NI->GetAdapterObject(m_index);
+	CString selectedAdapterAdress = Converter::STR2CS(m_inner.getDevName());
 	m_iMacSrc = selectedAdapterAdress;
 	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC1);
 	pSrcEdit->SetWindowTextA(m_iMacSrc);
@@ -351,8 +327,8 @@ void Cipc2023Dlg::OnCbnSelchangeComboMac2()
 	UpdateData(TRUE);
 	m_index = m_comboBox2.GetCurSel();
 	m_NI->SetAdapterIndex(m_index);
-	pcap_if_t* selectedAdapter = m_NI->GetAdapterObject(m_index);
-	CString selectedAdapterAdress = m_NI->GetNICardAddress(selectedAdapter->name);
+	m_outer = m_NI->GetAdapterObject(m_index);
+	CString selectedAdapterAdress = Converter::STR2CS(m_outer.getDevName());
 	m_oMacSrc = selectedAdapterAdress;
 	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC2);
 	pSrcEdit->SetWindowTextA(m_oMacSrc);
@@ -374,7 +350,7 @@ void Cipc2023Dlg::UpdateRoutingTable() // 라우팅 테이블 출력
 		strNetmask.Format(_T("%d.%d.%d.%d"), entry.m_subnetMask[0], entry.m_subnetMask[1], entry.m_subnetMask[2], entry.m_subnetMask[3]);
 		strGateway.Format(_T("%d.%d.%d.%d"), entry.m_gateway[0], entry.m_gateway[1], entry.m_gateway[2], entry.m_gateway[3]);
 		strFlag = GetFlagString(entry.m_flag);
-		strInterface = CString(m_NI->GetAdapterObject(entry.m_interfaceFlag)->description);
+		strInterface = CString(m_NI->GetAdapterObject(entry.m_interfaceFlag).getDescription().c_str());
 		strMetric.Format(_T("%d"), entry.m_metric);
 
 		int nIndex = m_ListCtrlR.InsertItem(index++, strDestination);
@@ -385,6 +361,42 @@ void Cipc2023Dlg::UpdateRoutingTable() // 라우팅 테이블 출력
 		m_ListCtrlR.SetItemText(nIndex, 5, strMetric);
 	}
 }
+
+void Cipc2023Dlg::UpdateARPTable() // ARP 테이블 출력
+{
+	m_ListCtrl.DeleteAllItems(); // 리스트 컨트롤 초기화
+	CString arpentries = m_IP->printCache(); // ARP 엔트리 가져오기
+	
+	int nIndex = 0;
+	int start = 0;
+	CString line = arpentries.Tokenize(_T("\r\n"), start);
+
+	while (!line.IsEmpty()) {
+		CString ip, mac, state;
+
+		//IP, MAC, State가 시작하는 index번호를 추출
+		int ipStart = line.Find(_T("IP: ")) + 4;
+		int macStart = line.Find(_T("MAC: ")) + 5;
+		int stateStart = line.Find(_T("State: ")) + 7;
+
+		//IP, MAC, State의 실질적 데이터 추출, line의 형식이 IP: %s, MAC: %s, State: %s
+		ip = line.Mid(ipStart, macStart - ipStart - 7).Trim();
+		mac = line.Mid(macStart, stateStart - macStart - 9).Trim();
+		state = line.Mid(stateStart).Trim();
+
+		int itemIndex = m_ListCtrl.InsertItem(nIndex++, ip);  //첫 번째 열: IP
+		m_ListCtrl.SetItemText(itemIndex, 1, mac);  //두 번째 열: MAC
+		m_ListCtrl.SetItemText(itemIndex, 2, state);  // 세 번째 열: state
+
+
+		// 다음 라인으로 이동
+		line = arpentries.Tokenize(_T("\r\n"), start);
+
+	}
+	m_IP->printCache();
+}
+
+
 
 CString Cipc2023Dlg::GetFlagString(e_flag flag)
 {
@@ -400,82 +412,10 @@ CString Cipc2023Dlg::GetFlagString(e_flag flag)
 	}
 }
 
-void Cipc2023Dlg::OnBnClickedButtonDelete() // 삭제 버튼
-{
-	POSITION pos;
-	pos = m_ListCtrl.GetFirstSelectedItemPosition();
-
-	int idx = m_ListCtrl.GetNextSelectedItem(pos);
-
-	if (idx != -1)
-	{		
-		CString strValue = m_ListCtrl.GetItemText(idx, 0);
-		unsigned char value[4];
-		int ip1, ip2, ip3, ip4;
-		_stscanf_s(strValue, _T("%d.%d.%d.%d"), &ip1, &ip2, &ip3, &ip4);
-		value[0] = static_cast<unsigned char>(ip1);
-		value[1] = static_cast<unsigned char>(ip2);
-		value[2] = static_cast<unsigned char>(ip3);
-		value[3] = static_cast<unsigned char>(ip4);
-
-		m_ListCtrl.DeleteItem(idx);
-		// ARP 캐시 테이블에 있는 엔트리 제거하기
-		//m_ARP->onEntryTimeout(value);
-		m_IP->removeEntry(value);
-		
-		//m_ARP->printCache();
-	}
-}
-
-void Cipc2023Dlg::UpdateListCtrlItem(const CString& ip, const CString& mac, const CString& status) // ListCtrl 수정
-{
-	int itemCount = m_ListCtrl.GetItemCount();
-	bool itemFound = false;
-
-	for (int i = 0; i < itemCount; ++i)
-	{
-		CString column1Value = m_ListCtrl.GetItemText(i, 0);
-
-		if (column1Value == ip)
-		{
-			m_ListCtrl.SetItemText(i, 1, mac);
-			m_ListCtrl.SetItemText(i, 2, status);
-			itemFound = true;
-			break;
-		}
-	}
-
-	// 동일한 IP를 찾지 못한 경우에만 새 항목 추가
-	if (!itemFound)
-	{
-		int num = m_ListCtrl.GetItemCount();
-		m_ListCtrl.InsertItem(num, ip);
-		m_ListCtrl.SetItem(num, 1, LVIF_TEXT, mac, 0, 0, 0, 0);
-		m_ListCtrl.SetItem(num, 2, LVIF_TEXT, status, 0, 0, 0, 0);
-	}
-}
-
-void Cipc2023Dlg::OnBnClickedArpTable()
-{
-	m_IP->printCache();
-}
-
-void Cipc2023Dlg::TimeoutEntryDelete(const unsigned char* ip)
-{
-	int Index = 0;
-	int itemCount = m_ListCtrl.GetItemCount(); // 전체 항목 개수
-	CString tarIP;
-	tarIP.Format(_T("%d.%d.%d.%d"), ip[0], ip[1], ip[2], ip[3]);
-
-	for (int i = 0; i < itemCount; ++i) {
-		CString itemText = m_ListCtrl.GetItemText(i, 0); // 특정 열의 텍스트 가져오기
-		if (itemText.Find(tarIP) != -1) { // searchText가 포함된 항목을 찾으면
-			Index = i; // 해당 인덱스 반환
-			break;
-		}
-	}
-	m_ListCtrl.DeleteItem(Index);
-}
+//void Cipc2023Dlg::OnBnClickedArpTable()
+//{
+//	UpdateARPTable();
+//}
 
 void Cipc2023Dlg::OnBnClickedProxyAdd() // 프록시 테이블 추가
 {
@@ -525,15 +465,15 @@ void Cipc2023Dlg::OnBnClickedProxyDelete() // 프록시 테이블 삭제
 	}
 }
 
-void Cipc2023Dlg::OnBnClickedProxyTable()
-{	
-	proxyTable.DisplayAllEntries();
-}
+//void Cipc2023Dlg::OnBnClickedProxyTable()
+//{	
+//	proxyTable.DisplayAllEntries();
+//}
 
 void Cipc2023Dlg::OnBnClickedButtonEnd()
 {
 	// receive 쓰레드 종료
-	m_NI->StopPacketDriver();
+	//m_NI->StopPacketDriver();
 	m_routerReady = FALSE;
 	SetDlgState(IPC_ROUTEREND);
 }
@@ -558,23 +498,24 @@ void Cipc2023Dlg::OnBnClickedButtonStart()
 	Str2UCHAR(m_oMacSrc, interfaces[1].macAddr);
 
 	m_IP->SetInterfaceInfo(interfaces[0].macAddr, interfaces[0].ipAddr, interfaces[1].macAddr, interfaces[1].ipAddr);
+	m_Eth->SetInterfaceInfo(interfaces[0].macAddr, interfaces[1].macAddr);
 
 	BOOL ready1 = FALSE;
 	BOOL ready2 = FALSE;
 
-	// 내부 네트워크 어댑터 receive 쓰레드 시작
-	if (m_NI->PacketStartDriver(0)) {
-		if (m_IP->createGarpPacket(0)) {// GARP 패킷 전송
-			ready1 = TRUE;
-		}
-				
-	}
-	// 외부 네트워크 어댑터 receive 쓰레드 시작
-	if (m_NI->PacketStartDriver(1)) {
-		if (m_IP->createGarpPacket(1)) {// GARP 패킷 전송
-			ready2 = TRUE;
-		}
-	}
+	//// 내부 네트워크 어댑터 receive 쓰레드 시작
+	//if (m_inner.PacketStartDriver(m_inner.getHandler(), INNER)) {
+	//	if (m_IP->createGarpPacket(0)) {// GARP 패킷 전송
+	//		ready1 = TRUE;
+	//	}
+	//			
+	//}
+	//// 외부 네트워크 어댑터 receive 쓰레드 시작
+	//if (m_outer.PacketStartDriver(m_outer.getHandler(), OUTER)) {
+	//	if (m_IP->createGarpPacket(1)) {// GARP 패킷 전송
+	//		ready2 = TRUE;
+	//	}
+	//}
 	if (ready1 && ready2) {
 		m_routerReady = TRUE;
 		SetDlgState(IPC_ROUTERSTART);
@@ -603,5 +544,32 @@ void Cipc2023Dlg::OnBnClickedButtonRdelete() // Routing Entry 삭제
 		}
 		// 라우팅 테이블 리스트 컨트롤 업데이트
 		UpdateRoutingTable();
+	}
+}
+
+void Cipc2023Dlg::OnBnClickedButtonArpDelete() // ARP Entry 삭제
+{
+	POSITION pos = m_ListCtrl.GetFirstSelectedItemPosition();
+	int idx = m_ListCtrl.GetNextSelectedItem(pos);
+
+	if (idx != -1) {
+		// 리스트 컨트롤에서 선택된 IP 주소 가져오기
+		CString ip = m_ListCtrl.GetItemText(idx, 0);
+
+		unsigned char value[4];
+		int ip1, ip2, ip3, ip4;
+		_stscanf_s(ip, _T("%d.%d.%d.%d"), &ip1, &ip2, &ip3, &ip4);
+		value[0] = static_cast<unsigned char>(ip1);
+		value[1] = static_cast<unsigned char>(ip2);
+		value[2] = static_cast<unsigned char>(ip3);
+		value[3] = static_cast<unsigned char>(ip4);
+
+		// removeEntry 호출
+		if (!m_IP->removeEntry(value)) {
+			AfxMessageBox(_T("엔트리 삭제 실패"));
+		}
+
+		// 리스트 컨트롤 업데이트
+		UpdateARPTable();
 	}
 }

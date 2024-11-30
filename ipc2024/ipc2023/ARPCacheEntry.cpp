@@ -95,7 +95,7 @@ void ARPCacheEntry::onArpReplyReceived() {
 }
 
 bool ARPCacheEntry::editMac(const unsigned char* mac) {
-    if (sizeof(mac) != 6) return false;
+    if (!mac) return false;
     memcpy(m_mac, mac, 6);
     return true;
 }

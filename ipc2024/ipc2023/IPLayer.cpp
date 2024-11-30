@@ -67,21 +67,21 @@ void CIPLayer::ResetARPHeader(int io)
     arpHeader[io].mac_len = 6;
     arpHeader[io].ip_len = 4;
     arpHeader[io].op_code = 0;
-    memset(arpHeader[io].source_mac, 6, 0);
-    memset(arpHeader[io].source_ip, 4, 0);
-    memset(arpHeader[io].target_mac, 6, 0);
-    memset(arpHeader[io].target_ip, 4, 0);
+    memset(arpHeader[io].source_mac, 0, 6);
+    memset(arpHeader[io].source_ip, 0, 4);
+    memset(arpHeader[io].target_mac, 0, 6);
+    memset(arpHeader[io].target_ip, 0, 4);
 }
 
 //void CIPLayer::SetSenderMac(const unsigned char* macAddress) {
 //    memcpy(sender_mac, macAddress, 6);            // MAC 주소 설정
 //}
 
-void CIPLayer::SetTargetInfo(const unsigned char* targetIp) {
-    memcpy(target_ip, targetIp, 4);                 // 타겟 IP 주소 설정
-}
+//void CIPLayer::SetTargetInfo(const unsigned char* targetIp) {
+//    memcpy(target_ip, targetIp, 4);                 // 타겟 IP 주소 설정
+//}
 
-BOOL CIPLayer::SetEthernetDest(unsigned char* target_mac, int io) {
+void CIPLayer::SetEthernetDst(unsigned char* target_mac, int io) {
 
     if (arpHeader[io].op_code == 1) {               // ARP request
         ((CEthernetLayer*)GetUnderLayer())->SetDestinAddress((unsigned char*)broadcast_mac, 0);
@@ -89,49 +89,27 @@ BOOL CIPLayer::SetEthernetDest(unsigned char* target_mac, int io) {
     else if (arpHeader[io].op_code == 2) {          // ARP reply
         ((CEthernetLayer*)GetUnderLayer())->SetDestinAddress(target_mac, 0);
     }
-    return true;
 }
 
-void CIPLayer::createArpRequestPacket(int io) {
+void CIPLayer::SetEthernetSrc(int io) {
+    ((CEthernetLayer*)GetUnderLayer())->SetSourceAddress(interfaces[io].macAddr, io);
+}
+
+BOOL CIPLayer::createArpRequestPacket(unsigned char* target_ip, int io) {
     // 선택된 IP주소에 해당하는 mac주소가 있으면 전송 X
     // 없으면 브로드캐스트로 전송
-    if (addOrUpdate(target_ip, defaultMac, false, false)) {
+    if (addOrUpdate(target_ip, interfaces[io].macAddr, false, false)) {
         ResetARPHeader(io);
+        ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();
         memcpy(arpHeader[io].source_mac, interfaces[io].macAddr, 6);
         memcpy(arpHeader[io].source_ip, interfaces[io].ipAddr, 4);
         memcpy(arpHeader[io].target_ip, target_ip, 4);
-
-        createArpPacket(0x0001, io);
+        return createArpPacket(0x0001, io);
     }
-}
+    return FALSE;
+};
 
-BOOL CIPLayer::createGarpPacket(int io) {
-    // ARP Header
-    // Source IP		: Sender's IP
-    // Destination IP	: Sender's IP
-    // Source Mac		: Sender's Mac
-    // Destination Mac	: Broadcast
-
-    // Ethernet
-    // Source Mac		: Sender's Mac
-    // Destination Mac	: Broadcast
-
-    //const unsigned char broadcast_mac[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-    //const unsigned char zero_ip[4] = { 0x00, 0x00, 0x00, 0x00 };
-
-    ((CEthernetLayer*)GetUnderLayer())->SetSourceAddress(interfaces[io].macAddr, 0);
-
-    ResetARPHeader(io);
-
-    memcpy(arpHeader[io].source_mac, interfaces[io].macAddr, 6);
-    memcpy(arpHeader[io].source_ip, interfaces[io].ipAddr, 4);
-    memcpy(arpHeader[io].target_ip, interfaces[io].ipAddr, 4);
-    memcpy(arpHeader[io].target_mac, broadcast_mac, 6);
-
-    return createArpPacket(0x0001, io);
-}
-
-void CIPLayer::createArpReplyPacket(unsigned char* payload_data, int io) {
+BOOL CIPLayer::createArpReplyPacket(unsigned char* payload_data, int io) {
     // 송신측의 맥주소와 IP주소를 타겟으로 바꾸고 송신측엔 나의 정보로 채움
     // target ip 주소가 나인지 확인
     // 내가 맞을 경우 source 필드를 target 필드로 설정하고
@@ -148,12 +126,36 @@ void CIPLayer::createArpReplyPacket(unsigned char* payload_data, int io) {
     memcpy(arpHeader[io].source_mac, interfaces[io].macAddr, data->mac_len);
     memcpy(arpHeader[io].source_ip, data->target_ip, data->ip_len);
 
-    createArpPacket(0x0002, io);
+    return createArpPacket(0x0002, io);
 };
+
+BOOL CIPLayer::createGarpPacket(int io) {
+    // ARP Header
+    // Source IP		: Sender's IP
+    // Destination IP	: Sender's IP
+    // Source Mac		: Sender's Mac
+    // Destination Mac	: Broadcast
+
+    // Ethernet
+    // Source Mac		: Sender's Mac
+    // Destination Mac	: Broadcast
+
+    //const unsigned char broadcast_mac[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+    //const unsigned char zero_ip[4] = { 0x00, 0x00, 0x00, 0x00 };
+
+    //SetEthernetSrc(io);
+    ResetARPHeader(io);
+    memcpy(arpHeader[io].source_mac, interfaces[io].macAddr, 6);
+    memcpy(arpHeader[io].source_ip, interfaces[io].ipAddr, 4);
+    memcpy(arpHeader[io].target_ip, interfaces[io].ipAddr, 4);
+    memcpy(arpHeader[io].target_mac, broadcast_mac, 6);
+    return createArpPacket(0x0001, io);
+}
 
 BOOL CIPLayer::createArpPacket(unsigned short op_code, int io) {
     arpHeader[io].op_code = TO_BIG_ENDIAN_16(op_code);
-    SetEthernetDest(arpHeader[io].target_mac, io);
+    SetEthernetDst(arpHeader[io].target_mac, io);
+    SetEthernetSrc(io);
     return ArpSend((unsigned char*)&arpHeader[io], ARP_HEADER_SIZE, io);
 };
 
@@ -175,36 +177,30 @@ BOOL CIPLayer::ArpReceive(unsigned char* payload_data, int io)
     PARP_HEADER data = (PARP_HEADER)payload_data;
     // ARP OP code가 1 - ARP 응답 패킷 생성 함수 호출
     if (data->op_code == 1) {
-        
-        addOrUpdate(data->source_ip, data->source_mac, true, true); // 이미 존재하면 덮어씌우는 것으로 바꾸기
-        // dlg 업데이트 하기
-        unsigned char buffer[10];
-        memcpy(buffer, data->source_mac, 6);        // source_mac 복사 (6 bytes)
-        memcpy(buffer + 6, data->source_ip, 4);     // source_ip 복사 (4 bytes)
-        mp_aUpperLayer[0]->Receive(buffer, io);
+        addOrUpdate(data->source_ip, data->source_mac, true, true); // 이미 존재하면 수정
+        ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg 업데이트
 
         // 타겟 ip 주소가 나의 ip 주소와 같은지 or 프록시 테이블에 존재하는지
         if (memcmp(data->target_ip, interfaces[io].ipAddr, data->ip_len) == 0 || proxyTable.FindEntryByIP(data->target_ip)) {
-            createArpReplyPacket(payload_data, io); // 수정필요
+            return createArpReplyPacket(payload_data, io); // 수정필요
         }
     }
     // ARP OP code가 2 - ARP cashe table 업데이트
     else if (data->op_code == 2) {
-        // ARP 캐시 테이블 업데이트
-        handleArpReply(data->source_ip);
-        
-        // dlg 업데이트
-        unsigned char buffer[10];
-        memcpy(buffer, data->source_mac, 6);        // source_mac 복사 (6 bytes)
-        memcpy(buffer + 6, data->source_ip, 4);     // source_ip 복사 (4 bytes)
-        mp_aUpperLayer[0]->Receive(buffer, io);
+        handleArpReply(data->source_ip);                            // incomplete->complete
+        editEntryMacAddress(data->source_ip, data->source_mac);     // mac 주소 변경
+        ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg 업데이트
     };
-
     return TRUE;
 }
 
 void CIPLayer::onEntryTimeout(const unsigned char* ip) {
     std::string strIP = binaryToString(ip);
-    ((Cipc2023Dlg*)this->GetUpperLayer(0))->TimeoutEntryDelete(ip);
     removeEntry(ip);
+    ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();
 }
+
+//CString arpentries = _T("IP: 192.168.0.1, MAC: 00:1A:2B:3C:4D:5E, State: complete\r\n");
+//unsigned char ipa[4] = { 192,168,0,1 };
+//unsigned char maca[6] = { 0x00,0x1A,0x2B,0x3C,0x4D,0x5E };
+//m_IP->addOrUpdate(ipa,maca,true,true);

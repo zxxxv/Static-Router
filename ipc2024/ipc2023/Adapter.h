@@ -3,6 +3,10 @@
 #include "utils.h"
 #include <string>
 #include <pcap.h>
+#include "pch.h"
+#include "NILayer.h"
+
+class CNILayer;
 
 class Adapter {
 private:
@@ -35,7 +39,7 @@ public:
 	std::string getMacAddr() { return m_macAddr; }
 	int getAdtId() { return m_adtID; }
 
-	void PacketStartDriver(pcap_if_t* pcap_if_t, int adtID);
+	bool PacketStartDriver(pcap_if_t* pcap_if_t, int adtID);
 	/*
 	1. NILayer에서는 setAdapterList를 통해 장치 목록을 얻고, adtID가 주어지면 adtID를 기반으로 Adapters 벡터의 요소 중 하나에 접근
 	2. 접근 후에 해당되는 pcap_if_t*를 PacketStartDriver에 넘김

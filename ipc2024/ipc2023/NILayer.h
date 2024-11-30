@@ -17,6 +17,7 @@
 #include <vector>
 #pragma comment (lib, "iphlpapi.lib")
 
+
 class CNILayer
 	: public CBaseLayer
 {
@@ -34,7 +35,6 @@ public:
 	CNILayer(char* pName, int iNumAdapter = 0);
 	virtual ~CNILayer();
 
-	// �� ��ġ�� ��� ����͸� �ӽ÷� ��Ƶα� ���� �迭
 	pcap_if_t* m_pAdapterList[NI_COUNT_NIC];
 
 protected:

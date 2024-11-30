@@ -23,10 +23,15 @@ public:
 
     /////////////////////// ARP
     // ARP 요청 패킷 생성 함수
-    void createArpRequestPacket(int io);
+    BOOL createArpRequestPacket(unsigned char* target_ip, int io);
+    /*
+    createArpRequestPacket: 궁금한 mac 주소에 해당하는 ip 주소 입력 및 어댑터(내부, 외부) 선택
+    내부 입력 -> INNER == 0
+    외부 입력 -> OUTER == 1
+    */
 
     // ARP 응답 패킷 생성 함수
-    void createArpReplyPacket(unsigned char* payload_data, int io);
+    BOOL createArpReplyPacket(unsigned char* payload_data, int io);
 
     // ARP 패킷을 전송하는 함수
     BOOL ArpSend(unsigned char* ppayload, int nlength, int io);
@@ -36,9 +41,10 @@ public:
 
     BOOL createArpPacket(unsigned short op_code, int io);
 
-    BOOL SetEthernetDest(unsigned char* target_mac, int io);
+    void SetEthernetDst(unsigned char* target_mac, int io);
+    void SetEthernetSrc(int io);
 
-    //dlg에서 나의 맥, 아이피
+    //dlg에서 설정한 mac, ip
     void CIPLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* ipAddr1, unsigned char* macAddr2, unsigned char* ipAddr2);
 
     //void SetSenderMac(const unsigned char* macAddress);
@@ -55,9 +61,6 @@ public:
 
     BOOL CIPLayer::createGarpPacket(int io);
 
-
-    //unsigned char sender_mac[6];  // MAC 주소를 저장하는 변수
-    //unsigned char sender_ip[4];   // 나의 IP 주소를 저장하는 변수
     unsigned char target_ip[4];   // 타겟 IP 주소를 저장하는 변수
     ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
     

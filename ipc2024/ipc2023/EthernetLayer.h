@@ -15,20 +15,21 @@
 class CEthernetLayer
     : public CBaseLayer
 {
-private:
-    inline void         ResetHeader(int io);
-    unsigned char       broadcastAddr[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
 public:
     BOOL         Receive(unsigned char* payload_data_len, int io);
     BOOL         Send(unsigned char* payload_data, int payload_data_len, unsigned short type, int io);
     void         SetDestinAddress(unsigned char* pAddress, int io);
     void         SetSourceAddress(unsigned char* pAddress, int io);
+    void         SetInterfaceInfo(unsigned char* macAddr1, unsigned char* macAddr2);
     /*unsigned char* GetDestinAddress();
     unsigned char* GetSourceAddress();*/
 
     CEthernetLayer(char* pName);
     virtual ~CEthernetLayer();
+
+    typedef struct _INTERFACE_CARD {
+        unsigned char macAddr[6];
+    } INTERFACE_CARD;
 
     typedef struct _ETHERNET_HEADER {
 
@@ -38,6 +39,11 @@ public:
         unsigned char   enet_data[ETHER_MAX_DATA_SIZE]; // frame data
 
     } ETHERNET_HEADER, * PETHERNET_HEADER;
+
+private:
+    inline void         ResetHeader(int io);
+    unsigned char       broadcastAddr[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+    INTERFACE_CARD interfaces[2];
 
 protected:
     ETHERNET_HEADER   m_sHeader[2];   /// 객체 이더넷 해더

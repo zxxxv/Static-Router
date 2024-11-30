@@ -24,8 +24,8 @@ bool ARPCacheTable::addOrUpdate(const unsigned char* ip, const unsigned char* ma
     std::string strIP = binaryToString(ip);
     auto it = cache.find(strIP);
     if (it != cache.end()) {
-        AfxMessageBox(_T("exist"));
-        // 수정하는 함수
+        // AfxMessageBox(_T("exist"));
+        // 수정
         editEntryMacAddress(ip, mac);
         return false;
     }
@@ -44,20 +44,22 @@ void ARPCacheTable::handleArpReply(const unsigned char* ip) {
 }
 
 bool ARPCacheTable::editEntryMacAddress(const unsigned char* ip, const unsigned char* mac) {
-    if (sizeof(ip) != 4 | sizeof(mac) != 6) false;
+    if (!ip||!mac) false;
     std::string strIP = binaryToString(ip);
     auto it = cache.find(strIP);
     it->second->editMac(mac);
     return true;
 }
 
-void ARPCacheTable::removeEntry(const unsigned char* ip) {
+bool ARPCacheTable::removeEntry(const unsigned char* ip) {
     std::string strIP = binaryToString(ip);
     auto it = cache.find(strIP);
     if (it != cache.end()) {
         delete it->second;
         cache.erase(it);
+        return true;
     }
+    return false;
 }
 
 bool ARPCacheTable::clearAll() {
@@ -77,7 +79,7 @@ bool ARPCacheTable::clearAll() {
     return true;
 }
 
-void ARPCacheTable::printCache() const {
+CString ARPCacheTable::printCache() const {
     CString accumulatedMessage; // 모든 메시지를 누적할 CString 변수
 
     for (const auto& pair : cache) {
@@ -93,7 +95,8 @@ void ARPCacheTable::printCache() const {
 
         accumulatedMessage += line; // 누적된 메시지에 추가
     }
-
+    //AfxMessageBox(accumulatedMessage);
+    return accumulatedMessage;
     // 루프가 끝난 후 한 번의 메시지 박스로 모든 항목을 표시
-    AfxMessageBox(accumulatedMessage);
+    
 }

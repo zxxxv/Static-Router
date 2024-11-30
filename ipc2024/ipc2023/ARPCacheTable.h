@@ -54,7 +54,7 @@ public:
     - timer 변경: 3분 타이머 제거, 20분 타이머 설정
     */
 
-    void removeEntry(const unsigned char* ip);
+    bool removeEntry(const unsigned char* ip);
     /*
     removeEntry: 입력된 ip 주소를 기반으로 해당되는 entry를 테이블에서 제거하는 함수
     */
@@ -73,7 +73,7 @@ public:
     bool clearAll();
 
     // 캐시 출력 (디버깅용)
-    void printCache() const;
+    CString printCache() const;
 };
 
 #endif // ARPCACHETABLE_H

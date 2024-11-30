@@ -1,4 +1,5 @@
 #include "adapter.h"
+#include "pch.h"
 
 bool Adapter::StopPacketDriver()
 {   
@@ -85,7 +86,7 @@ Adapter::~Adapter()
     m_pNILayer = nullptr;
 }
 
-void Adapter::PacketStartDriver(pcap_if_t* pcap_if_t, int adtID)
+bool Adapter::PacketStartDriver(pcap_if_t* pcap_if_t, int adtID)
 {
     m_devName = pcap_if_t->name;
     m_description = pcap_if_t->description;
@@ -97,6 +98,7 @@ void Adapter::PacketStartDriver(pcap_if_t* pcap_if_t, int adtID)
     m_thrdSwitch = TRUE;
 
     m_pThread = AfxBeginThread(ReadingThread, this);
+    return true;
 }
 
 bool Adapter::Send(unsigned char* payload_data, int payload_data_len)
