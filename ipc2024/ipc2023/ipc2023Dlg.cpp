@@ -73,6 +73,7 @@ Cipc2023Dlg::Cipc2023Dlg(CWnd* pParent /*=nullptr*/) // Cipc2023Dlg의 생성자
 	m_IP = (CIPLayer*)m_LayerMgr.GetLayer("IP");
 }
 
+
 void Cipc2023Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
@@ -499,6 +500,7 @@ void Cipc2023Dlg::OnBnClickedButtonStart()
 	memcpy(interfaces[1].ipAddr, ip2, 4);
 
 	// MAC 주소 변환 및 설정
+	//Converter::B2MAC(m_iMacSrc, interfaces[0].macAddr);
 	Str2UCHAR(m_iMacSrc, interfaces[0].macAddr);
 	Str2UCHAR(m_oMacSrc, interfaces[1].macAddr);
 

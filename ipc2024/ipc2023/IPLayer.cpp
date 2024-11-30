@@ -29,6 +29,27 @@ void CIPLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* ipAddr1,
     memcpy(interfaces[1].ipAddr, ipAddr2, 4);      // 외부 IP 주소 설정
 }
 
+BOOL CIPLayer::CheckProxyTable(const unsigned char* destIp, int io) {
+    // destIp를 문자열 형식으로 변환
+    std::string destIpStr = Converter::B2IP(destIp);
+
+    // ProxyTable에서 IP로 엔트리 검색
+    ProxyEntry* entry = proxyTable.FindEntryByIP(destIp);
+
+    if (entry != nullptr) {
+        // MAC 주소를 변환 (B2MAC 사용)
+        std::string macAddressStr = Converter::B2MAC(entry->MACAddress);
+
+        // MAC 주소가 비어 있지 않으면 TRUE 반환
+        if (!macAddressStr.empty()) {
+            return TRUE;
+        }
+    }
+    // 일치하는 항목이 없으면 FALSE 반환
+    return FALSE;
+}
+
+
 BOOL CIPLayer::UpdateEthernetDestMac(const unsigned char* destIp, int io) {
     // 목적지 IP를 문자열로 변환
     std::string strIP = ARPCacheTable::binaryToString(destIp);
@@ -58,6 +79,28 @@ BOOL CIPLayer::UpdateEthernetDestMac(const unsigned char* destIp, int io) {
     return TRUE;
 }
 
+//BOOL CIPLayer::IpReceive(unsigned char* payload_data, int io) {
+//    // 패킷에서 목적지 IP 주소 가져오기
+//    // **해당 IP 주소로 패킷 생성 후 보내기**
+//    // 1. Routing 있음 해당 Mac, 없으면 기본게이트웨이
+//    // 2. ARP 테이블에서 IP주소에 해당하는 MAC주소 찾기
+//    //    &Proxy 테이블에서 찾기
+//    //      찾았을때     : 해당 MAC 주소로 보넴
+//    //      못 찾았을때  : ARP request 후 reply MAC 주소로 보내기
+//    PIP_HEADER data = (PIP_HEADER)payload_data;
+//    unsigned char* dstIp = Routing(data->dest_ip);
+//    
+//    return true;
+//}
+
+unsigned char* CIPLayer::Routing(unsigned char* ip) {
+    Fields entry = routingTable.findEntry(ip);
+    if (routingTable.m_buffEnty.m_flag == e_flag::none) {
+        return defaultIp;
+    }
+    return entry.m_gateway;
+}
+
 BOOL CIPLayer::IpReceive(unsigned char* payload_data, int io) {
     // 패킷에서 목적지 IP 주소 가져오기
     // **해당 IP 주소로 패킷 생성 후 보내기**
@@ -66,18 +109,41 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data, int io) {
     //    &Proxy 테이블에서 찾기
     //      찾았을때     : 해당 MAC 주소로 보넴
     //      못 찾았을때  : ARP request 후 reply MAC 주소로 보내기
+
     PIP_HEADER data = (PIP_HEADER)payload_data;
-    unsigned char* dstIp = Routing(data->dest_ip);
-    
-    return true;
+
+    //PIP_HEADER* data = reinterpret_cast<PIP_HEADER*>(payload_data);
+    unsigned char* srcMac = Routing(data->source_ip);
+    unsigned char* destIp = data->dest_ip;
+
+
+    if (UpdateEthernetDestMac(destIp, io) == FALSE) { //ARP cache table에서 해당 ip 주소가 없을 때
+        if (!CheckProxyTable(destIp, io)) { //Proxy table에서 찾아보고 없으면,
+            // ARP requst보낸 후
+            UpdateEthernetDestMac(destIp, io); //다시 mac 업뎃
+        }
+        else { //Proxy table에 있으면 업뎃 후 리턴트루
+            return true;
+        }
+    }
+    else {
+        return true;
+    }
+
 }
 
-unsigned char* CIPLayer::Routing(unsigned char* ip) {
-    Fields entry = routingTable.findEntry(ip);
-    if (routingTable.m_buffEnty.m_flag == e_flag::none) {
-        return defaultIp;
+BOOL CIPLayer::IpSend(unsigned char* ppayload, int nlength, int io) {
+    BOOL success = ((CEthernetLayer*)(this->GetUnderLayer()))->Send(
+        ppayload
+        , IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_DATA_SIZE
+        , IP_LAYER_IDENTIFIER, io);
+    if (success) {
+        //AfxMessageBox(_T("IP 패킷 전송 - IP Send"));
     }
-    return entry.m_gateway;
+    else {
+        //AfxMessageBox(_T("IP 패킷 전송 실패 - IP Send"));
+    }
+    return success;
 }
 /////////////////////////////////////////////////////////////////
 
@@ -93,20 +159,6 @@ void CIPLayer::ResetARPHeader(int io)
     memset(arpHeader[io].source_ip, 0, 4);
     memset(arpHeader[io].target_mac, 0, 6);
     memset(arpHeader[io].target_ip, 0, 4);
-}
-
-BOOL CIPLayer::IpSend(unsigned char* ppayload, int nlength, int io) {
-    BOOL success = ((CEthernetLayer*)(this->GetUnderLayer()))->Send(
-        ppayload
-        ,IP_HEADER_SIZE+ICMP_HEADER_SIZE+ICMP_DATA_SIZE
-        ,IP_LAYER_IDENTIFIER, io);
-    if (success) {
-        //AfxMessageBox(_T("IP 패킷 전송 - IP Send"));
-    }
-    else {
-        //AfxMessageBox(_T("IP 패킷 전송 실패 - IP Send"));
-    }
-    return success;
 }
 
 //void CIPLayer::SetSenderMac(const unsigned char* macAddress) {
