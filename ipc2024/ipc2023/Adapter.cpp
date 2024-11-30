@@ -82,7 +82,7 @@ UINT Adapter::ReadingThread(LPVOID pParam) //
 
 Adapter::~Adapter()
 {
-    StopPacketDriver();
+    //StopPacketDriver();
     m_pNILayer = nullptr;
 }
 
