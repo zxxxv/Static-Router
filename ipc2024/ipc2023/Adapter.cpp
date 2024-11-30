@@ -16,7 +16,7 @@ bool Adapter::StopPacketDriver()
     return TRUE;
 }
 
-std::string Adapter::GetNICardAddress(char* adapter_name)
+CString Adapter::GetNICardAddress(char* adapter_name)
 {   
     PPACKET_OID_DATA OidData; //MAC주소 저장
     LPADAPTER Adapter = 0;
@@ -29,7 +29,15 @@ std::string Adapter::GetNICardAddress(char* adapter_name)
 
     PacketRequest(Adapter, FALSE, OidData); //어댑터이름, (F)읽기요청 (T)변경요청, 이 필드에 네트워크 어댑터의 MAC 주소가 저장
 
-    std::string NICardAddress = Converter::B2MAC(OidData->Data);
+    CString NICardAddress;
+
+    NICardAddress.Format("%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
+        (OidData->Data)[0],
+        (OidData->Data)[1],
+        (OidData->Data)[2],
+        (OidData->Data)[3],
+        (OidData->Data)[4],
+        (OidData->Data)[5]);
 
     PacketCloseAdapter(Adapter);
     free(OidData);

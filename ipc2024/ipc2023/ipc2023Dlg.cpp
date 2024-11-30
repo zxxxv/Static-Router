@@ -313,11 +313,11 @@ void Cipc2023Dlg::OnCbnSelchangeComboMac() // 0
 	// 내부 어댑터 선택
 	UpdateData(TRUE);
 	pcap_if_t* temp;
-	m_index = m_comboBox2.GetCurSel();
+	m_index = m_comboBox1.GetCurSel();
 	m_NI->SetAdapterIndex(m_index);
 	temp = m_NI->m_pAdapterList[m_index];
 	m_NI->GetAdapterObject(0).initAdapter(temp, 0);
-	CString selectedAdapterAdress = Converter::STR2CS(m_NI->GetAdapterObject(0).getMacAddr());
+	CString selectedAdapterAdress = m_NI->GetAdapterObject(0).getMacAddr();
 	m_oMacSrc = selectedAdapterAdress;
 	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC2);
 	pSrcEdit->SetWindowTextA(m_oMacSrc);
@@ -333,7 +333,7 @@ void Cipc2023Dlg::OnCbnSelchangeComboMac2() // 1
 	m_NI->SetAdapterIndex(m_index);
 	temp = m_NI->m_pAdapterList[m_index];
 	m_NI->GetAdapterObject(1).initAdapter(temp, 1);
-	CString selectedAdapterAdress = Converter::STR2CS(m_NI->GetAdapterObject(1).getMacAddr());
+	CString selectedAdapterAdress = m_NI->GetAdapterObject(1).getMacAddr();
 	m_oMacSrc = selectedAdapterAdress;
 	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC2);
 	pSrcEdit->SetWindowTextA(m_oMacSrc);
@@ -355,7 +355,7 @@ void Cipc2023Dlg::UpdateRoutingTable() // 라우팅 테이블 출력
 		strNetmask.Format(_T("%d.%d.%d.%d"), entry.m_subnetMask[0], entry.m_subnetMask[1], entry.m_subnetMask[2], entry.m_subnetMask[3]);
 		strGateway.Format(_T("%d.%d.%d.%d"), entry.m_gateway[0], entry.m_gateway[1], entry.m_gateway[2], entry.m_gateway[3]);
 		strFlag = GetFlagString(entry.m_flag);
-		strInterface = CString(m_NI->GetAdapterObject(entry.m_interfaceFlag).getDescription().c_str());
+		//strInterface = CString(m_NI->GetAdapterObject(entry.m_interfaceFlag).getDescription().c_str());
 		strMetric.Format(_T("%d"), entry.m_metric);
 
 		int nIndex = m_ListCtrlR.InsertItem(index++, strDestination);

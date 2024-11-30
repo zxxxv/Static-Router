@@ -21,7 +21,6 @@ class CNILayer
 	: public CBaseLayer
 {
 protected:
-	std::vector<Adapter> m_adapters;
 	void			SetAdapterList();
 public:
 	Adapter     GetAdapterObject(int iIndex); //
@@ -38,6 +37,7 @@ public:
 protected:
 	int			m_iNumAdapter;
 	int			m_index;
+	std::vector<Adapter> m_adapters;
 	// int			m_tempAdtID;
 };
 
