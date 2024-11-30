@@ -48,7 +48,7 @@ namespace Converter {
 			std::to_string(binarySeq[3]);
 	}
 	std::string B2MAC(const unsigned char* binarySeq) {
-		char buffer[6];
+		char buffer[18];
 		sprintf_s(buffer, "%02X:%02X:%02X:%02X:%02X:%02X",
 			binarySeq[0],
 			binarySeq[1],

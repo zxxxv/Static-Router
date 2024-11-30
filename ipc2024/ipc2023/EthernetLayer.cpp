@@ -23,6 +23,7 @@ CEthernetLayer::CEthernetLayer(char* pName)
 
 CEthernetLayer::~CEthernetLayer()
 {
+
 }
 
 void CEthernetLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* macAddr2) {
@@ -78,19 +79,16 @@ BOOL CEthernetLayer::Receive(unsigned char* payload_data, int io)
     if (memcmp(pFrame->enet_dstaddr, interfaces[io].macAddr, 6) != 0 &&
         memcmp(pFrame->enet_dstaddr, broadcastAddr, 6) != 0)
         return FALSE;
-    // 내가 보낸 패킷이 나에게 온건지
-    if (memcmp(pFrame->enet_srcaddr, interfaces[io].macAddr, 6) == 0)
+    // 내가 보낸 값이 나에게 온건지
+    if (memcmp(pFrame->enet_srcaddr, m_sHeader[io].enet_srcaddr, 6) == 0)
         return FALSE;
     
     unsigned short type = TO_BIG_ENDIAN_16(pFrame->enet_type);
+    if (type == 0x0806)
+        bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pFrame->enet_data, io);
 
-    switch (type) {
-        case ARP_LAYER_IDENTIFIER:
-                return mp_aUpperLayer[0]->ArpReceive((unsigned char*)pFrame->enet_data, io);
-            break;
-        case IP_LAYER_IDENTIFIER:
-                return mp_aUpperLayer[0]->IpReceive((unsigned char*)pFrame->enet_data, io);
-            break;
-    }
-    return FALSE;
+    /*if (pFrame->enet_type == 0x0806)
+        bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pFrame->enet_data);*/
+
+    return bSuccess;
 }

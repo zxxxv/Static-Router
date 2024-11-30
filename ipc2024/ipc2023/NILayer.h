@@ -17,30 +17,27 @@
 #include <vector>
 #pragma comment (lib, "iphlpapi.lib")
 
-
 class CNILayer
 	: public CBaseLayer
 {
 protected:
-
-	 
+	void			SetAdapterList();
 public:
 	Adapter     GetAdapterObject(int iIndex); //
 	void			SetAdapterIndex(int index);
-	void			SetAdapterList();
-
 	BOOL			Receive(unsigned char* payload_data, int adtID);
-	BOOL			Send(unsigned char* payload_data, int payload_data_len);
+	// BOOL			Send(unsigned char* payload_data, int payload_data_len);
 
 	CNILayer(char* pName, int iNumAdapter = 0);
 	virtual ~CNILayer();
 
-	pcap_if_t* m_pAdapterList[NI_COUNT_NIC];
-	std::vector<Adapter> m_adapters;
+	pcap_if_t* m_pAdapterList[NI_COUNT_NIC] = { nullptr };
+
 
 protected:
 	int			m_iNumAdapter;
 	int			m_index;
+	std::vector<Adapter> m_adapters;
 	// int			m_tempAdtID;
 };
 
