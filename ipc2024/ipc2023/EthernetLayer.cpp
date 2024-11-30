@@ -52,7 +52,6 @@ void CEthernetLayer::SetDestinAddress(unsigned char* pAddress, int io)
     memcpy(m_sHeader[io].enet_dstaddr, pAddress, 6);
 }
 
-// 24.09.29 unsigned short type 으로 받아서 enet_type 추가
 BOOL CEthernetLayer::Send(unsigned char* payload_data, int payload_data_len, unsigned short type, int io)
 {
     // ChatApp 계층에서 받은 App 계층의 Frame 길이만큼 Ethernet계층의 data로 넣는다
@@ -67,7 +66,6 @@ BOOL CEthernetLayer::Send(unsigned char* payload_data, int payload_data_len, uns
     return bSuccess;
 }
 
-// 24.09.29 enet_type 확인 후 fileTrans 혹은 chatApp으로 보냄/ chatApp: 0x2080, fileTrans: 0x2090
 BOOL CEthernetLayer::Receive(unsigned char* payload_data, int io)
 {
     // payload_data를 이더넷 헤더 구조체로 넣는다
@@ -80,15 +78,18 @@ BOOL CEthernetLayer::Receive(unsigned char* payload_data, int io)
         memcmp(pFrame->enet_dstaddr, broadcastAddr, 6) != 0)
         return FALSE;
     // 내가 보낸 값이 나에게 온건지
-    if (memcmp(pFrame->enet_srcaddr, m_sHeader[io].enet_srcaddr, 6) == 0)
+    if (memcmp(pFrame->enet_srcaddr, interfaces[io].macAddr, 6) == 0)
         return FALSE;
-    
+
     unsigned short type = TO_BIG_ENDIAN_16(pFrame->enet_type);
-    if (type == 0x0806)
-        bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pFrame->enet_data, io);
 
-    /*if (pFrame->enet_type == 0x0806)
-        bSuccess = mp_aUpperLayer[0]->Receive((unsigned char*)pFrame->enet_data);*/
-
-    return bSuccess;
+    switch (type) {
+        case ARP_LAYER_IDENTIFIER:
+            return mp_aUpperLayer[0]->ArpReceive((unsigned char*)pFrame->enet_data, io);
+            break;
+        case IP_LAYER_IDENTIFIER:
+            return mp_aUpperLayer[0]->IpReceive((unsigned char*)pFrame->enet_data, io);
+            break;
+    }
+    return FALSE;
 }
