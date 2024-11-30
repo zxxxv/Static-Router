@@ -307,13 +307,13 @@ void Cipc2023Dlg::UCHAR2Str(UCHAR* src, CString& dst)
 		src[3], src[4], src[5]);
 }
 
-void Cipc2023Dlg::OnCbnSelchangeComboMac()
+void Cipc2023Dlg::OnCbnSelchangeComboMac() // 0
 {
 	// 내부 어댑터 선택
 	UpdateData(TRUE);
 	m_index = m_comboBox1.GetCurSel();
 	m_NI->SetAdapterIndex(m_index);
-	m_inner = m_NI->GetAdapterObject(m_index);
+	m_NI->GetAdapterObject(m_index);
 	CString selectedAdapterAdress = Converter::STR2CS(m_inner.getDevName());
 	m_iMacSrc = selectedAdapterAdress;
 	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC1);
@@ -321,14 +321,16 @@ void Cipc2023Dlg::OnCbnSelchangeComboMac()
 	UpdateData(FALSE);
 }
 
-void Cipc2023Dlg::OnCbnSelchangeComboMac2()
+void Cipc2023Dlg::OnCbnSelchangeComboMac2() // 1
 {
 	// 외부 어댑터 선택
 	UpdateData(TRUE);
+	pcap_if_t* temp;
 	m_index = m_comboBox2.GetCurSel();
 	m_NI->SetAdapterIndex(m_index);
-	m_outer = m_NI->GetAdapterObject(m_index);
-	CString selectedAdapterAdress = Converter::STR2CS(m_outer.getDevName());
+	temp = m_NI->m_pAdapterList[m_index];
+	m_NI->m_adapters[1].initAdapter(temp, 1);
+	CString selectedAdapterAdress = Converter::STR2CS(m_NI->m_adapters[1].getMacAddr());
 	m_oMacSrc = selectedAdapterAdress;
 	CEdit* pSrcEdit = (CEdit*)GetDlgItem(IDC_EDIT_MAC2);
 	pSrcEdit->SetWindowTextA(m_oMacSrc);

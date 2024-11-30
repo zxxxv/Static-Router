@@ -86,8 +86,8 @@ private:
 	//CString Cipc2023Dlg::binaryToString(const unsigned char* ip);
 
 public:
-	Adapter m_inner;
-	Adapter m_outer;
+	//Adapter m_inner;
+	//Adapter m_outer;
 	CString m_iMacSrc;
 	CString m_oMacSrc;
 	UCHAR m_ucSrcAddrArray[6];

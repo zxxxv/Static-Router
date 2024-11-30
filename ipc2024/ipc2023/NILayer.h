@@ -22,7 +22,7 @@ class CNILayer
 	: public CBaseLayer
 {
 protected:
-	std::vector<Adapter> m_adapters;
+
 	 
 public:
 	Adapter     GetAdapterObject(int iIndex); //
@@ -36,6 +36,7 @@ public:
 	virtual ~CNILayer();
 
 	pcap_if_t* m_pAdapterList[NI_COUNT_NIC];
+	std::vector<Adapter> m_adapters;
 
 protected:
 	int			m_iNumAdapter;
