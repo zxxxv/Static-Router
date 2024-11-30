@@ -85,8 +85,8 @@ Adapter::~Adapter()
     m_pNILayer = nullptr;
 }
 
-void Adapter::PacketStartDriver(pcap_if_t* pcap_if_t, int adtID)
-{
+bool Adapter::initAdapter(pcap_if_t* pcap_if_t, int adtID) {
+    if (pcap_if_t == nullptr) return false;
     m_devName = pcap_if_t->name;
     m_description = pcap_if_t->description;
     m_macAddr = GetNICardAddress(pcap_if_t->name);
@@ -94,9 +94,15 @@ void Adapter::PacketStartDriver(pcap_if_t* pcap_if_t, int adtID)
     char errbuf[PCAP_ERRBUF_SIZE];
 
     m_adapterHandler = pcap_open_live(pcap_if_t->name, 65536, 1, 2000, errbuf);
+    return true;
+}
+
+bool Adapter::PacketStartDriver()
+{
     m_thrdSwitch = TRUE;
 
-    m_pThread = AfxBeginThread(ReadingThread, this);
+    if(m_pThread = AfxBeginThread(ReadingThread, this)) return true;
+    return false;
 }
 
 bool Adapter::Send(unsigned char* payload_data, int payload_data_len)
