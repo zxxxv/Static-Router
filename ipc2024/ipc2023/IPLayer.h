@@ -76,9 +76,8 @@ public:
 
     // 총 60 bytes = IP 헤더 20 bytes + ICMP 헤더 8 bytes + ICMP data 32 bytes
     typedef struct _IP_HEADER {
-        unsigned char       version_ihl;                                // 버전(4비트) 
-        unsigned char       header_length;                              // 헤더 길이(4비트)
-        unsigned char       tos;                                        // 서비스 타입 (1 bytes)
+        unsigned char       version_ihl;                                // // 버전(4비트) + 헤더 길이(1 byte)
+        unsigned char       tos;                                        // 서비스 타입 (1 byte)
         unsigned short      total_length;                               // 전체 패킷 길이 (2 bytes)
         unsigned short      identification_field;                       // 식별자 (2 bytes)
         unsigned short      unused;                                     // 3-bit flags + 13-bit fragment offset (2 bytes)

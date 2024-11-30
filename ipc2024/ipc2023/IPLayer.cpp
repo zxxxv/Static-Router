@@ -49,7 +49,6 @@ BOOL CIPLayer::CheckProxyTable(const unsigned char* destIp, int io) {
     return FALSE;
 }
 
-
 BOOL CIPLayer::UpdateEthernetDestMac(const unsigned char* destIp, int io) {
     // 목적지 IP를 문자열로 변환
     std::string strIP = ARPCacheTable::binaryToString(destIp);
@@ -95,7 +94,7 @@ BOOL CIPLayer::UpdateEthernetDestMac(const unsigned char* destIp, int io) {
 
 unsigned char* CIPLayer::Routing(unsigned char* ip) {
     Fields entry = routingTable.findEntry(ip);
-    if (routingTable.m_buffEnty.m_flag == e_flag::none) {
+    if (entry.m_flag == e_flag::none) {
         return defaultIp;
     }
     return entry.m_gateway;
@@ -111,25 +110,25 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data, int io) {
     //      못 찾았을때  : ARP request 후 reply MAC 주소로 보내기
 
     PIP_HEADER data = (PIP_HEADER)payload_data;
+    if (data->protocol_field == PROT_ICMP) {
+        //PIP_HEADER* data = reinterpret_cast<PIP_HEADER*>(payload_data);
+        unsigned char* srcIp = Routing(data->dest_ip);
+        unsigned char* destIp = data->dest_ip;
 
-    //PIP_HEADER* data = reinterpret_cast<PIP_HEADER*>(payload_data);
-    unsigned char* srcMac = Routing(data->source_ip);
-    unsigned char* destIp = data->dest_ip;
-
-
-    if (UpdateEthernetDestMac(destIp, io) == FALSE) { //ARP cache table에서 해당 ip 주소가 없을 때
-        if (!CheckProxyTable(destIp, io)) { //Proxy table에서 찾아보고 없으면,
-            // ARP requst보낸 후
-            UpdateEthernetDestMac(destIp, io); //다시 mac 업뎃
+        if (UpdateEthernetDestMac(destIp, io) == FALSE) { //ARP cache table에서 해당 ip 주소가 없을 때
+            if (!CheckProxyTable(destIp, io)) { //Proxy table에서 찾아보고 없으면,
+                // ARP requst보낸 후
+                UpdateEthernetDestMac(destIp, io); //다시 mac 업뎃
+            }
+            else { //Proxy table에 있으면 업뎃 후 리턴트루
+                return true;
+            }
         }
-        else { //Proxy table에 있으면 업뎃 후 리턴트루
+        else {
             return true;
         }
     }
-    else {
-        return true;
-    }
-
+    return false;
 }
 
 BOOL CIPLayer::IpSend(unsigned char* ppayload, int nlength, int io) {
@@ -145,6 +144,7 @@ BOOL CIPLayer::IpSend(unsigned char* ppayload, int nlength, int io) {
     }
     return success;
 }
+
 /////////////////////////////////////////////////////////////////
 
 void CIPLayer::ResetARPHeader(int io)

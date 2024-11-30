@@ -49,7 +49,7 @@ bool RoutingList::isMatchingEntry(std::list<Fields>::iterator currentIt, const u
 	unsigned char network[4];
 	masking(dst, currentIt->m_subnetMask, network);
 
-	if (memcmp(currentIt->m_destination, network, 4)) return true;
+	if (memcmp(currentIt->m_destination, network, 4) == 0) return true;
 	// memcmp는 같을 때 0을 리턴
 
 	return false;
@@ -113,27 +113,58 @@ bool RoutingList::editEntry(int entryIndex, e_field field, const unsigned short 
 
 Fields RoutingList::findEntry(const unsigned char* dst)
 {
+	// 리스트의 처음부터 탐색 시작
 	std::list<Fields>::iterator it = m_list.begin();
-	// 맞는 엔트리 위치 찾기
+
 	while (it != m_list.end()) {
+		// 현재 엔트리가 목적지 주소와 일치하는지 확인
 		if (isMatchingEntry(it, dst)) {
-			// ip가 현재 엔트리와 매칭된 경우. iterator가 현재 엔트리를 가리킨다.
-			break;
+			// 일치하는 엔트리를 찾은 경우 현재 엔트리를 반환
+			return *it;
 		}
 		else {
+			// getNextEntry는 현재 엔트리에서 다음 엔트리를 반환하는 함수
+			// optional 반환이므로 값이 존재하는지 확인 후 언랩해야 함
 			auto nextIt = getNextEntry(it);
-			// 현재 엔트리에서 탐색 실패 시 다음 엔트리로 이동.
-			// getNextEntry는 다음 엔트리가 존재할 때, NextIt를 반환 / 없을 때, nullptr을 반환한다.
-			if (!nextIt) return m_buffEnty;
-			// nextIt가 nullptr이면(다음 엔트리가 존재하지 않을 때) m_buffEnty를 반환한다.(e_flag가 none인 entry)
-			else it = *nextIt;
-			// nextIt가 nullptr이 아니면, 다음 엔트리가 존재한다는 의미이며, NextIt에 대해 while문을 반복한다.
+			if (nextIt) {
+				it = *nextIt;
+			}
+			else {
+				// 다음 엔트리가 존재하지 않을 때, 기본 엔트리인 m_buffEnty를 반환
+				return m_buffEnty;
+			}
 		}
 	}
 
-	// 현재 엔트리를 반환한다.
-	return *it;
+	// 일치하는 엔트리가 없는 경우, 기본 엔트리 반환
+	return m_buffEnty;
 }
+
+
+
+//Fields RoutingList::findEntry(const unsigned char* dst)
+//{
+//	std::list<Fields>::iterator it = m_list.begin();
+//	// 맞는 엔트리 위치 찾기
+//	while (it != m_list.end()) {
+//		if (isMatchingEntry(it, dst)) {
+//			// ip가 현재 엔트리와 매칭된 경우. iterator가 현재 엔트리를 가리킨다.
+//			break;
+//		}
+//		else {
+//			auto nextIt = getNextEntry(it);
+//			// 현재 엔트리에서 탐색 실패 시 다음 엔트리로 이동.
+//			// getNextEntry는 다음 엔트리가 존재할 때, NextIt를 반환 / 없을 때, nullptr을 반환한다.
+//			if (!nextIt) return m_buffEnty;
+//			// nextIt가 nullptr이면(다음 엔트리가 존재하지 않을 때) m_buffEnty를 반환한다.(e_flag가 none인 entry)
+//			else it = *nextIt;
+//			// nextIt가 nullptr이 아니면, 다음 엔트리가 존재한다는 의미이며, NextIt에 대해 while문을 반복한다.
+//		}
+//	}
+//
+//	// 현재 엔트리를 반환한다.
+//	return *it;
+//}
 
 void RoutingList::printList() {
 	for (const auto& it : m_list) {

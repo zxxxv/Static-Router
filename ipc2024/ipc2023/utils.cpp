@@ -30,13 +30,21 @@ namespace Converter {
 			&uchar[0], &uchar[1], &uchar[2], &uchar[3]);
 	}
 	void macSTR2B(std::string& mac, UCHAR* uchar) {
+		int v[6];
 		sscanf_s(mac.c_str(), "%02x:%02x:%02x:%02x:%02x:%02x",
-			&uchar[0], &uchar[1], &uchar[2],
-			&uchar[3], &uchar[4], &uchar[5]);
+			&v[0], &v[1], &v[2],
+			&v[3], &v[4], &v[5]);
+		for (int i = 0; i < 6; i++) {
+			uchar[i] = static_cast<unsigned char>(v[i]);
+		}
 	}
 	void ipSTR2B(std::string& ip, UCHAR* uchar) {
+		int v[4];
 		sscanf_s(ip.c_str(), "%d.%d.%d.%d",
-			&uchar[0], &uchar[1], &uchar[2], &uchar[3]);
+			&v[0], &v[1], &v[2], &v[3]);
+		for (int i = 0; i < 4; i++) {
+			uchar[i] = static_cast<unsigned char>(v[i]);
+		}
 	}
 	CString STR2CS(const std::string& str) {
 		return CString(str.c_str());

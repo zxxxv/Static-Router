@@ -295,20 +295,6 @@ void Cipc2023Dlg::EndofProcess()
 	m_LayerMgr.DeAllocLayer();
 }
 
-void Cipc2023Dlg::Str2UCHAR(CString& src, UCHAR* dst)
-{
-	sscanf_s(src, "%02x:%02x:%02x:%02x:%02x:%02x",
-		&dst[0], &dst[1], &dst[2],
-		&dst[3], &dst[4], &dst[5]);
-}
-
-void Cipc2023Dlg::UCHAR2Str(UCHAR* src, CString& dst)
-{
-	dst.Format(_T("%02x:%02x:%02x:%02x:%02x:%02x"),
-		src[0], src[1], src[2],
-		src[3], src[4], src[5]);
-}
-
 void Cipc2023Dlg::OnCbnSelchangeComboMac() // 0
 {
 	// 내부 어댑터 선택
@@ -479,7 +465,8 @@ void Cipc2023Dlg::OnBnClickedProxyDelete() // 프록시 테이블 삭제
 void Cipc2023Dlg::OnBnClickedButtonEnd()
 {
 	// receive 쓰레드 종료
-	//m_NI->StopPacketDriver();
+	m_NI->GetAdapterObject(INNER).StopPacketDriver();
+	m_NI->GetAdapterObject(OUTER).StopPacketDriver();
 	m_routerReady = FALSE;
 	SetDlgState(IPC_ROUTEREND);
 }
@@ -500,9 +487,9 @@ void Cipc2023Dlg::OnBnClickedButtonStart()
 	memcpy(interfaces[1].ipAddr, ip2, 4);
 
 	// MAC 주소 변환 및 설정
-	//Converter::B2MAC(m_iMacSrc, interfaces[0].macAddr);
-	Str2UCHAR(m_iMacSrc, interfaces[0].macAddr);
-	Str2UCHAR(m_oMacSrc, interfaces[1].macAddr);
+	Converter::macSTR2B(Converter::CS2STR(m_iMacSrc), interfaces[0].macAddr);
+	Converter::macSTR2B(Converter::CS2STR(m_oMacSrc), interfaces[1].macAddr);
+
 
 	m_IP->SetInterfaceInfo(interfaces[0].macAddr, interfaces[0].ipAddr, interfaces[1].macAddr, interfaces[1].ipAddr);
 	m_Eth->SetInterfaceInfo(interfaces[0].macAddr, interfaces[1].macAddr);
@@ -510,13 +497,15 @@ void Cipc2023Dlg::OnBnClickedButtonStart()
 	BOOL ready1 = FALSE;
 	BOOL ready2 = FALSE;
 
-	//PacketStartDriver
-
-	if (m_IP->createGarpPacket(0)) {// GARP 패킷 전송
-		ready1 = TRUE;
+	if (m_NI->GetAdapterObject(INNER).PacketStartDriver()) {
+		if (m_IP->createGarpPacket(0)) {// GARP 패킷 전송
+			ready1 = TRUE;
+		}
 	}
-	if (m_IP->createGarpPacket(1)) {// GARP 패킷 전송
-		ready2 = TRUE;
+	if (m_NI->GetAdapterObject(OUTER).PacketStartDriver()) {
+		if (m_IP->createGarpPacket(1)) {// GARP 패킷 전송
+			ready2 = TRUE;
+		}
 	}
 	if (ready1 && ready2) {
 		m_routerReady = TRUE;
@@ -542,7 +531,7 @@ void Cipc2023Dlg::OnBnClickedButtonRdelete() // Routing Entry 삭제
 	if (idx != -1) {
 		// 라우팅 테이블에서 엔트리 삭제
 		if (!routingTable.deleteEntry(idx)) {
-			AfxMessageBox(_T("엔트리 삭제 실패"));
+			AfxMessageBox(_T("라우팅 엔트리 삭제 실패"));
 		}
 		// 라우팅 테이블 리스트 컨트롤 업데이트
 		UpdateRoutingTable();
@@ -568,7 +557,7 @@ void Cipc2023Dlg::OnBnClickedButtonArpDelete() // ARP Entry 삭제
 
 		// removeEntry 호출
 		if (!m_IP->removeEntry(value)) {
-			AfxMessageBox(_T("엔트리 삭제 실패"));
+			AfxMessageBox(_T("APR 엔트리 삭제 실패"));
 		}
 
 		// 리스트 컨트롤 업데이트

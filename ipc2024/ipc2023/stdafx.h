@@ -49,10 +49,11 @@
 
 #define ICMP_HEADER_SIZE		8
 #define ICMP_DATA_SIZE			32
-
+#define PROT_ICMP				1
 
 #define INNER					0
 #define OUTER					1
+
 
 //#define ARP_HEADER_SIZE 28
 

@@ -20,9 +20,7 @@ private:
 	bool m_thrdSwitch;
 	CWinThread* m_pThread;
 	// AfxBeginThread에 대한 포인터임. 이후 stopPacketDriver에서 이를 바탕으로 쓰레드 종료 예정
-
-	bool StopPacketDriver();
-	// 내부적으로 쓰레드 종료 -> pcap_close.
+	
 	CString GetNICardAddress(char* adapter_name);
 	static UINT		ReadingThread(LPVOID pParam);
 
@@ -32,6 +30,8 @@ public:
 	// string 객체는 자동으로 빈문자열로 초기화가 진행된다.
 
 	~Adapter(); // stopPacketDriver 작동.
+
+	bool StopPacketDriver();	// 내부적으로 쓰레드 종료 -> pcap_close.
 
 	// 아래는 getter
 	pcap_t* getHandler() { return m_adapterHandler; }

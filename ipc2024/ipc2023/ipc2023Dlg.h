@@ -69,8 +69,6 @@ private:
 
 	void			SetDlgState(int state);
 	inline void		EndofProcess();
-	void Str2UCHAR(CString& src, UCHAR* dst);
-	void UCHAR2Str(UCHAR* src, CString& dst);
 
 	BOOL			m_routerReady;
 
