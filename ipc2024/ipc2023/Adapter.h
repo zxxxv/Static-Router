@@ -3,6 +3,10 @@
 #include "utils.h"
 #include <string>
 #include <pcap.h>
+#include "pch.h"
+#include "NILayer.h"
+
+class CNILayer;
 
 class Adapter {
 private:
@@ -14,34 +18,33 @@ private:
 	int m_adtID;
 	bool m_thrdSwitch;
 	CWinThread* m_pThread;
-	// AfxBeginThread¿¡ ´ëÇÑ Æ÷ÀÎÅÍÀÓ. ÀÌÈÄ stopPacketDriver¿¡¼­ ÀÌ¸¦ ¹ÙÅÁÀ¸·Î ¾²·¹µå Á¾·á ¿¹Á¤
+	// AfxBeginThreadì— ëŒ€í•œ í¬ì¸í„°ì„. ì´í›„ stopPacketDriverì—ì„œ ì´ë¥¼ ë°”íƒ•ìœ¼ë¡œ ì“°ë ˆë“œ ì¢…ë£Œ ì˜ˆì •
 
 	bool StopPacketDriver();
-	// ³»ºÎÀûÀ¸·Î ¾²·¹µå Á¾·á -> pcap_close.
+	// ë‚´ë¶€ì ìœ¼ë¡œ ì“°ë ˆë“œ ì¢…ë£Œ -> pcap_close.
 	std::string GetNICardAddress(char* adapter_name);
 	static UINT		ReadingThread(LPVOID pParam);
 
 public:
 	Adapter(CNILayer* pParent)
 		: m_pNILayer(pParent), m_adapterHandler(nullptr), m_adtID(-1), m_thrdSwitch(FALSE) {}
-	// string °´Ã¼´Â ÀÚµ¿À¸·Î ºó¹®ÀÚ¿­·Î ÃÊ±âÈ­°¡ ÁøÇàµÈ´Ù.
+	// string ê°ì²´ëŠ” ìë™ìœ¼ë¡œ ë¹ˆë¬¸ìì—´ë¡œ ì´ˆê¸°í™”ê°€ ì§„í–‰ëœë‹¤.
 
-	~Adapter(); // stopPacketDriver ÀÛµ¿.
+	~Adapter(); // stopPacketDriver ì‘ë™.
 
-	// ¾Æ·¡´Â getter
+	// ì•„ë˜ëŠ” getter
 	pcap_t* getHandler() { return m_adapterHandler; }
 	std::string getDevName() { return m_devName; }
 	std::string getDescription() { return m_description; }
 	std::string getMacAddr() { return m_macAddr; }
 	int getAdtId() { return m_adtID; }
-
 	bool initAdapter(pcap_if_t* pcap_if_t, int adtID);
 	bool PacketStartDriver();
 	/*
-	1. NILayer¿¡¼­´Â setAdapterList¸¦ ÅëÇØ ÀåÄ¡ ¸ñ·ÏÀ» ¾ò°í, adtID°¡ ÁÖ¾îÁö¸é adtID¸¦ ±â¹İÀ¸·Î Adapters º¤ÅÍÀÇ ¿ä¼Ò Áß ÇÏ³ª¿¡ Á¢±Ù
-	2. Á¢±Ù ÈÄ¿¡ ÇØ´çµÇ´Â pcap_if_t*¸¦ PacketStartDriver¿¡ ³Ñ±è
-	3. NILayer¿¡¼­ pcap_if_t*¸¦ ÀÎÀÚ·Î ÁÖ¸é, ±×¸¦ ¹ÙÅÁÀ¸·Î ¸â¹öº¯¼ö¿¡ Ãß°¡ ½ÃÀÛ.
+	1. NILayerì—ì„œëŠ” setAdapterListë¥¼ í†µí•´ ì¥ì¹˜ ëª©ë¡ì„ ì–»ê³ , adtIDê°€ ì£¼ì–´ì§€ë©´ adtIDë¥¼ ê¸°ë°˜ìœ¼ë¡œ Adapters ë²¡í„°ì˜ ìš”ì†Œ ì¤‘ í•˜ë‚˜ì— ì ‘ê·¼
+	2. ì ‘ê·¼ í›„ì— í•´ë‹¹ë˜ëŠ” pcap_if_t*ë¥¼ PacketStartDriverì— ë„˜ê¹€
+	3. NILayerì—ì„œ pcap_if_t*ë¥¼ ì¸ìë¡œ ì£¼ë©´, ê·¸ë¥¼ ë°”íƒ•ìœ¼ë¡œ ë©¤ë²„ë³€ìˆ˜ì— ì¶”ê°€ ì‹œì‘.
 	*/
 	bool Send(unsigned char* payload_data, int payload_data_len);
-	// °¢ Adapter ÀÎ½ºÅÏ½º¸¶´Ù send¸¦ °¡Áö¹Ç·Î adtID¸¦ °¡Áö°í Adapter¸¦ ¼±ÅÃ -> ÇØ´ç ÀÎ½ºÅÏ½ºÀÇ send·Î º¸³»¸é µÊ.
+	// ê° Adapter ì¸ìŠ¤í„´ìŠ¤ë§ˆë‹¤ sendë¥¼ ê°€ì§€ë¯€ë¡œ adtIDë¥¼ ê°€ì§€ê³  Adapterë¥¼ ì„ íƒ -> í•´ë‹¹ ì¸ìŠ¤í„´ìŠ¤ì˜ sendë¡œ ë³´ë‚´ë©´ ë¨.
 };

@@ -38,10 +38,10 @@ namespace RoutingEntry {
 
 namespace Converter {
 	std::string CS2STR(const CString& Cstr);
-	void CS2B(CString& mac, UCHAR* uchar);
-	void CS2B(CString& ip, UCHAR* uchar);
-	void STR2B(std::string& mac, UCHAR* uchar);
-	void STR2B(std::string& ip, UCHAR* uchar);
+	void macCS2B(CString& mac, UCHAR* uchar);
+	void ipCS2B(CString& ip, UCHAR* uchar);
+	void macSTR2B(std::string& mac, UCHAR* uchar);
+	void ipSTR2B(std::string& ip, UCHAR* uchar);
 	CString STR2CS(const std::string& string);
 	std::string B2IP(const unsigned char* binarySeq);
 	std::string B2MAC(const unsigned char* binarySeq);

@@ -189,6 +189,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Adapter.h" />
     <ClInclude Include="ARPCacheEntry.h" />
     <ClInclude Include="ARPCacheTable.h" />
     <ClInclude Include="IPLayer.h" />
@@ -211,6 +212,7 @@
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Adapter.cpp" />
     <ClCompile Include="ARPCacheEntry.cpp" />
     <ClCompile Include="ARPCacheTable.cpp" />
     <ClCompile Include="IPLayer.cpp" />

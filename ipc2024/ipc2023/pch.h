@@ -21,5 +21,6 @@
 #include "ARPProxyTable.h"
 #include "RoutingList.h"
 #include "utils.h"
+#include "Adapter.h"
 
 #endif //PCH_H

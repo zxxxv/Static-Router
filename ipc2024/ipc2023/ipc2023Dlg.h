@@ -10,6 +10,7 @@
 #include "IPLayer.h"
 #include "ARPProxyTable.h"
 #include "RoutingList.h"
+#include "Adapter.h"
 
 // Cipc2023Dlg 대화 상자
 class Cipc2023Dlg : public CDialogEx, public CBaseLayer
@@ -47,11 +48,12 @@ public:
 
 
 public:
-	BOOL			Receive(unsigned char* ppayload, int io);
-	void UpdateListCtrlItem(const CString& ip, const CString& mac, const CString& status); // 캐시 테이블 변경
-	void TimeoutEntryDelete(const unsigned char* ip);
+	//BOOL			Receive(unsigned char* ppayload, int io);
+	//void UpdateListCtrlItem(const CString& ip, const CString& mac, const CString& status); // 캐시 테이블 변경
+	//void TimeoutEntryDelete(const unsigned char* ip);
 	void UpdateRoutingTable();
 	CString GetFlagString(e_flag flag);
+	void UpdateARPTable();
 
 private:
 	CLayerManager	m_LayerMgr;
@@ -84,6 +86,8 @@ private:
 	//CString Cipc2023Dlg::binaryToString(const unsigned char* ip);
 
 public:
+	Adapter m_inner;
+	Adapter m_outer;
 	CString m_iMacSrc;
 	CString m_oMacSrc;
 	UCHAR m_ucSrcAddrArray[6];
@@ -92,16 +96,15 @@ public:
 	ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
 	RoutingList& routingTable = RoutingList::getInstance();
 	int m_index;
-	afx_msg void OnBnClickedButtonDelete();
 	CListCtrl m_ListCtrl;		// ARP 캐시 테이블
 	CIPAddressCtrl m_ipSource;	// 내 IP 주소
 	CIPAddressCtrl m_ipTarget;	// 상대 IP 주소
-	afx_msg void OnBnClickedArpTable();
+	afx_msg void OnBnClickedButtonArpDelete();
 	CListCtrl m_ListCtrlP;		// 프록시 테이블
 	afx_msg void OnBnClickedProxyAdd();
 	afx_msg void OnBnClickedProxyDelete();
 	CEdit m_garp_mac;			// 변경한 mac 주소
-	afx_msg void OnBnClickedProxyTable();
+	//afx_msg void OnBnClickedProxyTable();
 	CListCtrl m_ListCtrlR;
 	afx_msg void OnBnClickedButtonEnd();
 	afx_msg void OnBnClickedButtonStart();
@@ -121,4 +124,5 @@ public:
 		unsigned char ipAddr[4];
 
 	} INTERFACE_CARD;
+	
 };
