@@ -95,7 +95,7 @@ BOOL CIPLayer::UpdateEthernetDestMac(const unsigned char* destIp, int io) {
 unsigned char* CIPLayer::Routing(unsigned char* ip) {
     Fields entry = routingTable.findEntry(ip);
     if (entry.m_flag == e_flag::none) {
-        return defaultIp;
+        return nullptr;
     }
     return entry.m_gateway;
 }
@@ -113,20 +113,24 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data, int io) {
     if (data->protocol_field == PROT_ICMP) {
         //PIP_HEADER* data = reinterpret_cast<PIP_HEADER*>(payload_data);
         unsigned char* srcIp = Routing(data->dest_ip);
-        unsigned char* destIp = data->dest_ip;
+        if (srcIp) {
+            // srcIp에 해당하는 mac 주소 찾기
+            unsigned char* destIp = data->dest_ip;
 
-        if (UpdateEthernetDestMac(destIp, io) == FALSE) { //ARP cache table에서 해당 ip 주소가 없을 때
-            if (!CheckProxyTable(destIp, io)) { //Proxy table에서 찾아보고 없으면,
-                // ARP requst보낸 후
-                UpdateEthernetDestMac(destIp, io); //다시 mac 업뎃
+            if (UpdateEthernetDestMac(destIp, io) == FALSE) { //ARP cache table에서 해당 ip 주소가 없을 때
+                if (!CheckProxyTable(destIp, io)) { //Proxy table에서 찾아보고 없으면,
+                    // ARP requst보낸 후
+                    UpdateEthernetDestMac(destIp, io); //다시 mac 업뎃
+                }
+                else { //Proxy table에 있으면 업뎃 후 리턴트루
+                    return true;
+                }
             }
-            else { //Proxy table에 있으면 업뎃 후 리턴트루
+            else {
                 return true;
             }
         }
-        else {
-            return true;
-        }
+        return false;
     }
     return false;
 }
@@ -264,7 +268,8 @@ BOOL CIPLayer::ArpReceive(unsigned char* payload_data, int io)
 {
     PARP_HEADER data = (PARP_HEADER)payload_data;
     // ARP OP code가 1 - ARP 응답 패킷 생성 함수 호출
-    if (data->op_code == 1) {
+    unsigned short op = TO_BIG_ENDIAN_16(data->op_code);
+    if (op == 1) {
         addOrUpdate(data->source_ip, data->source_mac, true, true); // 이미 존재하면 수정
         ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg 업데이트
 
@@ -274,10 +279,19 @@ BOOL CIPLayer::ArpReceive(unsigned char* payload_data, int io)
         }
     }
     // ARP OP code가 2 - ARP cashe table 업데이트
-    else if (data->op_code == 2) {
-        handleArpReply(data->source_ip);                            // incomplete->complete
-        editEntryMacAddress(data->source_ip, data->source_mac);     // mac 주소 변경
-        ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg 업데이트
+    else if (op == 2) {
+        bool isMine = false;
+        for (int i; i < 2; i++) {
+            if (memcmp(data->target_ip, interfaces[i].ipAddr, data->ip_len) == 0) {
+                isMine = true;
+            }
+        }
+        if (isMine) {
+            addOrUpdate(data->source_ip, data->source_mac, true, true);
+            handleArpReply(data->source_ip);                            // incomplete->complete
+            editEntryMacAddress(data->source_ip, data->source_mac);     // mac 주소 변경
+            ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg 업데이트
+        }
     };
     return TRUE;
 }

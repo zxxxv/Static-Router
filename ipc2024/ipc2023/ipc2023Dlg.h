@@ -100,7 +100,6 @@ public:
 	afx_msg void OnBnClickedProxyAdd();
 	afx_msg void OnBnClickedProxyDelete();
 	CEdit m_garp_mac;			// 변경한 mac 주소
-	//afx_msg void OnBnClickedProxyTable();
 	CListCtrl m_ListCtrlR;
 	afx_msg void OnBnClickedButtonEnd();
 	afx_msg void OnBnClickedButtonStart();

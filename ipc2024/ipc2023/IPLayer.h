@@ -3,6 +3,7 @@
 #include "ARPCacheTable.h"
 #include "pch.h"
 #include "ARPProxyTable.h"
+#include "winsock2.h"
 
 
 class CIPLayer : public CBaseLayer, public ARPCacheTable

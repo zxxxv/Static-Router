@@ -124,7 +124,7 @@ Fields RoutingList::findEntry(const unsigned char* dst)
 		}
 		else {
 			// getNextEntry는 현재 엔트리에서 다음 엔트리를 반환하는 함수
-			// optional 반환이므로 값이 존재하는지 확인 후 언랩해야 함
+			// optional 반환이므로 값이 존재하는지 확인 후 언랩
 			auto nextIt = getNextEntry(it);
 			if (nextIt) {
 				it = *nextIt;
