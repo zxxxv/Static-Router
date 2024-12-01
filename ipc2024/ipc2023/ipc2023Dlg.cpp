@@ -103,6 +103,7 @@ BEGIN_MESSAGE_MAP(Cipc2023Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_RADD, &Cipc2023Dlg::OnBnClickedButtonRadd)
 	ON_BN_CLICKED(IDC_BUTTON_RDELETE, &Cipc2023Dlg::OnBnClickedButtonRdelete)
 	ON_BN_CLICKED(IDC_BUTTON_ARP_DELETE, &Cipc2023Dlg::OnBnClickedButtonArpDelete)
+	ON_BN_CLICKED(IDC_BUTTON1, &Cipc2023Dlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -563,4 +564,9 @@ void Cipc2023Dlg::OnBnClickedButtonArpDelete() // ARP Entry 삭제
 		// 리스트 컨트롤 업데이트
 		UpdateARPTable();
 	}
+}
+
+void Cipc2023Dlg::OnBnClickedButton1()
+{
+	m_IP->print();
 }

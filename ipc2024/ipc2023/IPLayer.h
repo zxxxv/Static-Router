@@ -24,6 +24,9 @@ public:
     BOOL CheckProxyTable(const unsigned char* destIp, int io);
     unsigned char* Routing(unsigned char* ip);
 
+    bool arpRequest;
+    unsigned char target_ip[4];   // 타겟 IP 주소 저장
+
     /////////////////////// ARP
     // ARP 요청 패킷 생성 함수
     BOOL createArpRequestPacket(unsigned char* target_ip, int io);
@@ -52,8 +55,7 @@ public:
 
     //void SetSenderMac(const unsigned char* macAddress);
 
-    //dlg에서 브로드캐스트 보낼 ip 받아오는 함수
-    //void SetTargetInfo(const unsigned char* target_ip);
+    void SetTargetInfo(const unsigned char* target_ip);
 
     void onEntryTimeout(const unsigned char* ip) override;
     /*
@@ -64,7 +66,6 @@ public:
 
     BOOL CIPLayer::createGarpPacket(int io);
 
-    unsigned char target_ip[4];   // 타겟 IP 주소를 저장하는 변수
     ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
     RoutingList& routingTable = RoutingList::GetInstance();
     
