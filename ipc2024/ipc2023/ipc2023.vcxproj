@@ -77,8 +77,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\lumin\OneDrive\Desktop\MFC-static\Static-Router\ipc2024\WpdPack_4_1_2\WpdPack\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\lumin\OneDrive\Desktop\MFC-static\Static-Router\ipc2024\WpdPack_4_1_2\WpdPack\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\jaewo\OneDrive\Desktop\개인\충북대\24-2\컴퓨터네트워크\Static Router\ipc2024\WpdPack_4_1_2\WpdPack\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\jaewo\OneDrive\Desktop\개인\충북대\24-2\컴퓨터네트워크\Static Router\ipc2024\WpdPack_4_1_2\WpdPack\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>

@@ -21,7 +21,7 @@ public:
     unsigned char* CheckArpTable(const unsigned char* destIp, int io);
 
     // 수신한 IP 패킷 처리하는 함수
-    BOOL IpReceive(unsigned char* payload_data);
+    BOOL IpReceive(unsigned char* payload_data, int io);
     BOOL IpSend(unsigned char* ppayload, int nlength, int io);
     unsigned char* CheckProxyTable(const unsigned char* destIp, int io);
     unsigned char* Routing(unsigned char* ip);
