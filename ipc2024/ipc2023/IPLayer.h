@@ -16,13 +16,14 @@ public:
     /////////////////////// IP
     
     //목적지 IP를 기준으로 Ethernet 헤더의 목적지 MAC 주소를 업데이트하는 함수
-    BOOL UpdateEthernetDestMac(const unsigned char* destIp, int io);
+    unsigned char* CheckArpTable(const unsigned char* destIp, int io);
 
     // 수신한 IP 패킷 처리하는 함수
-    BOOL IpReceive(unsigned char* payload_data, int io);
+    BOOL IpReceive(unsigned char* payload_data);
     BOOL IpSend(unsigned char* ppayload, int nlength, int io);
-    BOOL CheckProxyTable(const unsigned char* destIp, int io);
+    unsigned char* CheckProxyTable(const unsigned char* destIp, int io);
     unsigned char* Routing(unsigned char* ip);
+    BOOL IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac);
 
     bool arpRequest;
     unsigned char target_ip[4];   // 타겟 IP 주소 저장
