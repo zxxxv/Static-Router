@@ -23,7 +23,7 @@ public:
     BOOL IpSend(unsigned char* ppayload, int nlength, int io);
     unsigned char* CheckProxyTable(const unsigned char* destIp, int io);
     unsigned char* Routing(unsigned char* ip);
-    BOOL IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac);
+    BOOL IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac,int io);
 
     bool arpRequest;
     unsigned char target_ip[4];   // 鸥百 IP 林家 历厘

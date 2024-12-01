@@ -69,9 +69,9 @@ unsigned char* CIPLayer::CheckArpTable(const unsigned char* destIp, int io) {
     return (unsigned char*)entry->getMAC().c_str();
 }
 
-BOOL CIPLayer::IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac) {
-    ((CEthernetLayer*)GetUnderLayer())->SetDestinAddress(dstMac, 0);
-    ((CEthernetLayer*)GetUnderLayer())->SetSourceAddress(srcMac, 0);
+BOOL CIPLayer::IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac, int io) {
+    ((CEthernetLayer*)GetUnderLayer())->SetDestinAddress(dstMac, io);
+    ((CEthernetLayer*)GetUnderLayer())->SetSourceAddress(srcMac, io);
     return true;
 }
 
@@ -115,18 +115,36 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
         destMAC = CheckProxyTable(destIp, io);
         if (destMAC == nullptr) { //Proxy table에서 찾아보고 없으면,
             // ARP requst보낸 후 ARP reply를 제대로 받은 경우에
-            if (IpSetEhternetAddr(srcMAC, destMAC)) {
+            if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
                 AfxMessageBox(_T("ARP request로 srcMAC과 destMAC 설정됨."), MB_ICONERROR | MB_OK);
+                return true;
             }
+            else {
+                AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
+                return false;
+            }
+            
         }
         else { //Proxy table에 있으면 거기서 가져옴
-            if (IpSetEhternetAddr(srcMAC, destMAC)) {
+            if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
                 AfxMessageBox(_T("srcMAC과 destMAC 프록시 테이블에서 설정됨."), MB_ICONERROR | MB_OK);
+                return true;
+            }
+            else {
+                AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
+                return false;
             }
         }
     }
-    else {
-        return true;
+    else { //ARP cache table에 해당 ip주소를 찾았을 때
+        if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
+            AfxMessageBox(_T("srcMAC과 destMAC ARP 테이블에서 설정됨."), MB_ICONERROR | MB_OK);
+            return true;
+        }
+        else {
+            AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
+            return false;
+        }
     }
 
 }
