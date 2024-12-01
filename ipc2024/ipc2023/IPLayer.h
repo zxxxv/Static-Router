@@ -19,7 +19,6 @@ public:
     unsigned char* UpdateEthernetDestMac(const unsigned char* destIp, int io);
     BOOL IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac);
 
-
     // 수신한 IP 패킷 처리하는 함수
     BOOL IpReceive(unsigned char* payload_data, int io);
     BOOL IpSend(unsigned char* ppayload, int nlength, int io);
@@ -108,6 +107,7 @@ public:
     } ARP_HEADER, * PARP_HEADER;
 private:
     void ResetARPHeader(int io);
+
     INTERFACE_CARD interfaces[2];
 
     const unsigned char broadcast_mac[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
@@ -116,6 +116,7 @@ private:
 
 protected:
     ARP_HEADER   arpHeader[2];   /// 객체 ARP 해더
+    IP_HEADER    ipHeader;
 
     std::unordered_map<std::string, ARPCacheEntry*> cache;
 };

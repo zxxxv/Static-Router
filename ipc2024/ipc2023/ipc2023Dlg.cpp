@@ -386,7 +386,7 @@ void Cipc2023Dlg::UpdateARPTable() // ARP 테이블 출력
 		line = arpentries.Tokenize(_T("\r\n"), start);
 
 	}
-	m_IP->printCache();
+	//m_IP->printCache();
 }
 
 

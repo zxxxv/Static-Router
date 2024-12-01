@@ -48,6 +48,9 @@ UINT Adapter::ReadingThread(LPVOID pParam) //
 {
     Adapter* curAdapter = (Adapter*) pParam;
     int adtID = curAdapter->m_adtID;
+    CString adt;
+    adt.Format(_T("%d"), adt);
+    //AfxMessageBox(_T(adt));
 
     struct pcap_pkthdr* header;
     const u_char* pkt_data;
