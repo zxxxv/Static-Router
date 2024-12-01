@@ -114,58 +114,46 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
 
     if (destMAC == nullptr) { //ARP cache table에서 해당 ip 주소가 없을 때
         destMAC = CheckProxyTable(destIp, io);
+
         if (destMAC == nullptr) { //Proxy table에서 찾아보고 없으면,
             // ARP requst보낸 후 ARP reply를 제대로 받은 경우에
-            memcpy(m_temp.target_ip, data->dest_ip, 4);
-           /* if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
-                AfxMessageBox(_T("ARP request로 srcMAC과 destMAC 설정됨."), MB_ICONERROR | MB_OK);
-                return true;
-            }
-            else {
-                AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
-                return false;
-            }*/
+            memcpy(m_temp.target_ip, data->dest_ip, 4); // arpReceive에서 참고할 target_IP 초기화.
 
             // ARP 요청 생성 및 전송
-            if (createArpRequestPacket(destIp, io)) {
-                // ARP 요청이 성공적으로 전송되었음을 알림
-                AfxMessageBox(_T("ARP 요청 전송 완료"), MB_ICONINFORMATION | MB_OK);
+            createArpRequestPacket(destIp, io);
+            // ARP 요청이 성공적으로 전송되었음을 알림
+            // AfxMessageBox(_T("ARP 요청 전송 완료"), MB_ICONINFORMATION | MB_OK);
                 
-                while(!m_temp.check) // check가 false이면, 대기 // check가 true이면 아래 코드 수행.
+            while (!m_temp.check); 
+            // check가 false이면, 대기 
+            // check가 true이면 아래 코드 수행.
+            // arpReceive에서 올바르게 수행되었을 때, true로 바뀜
 
-                if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
-                    AfxMessageBox(_T("ARP 요청 성공: EthernetAddr 업데이트 완료"), MB_ICONINFORMATION | MB_OK);
-                    IpSend(payload_data, IP_HEADER + ICMP_HEADER_SIZE + ICMP_DATA_SIZE);
-                    return TRUE;
-                }
-                else {
-                    AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
-                    return FALSE;
-                }
+            memcpy(destMAC, m_temp.target_mac, 6);
+            // arp Receive에서 찾아낸 mac주소를 destMAC에 넣어주기.
+
+            if (!IpSetEhternetAddr(srcMAC, destMAC, io)) {
+                AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
+                return false;
             }
-            
         }
         else { //Proxy table에 있으면 거기서 가져옴
-            if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
-                AfxMessageBox(_T("srcMAC과 destMAC 프록시 테이블에서 설정됨."), MB_ICONERROR | MB_OK);
-                return true;
-            }
-            else {
+            if (!IpSetEhternetAddr(srcMAC, destMAC, io)) {
                 AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
                 return false;
             }
         }
     }
     else { //ARP cache table에 해당 ip주소를 찾았을 때
-        if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
-            AfxMessageBox(_T("srcMAC과 destMAC ARP 테이블에서 설정됨."), MB_ICONERROR | MB_OK);
-            return true;
-        }
-        else {
+        if (!IpSetEhternetAddr(srcMAC, destMAC, io)) {
             AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
             return false;
         }
     }
+
+    IpSend(payload_data, IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_DATA_SIZE, io);
+
+    return true;
 }
 
 BOOL CIPLayer::IpSend(unsigned char* ppayload, int nlength, int io) {
