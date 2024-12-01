@@ -44,10 +44,54 @@ CString Adapter::GetNICardAddress(char* adapter_name)
     return NICardAddress;
 }
 
-UINT Adapter::ReadingThread(LPVOID pParam) //
+UINT Adapter::ReadingThreadA(LPVOID pParam)
+{
+    Adapter* curAdapter = (Adapter*)pParam;
+    int adtID = 0;
+
+    struct pcap_pkthdr* header;
+    const u_char* pkt_data;
+    int result;
+
+    while (curAdapter->m_thrdSwitch) {
+        for (result = pcap_next_ex(curAdapter->getHandler(), &header, &pkt_data)
+            ; result >= 0; result = pcap_next_ex(curAdapter->getHandler(), &header, &pkt_data))
+            /*
+            pcap_next_ex: 패킷을 읽어오는 함수
+            # parameter
+            - pcap_t *p : 네트워크 장치 핸들러
+            - struct pcap_pkthdr **pkt_header : 캡처한 패킷의 헤더에 대한 포인터
+                - 함수를 거치며 저장됨.
+            - const u_char **pkt_data : 캡처한 패킷의 데이터
+                - 함수를 거치며 저장됨
+            # return value
+            - 1 : 성공
+            - 0 : 타임아웃 시간 동안 패킷이 도착하지 않음
+            - -1 : 패킷 읽는 도중 오류 발생
+            - -2 : 패킷 캡처가 EOF에 도달
+            */
+        {
+            if (result == 0)
+            {
+                continue;
+            }
+            curAdapter->m_pNILayer->Receive((u_char*)pkt_data, adtID);
+        }
+
+        if (result < 0)
+        {
+            AfxMessageBox(_T("Packet Read Error"));
+            break;
+        }
+    }
+
+    return 0;
+}
+
+UINT Adapter::ReadingThreadB(LPVOID pParam) //
 {
     Adapter* curAdapter = (Adapter*) pParam;
-    int adtID = curAdapter->m_adtID;
+    int adtID = 1;
 
     struct pcap_pkthdr* header;
     const u_char* pkt_data;
@@ -110,7 +154,12 @@ bool Adapter::initAdapter(pcap_if_t* pcap_if_t, int adtID) {
 bool Adapter::PacketStartDriver()
 {
     m_thrdSwitch = TRUE;
-    if(m_pThread = AfxBeginThread(ReadingThread, this)) return true;
+    if (m_adtID == 0) {
+        if (m_pThread = AfxBeginThread(ReadingThreadA, this)) return true;
+    }
+    else if (m_adtID == 1) {
+        if (m_pThread = AfxBeginThread(ReadingThreadB, this)) return true;
+    }
     return false;
 }
 
