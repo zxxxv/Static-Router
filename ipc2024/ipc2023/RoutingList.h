@@ -39,7 +39,7 @@ private:
     std::list<RoutingEntry::Fields> m_list;
     
 
-    std::optional<std::list<Fields>::iterator> getNextEntry(std::list<Fields>::iterator currentIt);
+    std::list<Fields>::iterator getNextEntry(std::list<Fields>::iterator currentIt);
 	bool isMatchingEntry(std::list<Fields>::iterator currentIt, const unsigned char* dst);
 
 };
