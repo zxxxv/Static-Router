@@ -114,14 +114,42 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
     if (destMAC == nullptr) { //ARP cache table에서 해당 ip 주소가 없을 때
         destMAC = CheckProxyTable(destIp, io);
         if (destMAC == nullptr) { //Proxy table에서 찾아보고 없으면,
+
             // ARP requst보낸 후 ARP reply를 제대로 받은 경우에
-            if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
+
+           /* if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
                 AfxMessageBox(_T("ARP request로 srcMAC과 destMAC 설정됨."), MB_ICONERROR | MB_OK);
                 return true;
             }
             else {
                 AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
                 return false;
+            }*/
+
+            // ARP 요청 생성 및 전송
+            if (createArpRequestPacket(destIp, io)) {
+                // ARP 요청이 성공적으로 전송되었음을 알림
+                AfxMessageBox(_T("ARP 요청 전송 완료"), MB_ICONINFORMATION | MB_OK);
+
+                // ARP 응답 기다림
+                //if (ArpReceive(payload_data, io)) {
+                //    // 응답 성공 시, ARP 테이블에서 다시 MAC 조회
+                //    destMAC = CheckArpTable(destIp, io);
+                //    if (destMAC) {
+                //        if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
+                //            AfxMessageBox(_T("ARP 요청 성공: EthernetAddr 업데이트 완료"), MB_ICONINFORMATION | MB_OK);
+                //            return TRUE;
+                //        }
+                //        else {
+                //            AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
+                //            return FALSE;
+                //        }
+                //    }
+                //}
+                /*else {
+                    AfxMessageBox(_T("ARP 응답을 받지 못했습니다."), MB_ICONERROR | MB_OK);
+                    return FALSE;
+                }*/
             }
             
         }
@@ -146,7 +174,6 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
             return false;
         }
     }
-
 }
 
 BOOL CIPLayer::IpSend(unsigned char* ppayload, int nlength, int io) {
