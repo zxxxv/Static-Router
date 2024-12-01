@@ -15,6 +15,8 @@ public:
 
     /////////////////////// IP
     
+    void ResetTemp();
+
     //목적지 IP를 기준으로 Ethernet 헤더의 목적지 MAC 주소를 업데이트하는 함수
     unsigned char* CheckArpTable(const unsigned char* destIp, int io);
 

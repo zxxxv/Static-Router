@@ -24,6 +24,12 @@ CIPLayer::~CIPLayer()
     
 }
 
+void CIPLayer::ResetTemp() {
+    memset(m_temp.target_ip, 0, 4);
+    memset(m_temp.target_mac, 0, 6);
+    m_temp.check = false;
+}
+
 void CIPLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* ipAddr1, unsigned char* macAddr2, unsigned char* ipAddr2) {
     memcpy(interfaces[0].macAddr, macAddr1, 6);    // 郴何 MAC 林家 汲沥
     memcpy(interfaces[0].ipAddr, ipAddr1, 4);      // 郴何 IP 林家 汲沥
@@ -95,6 +101,8 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
 
     PIP_HEADER data = (PIP_HEADER)payload_data;
 
+   if ( data->protocol_field != 1) return false;
+
     unsigned char srcMAC[6]; // interface狼 MAC 林家 历厘
     int io; //interface 锅龋
 
@@ -151,8 +159,7 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
         }
     }
 
-    IpSend(payload_data, IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_DATA_SIZE, io);
-
+    if (IpSend(payload_data, IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_DATA_SIZE, io)) ResetTemp();
     return true;
 }
 
