@@ -22,7 +22,8 @@ private:
 	// AfxBeginThread에 대한 포인터임. 이후 stopPacketDriver에서 이를 바탕으로 쓰레드 종료 예정
 	
 	CString GetNICardAddress(char* adapter_name);
-	static UINT		ReadingThread(LPVOID pParam);
+	static UINT		ReadingThreadA(LPVOID pParam);
+	static UINT		ReadingThreadB(LPVOID pParam);
 
 public:
 	Adapter(CNILayer* pParent)

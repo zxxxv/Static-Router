@@ -30,7 +30,8 @@ public:
         - binary ip 주소, 각 entry의 OnTimer 함수 내에서 입력된다.
     */
 
-    void addOrUpdate(const unsigned char* ip, const unsigned char* mac, const bool& state, const bool& isPermanent);
+    bool add(const unsigned char* ip, const unsigned char* mac, const bool& state, const bool& isPermanent);
+    bool update(const unsigned char* ip, const unsigned char* mac);
     /*
     addOrUpdate: entry를 추가하거나, 해당 ip가 이미 테이블에 존재하는지 확인하는 함수.
         # parameter

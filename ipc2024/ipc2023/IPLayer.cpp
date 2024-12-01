@@ -16,6 +16,7 @@ CIPLayer::CIPLayer(char* pName)
     arpRequest = false;
     ResetARPHeader(INNER);
     ResetARPHeader(OUTER);
+    //ResetIPHeader();
 }
 
 CIPLayer::~CIPLayer()
@@ -24,48 +25,48 @@ CIPLayer::~CIPLayer()
 }
 
 void CIPLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* ipAddr1, unsigned char* macAddr2, unsigned char* ipAddr2) {
-    memcpy(interfaces[0].macAddr, macAddr1, 6);    // ³»ºÎ MAC ÁÖ¼Ò ¼³Á¤
-    memcpy(interfaces[0].ipAddr, ipAddr1, 4);      // ³»ºÎ IP ÁÖ¼Ò ¼³Á¤
-    memcpy(interfaces[1].macAddr, macAddr2, 6);    // ¿ÜºÎ MAC ÁÖ¼Ò ¼³Á¤
-    memcpy(interfaces[1].ipAddr, ipAddr2, 4);      // ¿ÜºÎ IP ÁÖ¼Ò ¼³Á¤
+    memcpy(interfaces[0].macAddr, macAddr1, 6);    // ë‚´ë¶€ MAC ì£¼ì†Œ ì„¤ì •
+    memcpy(interfaces[0].ipAddr, ipAddr1, 4);      // ë‚´ë¶€ IP ì£¼ì†Œ ì„¤ì •
+    memcpy(interfaces[1].macAddr, macAddr2, 6);    // ì™¸ë¶€ MAC ì£¼ì†Œ ì„¤ì •
+    memcpy(interfaces[1].ipAddr, ipAddr2, 4);      // ì™¸ë¶€ IP ì£¼ì†Œ ì„¤ì •
 }
 
 void CIPLayer::SetTargetInfo(const unsigned char* targetIp) {
-    memcpy(m_temp.target_ip, targetIp, 4);                 // Å¸°Ù IP ÁÖ¼Ò ¼³Á¤
+    memcpy(m_temp.target_ip, targetIp, 4);                 // íƒ€ê²Ÿ IP ì£¼ì†Œ ì„¤ì •
 }
 
 unsigned char* CIPLayer::CheckProxyTable(const unsigned char* destIp, int io) {
-    // destIp¸¦ ¹®ÀÚ¿­ Çü½ÄÀ¸·Î º¯È¯
+    // destIpë¥¼ ë¬¸ìì—´ í˜•ì‹ìœ¼ë¡œ ë³€í™˜
     std::string destIpStr = Converter::B2IP(destIp);
 
-    // ProxyTable¿¡¼­ IP·Î ¿£Æ®¸® °Ë»ö
+    // ProxyTableì—ì„œ IPë¡œ ì—”íŠ¸ë¦¬ ê²€ìƒ‰
     ProxyEntry* entry = proxyTable.FindEntryByIP(destIp);
 
     if (entry != nullptr) {
-        // MAC ÁÖ¼Ò¸¦ ¹İÈ¯
+        // MAC ì£¼ì†Œë¥¼ ë°˜í™˜
         return entry->MACAddress;
     }
 
-    // ÀÏÄ¡ÇÏ´Â Ç×¸ñÀÌ ¾øÀ¸¸é nullptr ¹İÈ¯
+    // ì¼ì¹˜í•˜ëŠ” í•­ëª©ì´ ì—†ìœ¼ë©´ nullptr ë°˜í™˜
     return nullptr;
 }
 
 unsigned char* CIPLayer::CheckArpTable(const unsigned char* destIp, int io) {
-    // ¸ñÀûÁö IP¸¦ ¹®ÀÚ¿­·Î º¯È¯
+    // ëª©ì ì§€ IPë¥¼ ë¬¸ìì—´ë¡œ ë³€í™˜
     std::string strIP = ARPCacheTable::binaryToString(destIp);
 
-    // ARP Ä³½Ã Å×ÀÌºí¿¡¼­ ÇØ´ç IPÀÇ MAC ÁÖ¼Ò¸¦ °Ë»ö
-    auto it = cache.find(strIP); // cache´Â »ó¼Ó¹ŞÀº ¸â¹ö º¯¼ö
+    // ARP ìºì‹œ í…Œì´ë¸”ì—ì„œ í•´ë‹¹ IPì˜ MAC ì£¼ì†Œë¥¼ ê²€ìƒ‰
+    auto it = cache.find(strIP); // cacheëŠ” ìƒì†ë°›ì€ ë©¤ë²„ ë³€ìˆ˜
     if (it == cache.end()) {
-        // ÇØ´ç IP°¡ ARP Ä³½Ã Å×ÀÌºí¿¡ ¾øÀ¸¸é
-        AfxMessageBox(_T("MAC ÁÖ¼Ò¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù"), MB_ICONERROR | MB_OK);
+        // í•´ë‹¹ IPê°€ ARP ìºì‹œ í…Œì´ë¸”ì— ì—†ìœ¼ë©´
+        AfxMessageBox(_T("MAC ì£¼ì†Œë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤"), MB_ICONERROR | MB_OK);
         return nullptr;
     }
 
-    // ARPCacheEntry¸¦ ÅëÇØ MAC ÁÖ¼Ò °¡Á®¿À±â
+    // ARPCacheEntryë¥¼ í†µí•´ MAC ì£¼ì†Œ ê°€ì ¸ì˜¤ê¸°
     ARPCacheEntry* entry = it->second;
 
-    // MAC ÁÖ¼Ò ¹İÈ¯
+    // MAC ì£¼ì†Œ ë°˜í™˜
     return (unsigned char*)entry->getMAC().c_str();
 }
 
@@ -84,26 +85,26 @@ unsigned char* CIPLayer::Routing(unsigned char* ip) {
 }
 
 BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
-    // ÆĞÅ¶¿¡¼­ ¸ñÀûÁö IP ÁÖ¼Ò °¡Á®¿À±â
-    // **ÇØ´ç IP ÁÖ¼Ò·Î ÆĞÅ¶ »ı¼º ÈÄ º¸³»±â**
-    // 1. Routing ÀÖÀ½ ÇØ´ç Mac, ¾øÀ¸¸é ±âº»°ÔÀÌÆ®¿şÀÌ
-    // 2. ARP Å×ÀÌºí¿¡¼­ IPÁÖ¼Ò¿¡ ÇØ´çÇÏ´Â MACÁÖ¼Ò Ã£±â
-    //    &Proxy Å×ÀÌºí¿¡¼­ Ã£±â
-    //      Ã£¾ÒÀ»¶§     : ÇØ´ç MAC ÁÖ¼Ò·Î º¸³Û
-    //      ¸ø Ã£¾ÒÀ»¶§  : ARP request ÈÄ reply MAC ÁÖ¼Ò·Î º¸³»±â
+    // íŒ¨í‚·ì—ì„œ ëª©ì ì§€ IP ì£¼ì†Œ ê°€ì ¸ì˜¤ê¸°
+    // **í•´ë‹¹ IP ì£¼ì†Œë¡œ íŒ¨í‚· ìƒì„± í›„ ë³´ë‚´ê¸°**
+    // 1. Routing ìˆìŒ í•´ë‹¹ Mac, ì—†ìœ¼ë©´ ê¸°ë³¸ê²Œì´íŠ¸ì›¨ì´
+    // 2. ARP í…Œì´ë¸”ì—ì„œ IPì£¼ì†Œì— í•´ë‹¹í•˜ëŠ” MACì£¼ì†Œ ì°¾ê¸°
+    //    &Proxy í…Œì´ë¸”ì—ì„œ ì°¾ê¸°
+    //      ì°¾ì•˜ì„ë•Œ     : í•´ë‹¹ MAC ì£¼ì†Œë¡œ ë³´ë„´
+    //      ëª» ì°¾ì•˜ì„ë•Œ  : ARP request í›„ reply MAC ì£¼ì†Œë¡œ ë³´ë‚´ê¸°
 
     PIP_HEADER data = (PIP_HEADER)payload_data;
 
-    unsigned char srcMAC[6]; // interfaceÀÇ MAC ÁÖ¼Ò ÀúÀå
-    int io; //interface ¹øÈ£
+    unsigned char srcMAC[6]; // interfaceì˜ MAC ì£¼ì†Œ ì €ì¥
+    int io; //interface ë²ˆí˜¸
 
     //PIP_HEADER* data = reinterpret_cast<PIP_HEADER*>(payload_data);
-    unsigned char* srcMAC_ip = Routing(data->dest_ip); //Source MACÁÖ¼Ò¸¦ ÇØ´ç NI Card MACÁÖ¼Ò·Î ¹Ù²Ù·Á°í °¡Á®¿È
+    unsigned char* srcMAC_ip = Routing(data->dest_ip); //Source MACì£¼ì†Œë¥¼ í•´ë‹¹ NI Card MACì£¼ì†Œë¡œ ë°”ê¾¸ë ¤ê³  ê°€ì ¸ì˜´
 
     for (int i = 0; i < 2; i++) {
-        if (memcmp(srcMAC_ip, interfaces[i].ipAddr, 4) == 0) { //µÑÀÌ °°À¸¸é
+        if (memcmp(srcMAC_ip, interfaces[i].ipAddr, 4) == 0) { //ë‘˜ì´ ê°™ìœ¼ë©´
             memcpy(srcMAC, interfaces[i].macAddr, 6);
-            io = i; //interface ¹øÈ£ ÀúÀå
+            io = i; //interface ë²ˆí˜¸ ì €ì¥
             break;
         }
     }
@@ -111,49 +112,50 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
     unsigned char* destIp = data->dest_ip;
     unsigned char* destMAC = CheckArpTable(destIp, io);
 
-    if (destMAC == nullptr) { //ARP cache table¿¡¼­ ÇØ´ç ip ÁÖ¼Ò°¡ ¾øÀ» ¶§
+    if (destMAC == nullptr) { //ARP cache tableì—ì„œ í•´ë‹¹ ip ì£¼ì†Œê°€ ì—†ì„ ë•Œ
         destMAC = CheckProxyTable(destIp, io);
 
-        if (destMAC == nullptr) { //Proxy table¿¡¼­ Ã£¾Æº¸°í ¾øÀ¸¸é,
-            // ARP requstº¸³½ ÈÄ ARP reply¸¦ Á¦´ë·Î ¹ŞÀº °æ¿ì¿¡
-            memcpy(m_temp.target_ip, data->dest_ip, 4); // arpReceive¿¡¼­ Âü°íÇÒ target_IP ÃÊ±âÈ­.
+        if (destMAC == nullptr) { //Proxy tableì—ì„œ ì°¾ì•„ë³´ê³  ì—†ìœ¼ë©´,
+            // ARP requstë³´ë‚¸ í›„ ARP replyë¥¼ ì œëŒ€ë¡œ ë°›ì€ ê²½ìš°ì—
+            memcpy(m_temp.target_ip, data->dest_ip, 4); // arpReceiveì—ì„œ ì°¸ê³ í•  target_IP ì´ˆê¸°í™”.
 
-            // ARP ¿äÃ» »ı¼º ¹× Àü¼Û
+            // ARP ìš”ì²­ ìƒì„± ë° ì „ì†¡
             createArpRequestPacket(destIp, io);
-            // ARP ¿äÃ»ÀÌ ¼º°øÀûÀ¸·Î Àü¼ÛµÇ¾úÀ½À» ¾Ë¸²
-            // AfxMessageBox(_T("ARP ¿äÃ» Àü¼Û ¿Ï·á"), MB_ICONINFORMATION | MB_OK);
+            // ARP ìš”ì²­ì´ ì„±ê³µì ìœ¼ë¡œ ì „ì†¡ë˜ì—ˆìŒì„ ì•Œë¦¼
+            // AfxMessageBox(_T("ARP ìš”ì²­ ì „ì†¡ ì™„ë£Œ"), MB_ICONINFORMATION | MB_OK);
                 
             while (!m_temp.check); 
-            // check°¡ falseÀÌ¸é, ´ë±â 
-            // check°¡ trueÀÌ¸é ¾Æ·¡ ÄÚµå ¼öÇà.
-            // arpReceive¿¡¼­ ¿Ã¹Ù¸£°Ô ¼öÇàµÇ¾úÀ» ¶§, true·Î ¹Ù²ñ
+            // checkê°€ falseì´ë©´, ëŒ€ê¸° 
+            // checkê°€ trueì´ë©´ ì•„ë˜ ì½”ë“œ ìˆ˜í–‰.
+            // arpReceiveì—ì„œ ì˜¬ë°”ë¥´ê²Œ ìˆ˜í–‰ë˜ì—ˆì„ ë•Œ, trueë¡œ ë°”ë€œ
 
             memcpy(destMAC, m_temp.target_mac, 6);
-            // arp Receive¿¡¼­ Ã£¾Æ³½ macÁÖ¼Ò¸¦ destMAC¿¡ ³Ö¾îÁÖ±â.
+            // arp Receiveì—ì„œ ì°¾ì•„ë‚¸ macì£¼ì†Œë¥¼ destMACì— ë„£ì–´ì£¼ê¸°.
 
             if (!IpSetEhternetAddr(srcMAC, destMAC, io)) {
-                AfxMessageBox(_T("EthernetAddr ¼³Á¤ ½ÇÆĞ"), MB_ICONERROR | MB_OK);
+                AfxMessageBox(_T("EthernetAddr ì„¤ì • ì‹¤íŒ¨"), MB_ICONERROR | MB_OK);
                 return false;
             }
         }
-        else { //Proxy table¿¡ ÀÖÀ¸¸é °Å±â¼­ °¡Á®¿È
+        else { //Proxy tableì— ìˆìœ¼ë©´ ê±°ê¸°ì„œ ê°€ì ¸ì˜´
             if (!IpSetEhternetAddr(srcMAC, destMAC, io)) {
-                AfxMessageBox(_T("EthernetAddr ¼³Á¤ ½ÇÆĞ"), MB_ICONERROR | MB_OK);
+                AfxMessageBox(_T("EthernetAddr ì„¤ì • ì‹¤íŒ¨"), MB_ICONERROR | MB_OK);
                 return false;
             }
         }
     }
-    else { //ARP cache table¿¡ ÇØ´ç ipÁÖ¼Ò¸¦ Ã£¾ÒÀ» ¶§
+    else { //ARP cache tableì— í•´ë‹¹ ipì£¼ì†Œë¥¼ ì°¾ì•˜ì„ ë•Œ
         if (!IpSetEhternetAddr(srcMAC, destMAC, io)) {
-            AfxMessageBox(_T("EthernetAddr ¼³Á¤ ½ÇÆĞ"), MB_ICONERROR | MB_OK);
+            AfxMessageBox(_T("EthernetAddr ì„¤ì • ì‹¤íŒ¨"), MB_ICONERROR | MB_OK);
             return false;
         }
     }
 
     IpSend(payload_data, IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_DATA_SIZE, io);
-
+    
     return true;
 }
+
 
 BOOL CIPLayer::IpSend(unsigned char* ppayload, int nlength, int io) {
     BOOL success = ((CEthernetLayer*)(this->GetUnderLayer()))->Send(
@@ -161,10 +163,10 @@ BOOL CIPLayer::IpSend(unsigned char* ppayload, int nlength, int io) {
         , IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_DATA_SIZE
         , IP_LAYER_IDENTIFIER, io);
     if (success) {
-        //AfxMessageBox(_T("IP ÆĞÅ¶ Àü¼Û - IP Send"));
+        //AfxMessageBox(_T("IP íŒ¨í‚· ì „ì†¡ - IP Send"));
     }
     else {
-        //AfxMessageBox(_T("IP ÆĞÅ¶ Àü¼Û ½ÇÆĞ - IP Send"));
+        //AfxMessageBox(_T("IP íŒ¨í‚· ì „ì†¡ ì‹¤íŒ¨ - IP Send"));
     }
     return success;
 }
@@ -173,7 +175,7 @@ BOOL CIPLayer::IpSend(unsigned char* ppayload, int nlength, int io) {
 
 void CIPLayer::ResetARPHeader(int io)
 {
-    // ÀÌ´õ³İ ¸ñÀûÁö ÁÖ¼Ò, ³ªÀÇ ÁÖ¼Ò, Å¸ÀÔ, Data¸¦ ÃÊ±âÈ­ÇÔ
+    // ì´ë”ë„· ëª©ì ì§€ ì£¼ì†Œ, ë‚˜ì˜ ì£¼ì†Œ, íƒ€ì…, Dataë¥¼ ì´ˆê¸°í™”í•¨
     arpHeader[io].hard_type = TO_BIG_ENDIAN_16(0x0001);    // Ethernet (1)
     arpHeader[io].prot_type = TO_BIG_ENDIAN_16(0x0800);    // IPv4 (0x0800)
     arpHeader[io].mac_len = 6;
@@ -186,34 +188,35 @@ void CIPLayer::ResetARPHeader(int io)
 }
 
 //void CIPLayer::SetSenderMac(const unsigned char* macAddress) {
-//    memcpy(sender_mac, macAddress, 6);            // MAC ÁÖ¼Ò ¼³Á¤
+//    memcpy(sender_mac, macAddress, 6);            // MAC ì£¼ì†Œ ì„¤ì •
 //}
 
 BOOL CIPLayer::createArpRequestPacket(unsigned char* target_ip, int io) {
-    // ¾øÀ¸¸é ºê·ÎµåÄ³½ºÆ®·Î Àü¼Û
-    addOrUpdate(target_ip, interfaces[io].macAddr, false, false);
+    // ì—†ìœ¼ë©´ ë¸Œë¡œë“œìºìŠ¤íŠ¸ë¡œ ì „ì†¡
+    add(target_ip, interfaces[io].macAddr, false, false);
     ResetARPHeader(io);
     ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();
     memcpy(arpHeader[io].source_mac, interfaces[io].macAddr, 6);
     memcpy(arpHeader[io].source_ip, interfaces[io].ipAddr, 4);
     memcpy(arpHeader[io].target_ip, target_ip, 4);
+    arpRequest = true;
     return createArpPacket(0x0001, io);
 };
 
 BOOL CIPLayer::createArpReplyPacket(unsigned char* payload_data, int io) {
-    // ¼Û½ÅÃøÀÇ ¸ÆÁÖ¼Ò¿Í IPÁÖ¼Ò¸¦ Å¸°ÙÀ¸·Î ¹Ù²Ù°í ¼Û½ÅÃø¿£ ³ªÀÇ Á¤º¸·Î Ã¤¿ò
-    // target ip ÁÖ¼Ò°¡ ³ªÀÎÁö È®ÀÎ
-    // ³»°¡ ¸ÂÀ» °æ¿ì source ÇÊµå¸¦ target ÇÊµå·Î ¼³Á¤ÇÏ°í
-    // source ÇÊµå¿¡ ³ªÀÇ ipÁÖ¼Ò macÁÖ¼Ò ¼³Á¤
-    // op code 2·Î send¿¡ Àü´Ş
+    // ì†¡ì‹ ì¸¡ì˜ ë§¥ì£¼ì†Œì™€ IPì£¼ì†Œë¥¼ íƒ€ê²Ÿìœ¼ë¡œ ë°”ê¾¸ê³  ì†¡ì‹ ì¸¡ì—” ë‚˜ì˜ ì •ë³´ë¡œ ì±„ì›€
+    // target ip ì£¼ì†Œê°€ ë‚˜ì¸ì§€ í™•ì¸
+    // ë‚´ê°€ ë§ì„ ê²½ìš° source í•„ë“œë¥¼ target í•„ë“œë¡œ ì„¤ì •í•˜ê³ 
+    // source í•„ë“œì— ë‚˜ì˜ ipì£¼ì†Œ macì£¼ì†Œ ì„¤ì •
+    // op code 2ë¡œ sendì— ì „ë‹¬
     PARP_HEADER data = (PARP_HEADER)payload_data;
     ResetARPHeader(io);
 
-    // Target ÇÊµå ¼³Á¤: Source ÇÊµå¸¦ Target ÇÊµå·Î ¼³Á¤
+    // Target í•„ë“œ ì„¤ì •: Source í•„ë“œë¥¼ Target í•„ë“œë¡œ ì„¤ì •
     memcpy(arpHeader[io].target_mac, data->source_mac, data->mac_len);  // source_mac -> target_mac
     memcpy(arpHeader[io].target_ip, data->source_ip, data->ip_len);   // source_ip -> target_ip
 
-    // Source ÇÊµå ¼³Á¤:
+    // Source í•„ë“œ ì„¤ì •:
     memcpy(arpHeader[io].source_mac, interfaces[io].macAddr, data->mac_len);
     memcpy(arpHeader[io].source_ip, data->target_ip, data->ip_len);
 
@@ -255,10 +258,10 @@ BOOL CIPLayer::ArpSend(unsigned char* ppayload, int nlength, int io) {
     BOOL success = ((CEthernetLayer*)(this->GetUnderLayer()))->Send(ppayload, nlength, ARP_LAYER_IDENTIFIER, io);  
 
     if (success) {
-        //AfxMessageBox(_T("ARP ÆĞÅ¶ Àü¼Û - ARP Send"));
+        //AfxMessageBox(_T("ARP íŒ¨í‚· ì „ì†¡ - ARP Send"));
     }
     else {
-        //AfxMessageBox(_T("ARP ÆĞÅ¶ Àü¼Û ½ÇÆĞ - ARP Send"));
+        //AfxMessageBox(_T("ARP íŒ¨í‚· ì „ì†¡ ì‹¤íŒ¨ - ARP Send"));
     }
     return success;
 }
@@ -266,23 +269,23 @@ BOOL CIPLayer::ArpSend(unsigned char* ppayload, int nlength, int io) {
 BOOL CIPLayer::ArpReceive(unsigned char* payload_data, int io)
 {
     PARP_HEADER data = (PARP_HEADER)payload_data;
-    // ARP OP code°¡ 1 - ARP ÀÀ´ä ÆĞÅ¶ »ı¼º ÇÔ¼ö È£Ãâ
+    // ARP OP codeê°€ 1 - ARP ì‘ë‹µ íŒ¨í‚· ìƒì„± í•¨ìˆ˜ í˜¸ì¶œ
     unsigned short op = TO_BIG_ENDIAN_16(data->op_code);
 
     if (op == 1) {
-        addOrUpdate(data->source_ip, data->source_mac, true, true); // ÀÌ¹Ì Á¸ÀçÇÏ¸é ¼öÁ¤
-        //print();
-        //((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg ¾÷µ¥ÀÌÆ®
-
-        // Å¸°Ù ip ÁÖ¼Ò°¡ ³ªÀÇ ip ÁÖ¼Ò¿Í °°ÀºÁö or ÇÁ·Ï½Ã Å×ÀÌºí¿¡ Á¸ÀçÇÏ´ÂÁö
+        //update(data->source_ip, data->source_mac, true, true); // ì´ë¯¸ ì¡´ì¬í•˜ë©´ ìˆ˜ì •
+        if (add(data->source_ip, data->source_mac, true, true) ) {
+            ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg ì—…ë°ì´íŠ¸
+        }
+        // íƒ€ê²Ÿ ip ì£¼ì†Œê°€ ë‚˜ì˜ ip ì£¼ì†Œì™€ ê°™ì€ì§€ or í”„ë¡ì‹œ í…Œì´ë¸”ì— ì¡´ì¬í•˜ëŠ”ì§€
         if (memcmp(data->target_ip, interfaces[io].ipAddr, data->ip_len) == 0 || proxyTable.FindEntryByIP(data->target_ip)) {
-            return createArpReplyPacket(payload_data, io); // ¼öÁ¤ÇÊ¿ä
+            return createArpReplyPacket(payload_data, io); // ìˆ˜ì •í•„ìš”
         }
         return TRUE;
     }
-    // ARP OP code°¡ 2 - ARP cashe table ¾÷µ¥ÀÌÆ®
+    // ARP OP codeê°€ 2 - ARP cashe table ì—…ë°ì´íŠ¸
     else if (op == 2) {
-        if (!arpRequest) return false; // false¿©µµ µÇ³ª?
+        if (!arpRequest) return false; // falseì—¬ë„ ë˜ë‚˜?
         
         bool isMine = false;
         for (int i = 0; i < 2; i++) {
@@ -292,10 +295,10 @@ BOOL CIPLayer::ArpReceive(unsigned char* payload_data, int io)
 
         //addOrUpdate(data->source_ip, data->source_mac, true, true);
         handleArpReply(data->source_ip);                            // incomplete->complete
-        editEntryMacAddress(data->source_ip, data->source_mac);   // mac ÁÖ¼Ò º¯°æ, ÇØ´ç ip ÁÖ¼Ò°¡ ¾øÀ¸¸é exception ¹ß»ı
-        ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg ¾÷µ¥ÀÌÆ®
+        editEntryMacAddress(data->source_ip, data->source_mac);   // mac ì£¼ì†Œ ë³€ê²½, í•´ë‹¹ ip ì£¼ì†Œê°€ ì—†ìœ¼ë©´ exception ë°œìƒ
+        ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg ì—…ë°ì´íŠ¸
         if (memcmp(m_temp.target_ip, data->source_ip, 4) == 0) {
-            // ip ÇÑÅ× mac ÁÖ¼Ò ¹Ş¾Ò´Ù°í ¾Ë¸²
+            // ip í•œí…Œ mac ì£¼ì†Œ ë°›ì•˜ë‹¤ê³  ì•Œë¦¼
             memcpy(m_temp.target_mac, data->source_mac, 6);
             m_temp.check = true;
         }

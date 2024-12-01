@@ -36,10 +36,8 @@ bool RoutingList::addEntry() {
 	return true;
 };
 
-std::optional<std::list<Fields>::iterator> RoutingList::getNextEntry(std::list<Fields>::iterator currentIt) {
-	auto nextIt = std::next(currentIt);
-	if (nextIt != m_list.end()) return nextIt; // 다음 iterator 반환
-	else return std::nullopt; // 리스트의 끝일 경우 nullptr 반환
+std::list<Fields>::iterator RoutingList::getNextEntry(std::list<Fields>::iterator currentIt) {
+	return std::next(currentIt);
 }
 
 bool RoutingList::isMatchingEntry(std::list<Fields>::iterator currentIt, const unsigned char* dst)
@@ -126,21 +124,11 @@ Fields RoutingList::findEntry(const unsigned char* dst)
 			// getNextEntry는 현재 엔트리에서 다음 엔트리를 반환하는 함수
 			// optional 반환이므로 값이 존재하는지 확인 후 언랩
 			auto nextIt = getNextEntry(it);
-			if (nextIt) {
-				it = *nextIt;
-			}
-			else {
-				// 다음 엔트리가 존재하지 않을 때, 기본 엔트리인 m_buffEnty를 반환
-				return m_buffEnty;
-			}
 		}
 	}
-
 	// 일치하는 엔트리가 없는 경우, 기본 엔트리 반환
 	return m_buffEnty;
 }
-
-
 
 //Fields RoutingList::findEntry(const unsigned char* dst)
 //{
