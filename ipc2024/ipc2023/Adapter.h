@@ -5,6 +5,7 @@
 #include <pcap.h>
 #include "pch.h"
 #include "NILayer.h"
+#include "RoutingList.h"
 
 class CNILayer;
 
@@ -12,17 +13,15 @@ class Adapter {
 private:
 	CNILayer* m_pNILayer;
 	pcap_t* m_adapterHandler;
-	std::string m_devName;
-	std::string m_description;
-	std::string m_macAddr;
+	char* m_devName;
+	char* m_description;
+	CString m_macAddr;
 	int m_adtID;
 	bool m_thrdSwitch;
 	CWinThread* m_pThread;
 	// AfxBeginThread에 대한 포인터임. 이후 stopPacketDriver에서 이를 바탕으로 쓰레드 종료 예정
-
-	bool StopPacketDriver();
-	// 내부적으로 쓰레드 종료 -> pcap_close.
-	std::string GetNICardAddress(char* adapter_name);
+	
+	CString GetNICardAddress(char* adapter_name);
 	static UINT		ReadingThread(LPVOID pParam);
 
 public:
@@ -32,11 +31,13 @@ public:
 
 	~Adapter(); // stopPacketDriver 작동.
 
+	bool StopPacketDriver();	// 내부적으로 쓰레드 종료 -> pcap_close.
+
 	// 아래는 getter
 	pcap_t* getHandler() { return m_adapterHandler; }
-	std::string getDevName() { return m_devName; }
-	std::string getDescription() { return m_description; }
-	std::string getMacAddr() { return m_macAddr; }
+	const char* getDevName() { return m_devName; }
+	const char* getDescription() { return m_description; }
+	CString getMacAddr() { return m_macAddr; }
 	int getAdtId() { return m_adtID; }
 	bool initAdapter(pcap_if_t* pcap_if_t, int adtID);
 	bool PacketStartDriver();

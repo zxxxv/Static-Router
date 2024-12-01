@@ -23,6 +23,7 @@ CEthernetLayer::CEthernetLayer(char* pName)
 
 CEthernetLayer::~CEthernetLayer()
 {
+
 }
 
 void CEthernetLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* macAddr2) {
@@ -51,7 +52,6 @@ void CEthernetLayer::SetDestinAddress(unsigned char* pAddress, int io)
     memcpy(m_sHeader[io].enet_dstaddr, pAddress, 6);
 }
 
-// 24.09.29 unsigned short type 으로 받아서 enet_type 추가
 BOOL CEthernetLayer::Send(unsigned char* payload_data, int payload_data_len, unsigned short type, int io)
 {
     // ChatApp 계층에서 받은 App 계층의 Frame 길이만큼 Ethernet계층의 data로 넣는다
@@ -61,12 +61,11 @@ BOOL CEthernetLayer::Send(unsigned char* payload_data, int payload_data_len, uns
     BOOL bSuccess = FALSE;
 
     // 만든 이더넷 data에 이더넷 헤드를 추가해서 NI 계층으로 보냄
-    bSuccess = mp_UnderLayer->Send((unsigned char*)&m_sHeader, payload_data_len + ETHER_HEADER_SIZE); //1514
+    bSuccess = ((CNILayer*)this->GetUnderLayer())->GetAdapterObject(io).Send((unsigned char*)&m_sHeader, payload_data_len + ETHER_HEADER_SIZE); // 1514
 
     return bSuccess;
 }
 
-// 24.09.29 enet_type 확인 후 fileTrans 혹은 chatApp으로 보냄/ chatApp: 0x2080, fileTrans: 0x2090
 BOOL CEthernetLayer::Receive(unsigned char* payload_data, int io)
 {
     // payload_data를 이더넷 헤더 구조체로 넣는다
@@ -78,18 +77,18 @@ BOOL CEthernetLayer::Receive(unsigned char* payload_data, int io)
     if (memcmp(pFrame->enet_dstaddr, interfaces[io].macAddr, 6) != 0 &&
         memcmp(pFrame->enet_dstaddr, broadcastAddr, 6) != 0)
         return FALSE;
-    // 내가 보낸 패킷이 나에게 온건지
+    // 내가 보낸 값이 나에게 온건지
     if (memcmp(pFrame->enet_srcaddr, interfaces[io].macAddr, 6) == 0)
         return FALSE;
-    
+
     unsigned short type = TO_BIG_ENDIAN_16(pFrame->enet_type);
 
     switch (type) {
         case ARP_LAYER_IDENTIFIER:
-                return mp_aUpperLayer[0]->ArpReceive((unsigned char*)pFrame->enet_data, io);
+            return mp_aUpperLayer[0]->ArpReceive((unsigned char*)pFrame->enet_data, io);
             break;
         case IP_LAYER_IDENTIFIER:
-                return mp_aUpperLayer[0]->IpReceive((unsigned char*)pFrame->enet_data, io);
+            return mp_aUpperLayer[0]->IpReceive((unsigned char*)pFrame->enet_data, io);
             break;
     }
     return FALSE;

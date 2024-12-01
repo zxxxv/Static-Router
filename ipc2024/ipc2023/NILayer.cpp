@@ -14,7 +14,7 @@ CNILayer::CNILayer(char* pName, int iNumAdapter)
 {
     m_adapters.reserve(2);
     m_adapters.emplace_back(this); // 기본 생성자 호출
-    m_adapters.emplace_back(this); 
+    m_adapters.emplace_back(this);
     m_iNumAdapter = iNumAdapter;
     m_index = 0;
     SetAdapterList();
@@ -87,8 +87,8 @@ void CNILayer::SetAdapterIndex(int index)
     m_index = index;
 }
 
-Adapter CNILayer::GetAdapterObject(int index)
-{ 
+Adapter& CNILayer::GetAdapterObject(int index)
+{
     return m_adapters[index];
 }
 

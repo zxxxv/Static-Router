@@ -69,8 +69,6 @@ private:
 
 	void			SetDlgState(int state);
 	inline void		EndofProcess();
-	void Str2UCHAR(CString& src, UCHAR* dst);
-	void UCHAR2Str(UCHAR* src, CString& dst);
 
 	BOOL			m_routerReady;
 
@@ -86,15 +84,13 @@ private:
 	//CString Cipc2023Dlg::binaryToString(const unsigned char* ip);
 
 public:
-	Adapter m_inner;
-	Adapter m_outer;
 	CString m_iMacSrc;
 	CString m_oMacSrc;
 	UCHAR m_ucSrcAddrArray[6];
 	UCHAR m_ucDstAddrArray[6];
 	//UCHAR m_unused[100];
 	ARPProxyTable& proxyTable = ARPProxyTable::GetInstance();
-	RoutingList& routingTable = RoutingList::getInstance();
+	RoutingList& routingTable = RoutingList::GetInstance();
 	int m_index;
 	CListCtrl m_ListCtrl;		// ARP 캐시 테이블
 	CIPAddressCtrl m_ipSource;	// 내 IP 주소
@@ -104,7 +100,6 @@ public:
 	afx_msg void OnBnClickedProxyAdd();
 	afx_msg void OnBnClickedProxyDelete();
 	CEdit m_garp_mac;			// 변경한 mac 주소
-	//afx_msg void OnBnClickedProxyTable();
 	CListCtrl m_ListCtrlR;
 	afx_msg void OnBnClickedButtonEnd();
 	afx_msg void OnBnClickedButtonStart();
@@ -125,4 +120,5 @@ public:
 
 	} INTERFACE_CARD;
 	
+	afx_msg void OnBnClickedButton1();
 };

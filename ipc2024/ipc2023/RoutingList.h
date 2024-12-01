@@ -12,7 +12,7 @@ using namespace RoutingEntry;
 class RoutingList {
 
 public:
-    static RoutingList& getInstance() {
+    static RoutingList& GetInstance() {
         static RoutingList instance;
         return instance;
     }
@@ -28,6 +28,7 @@ public:
     std::list<RoutingEntry::Fields> RoutingList::getAllEntries();
     
     Fields findEntry(const unsigned char* dst);
+    Fields m_buffEnty;
 
 private:
     RoutingList() { initBuffEntry(); };
@@ -36,7 +37,7 @@ private:
     RoutingList& operator=(const RoutingList&) = delete;
 
     std::list<RoutingEntry::Fields> m_list;
-    Fields m_buffEnty;
+    
 
     std::optional<std::list<Fields>::iterator> getNextEntry(std::list<Fields>::iterator currentIt);
 	bool isMatchingEntry(std::list<Fields>::iterator currentIt, const unsigned char* dst);
