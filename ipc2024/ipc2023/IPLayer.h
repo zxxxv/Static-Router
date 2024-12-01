@@ -26,7 +26,6 @@ public:
     BOOL IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac,int io);
 
     bool arpRequest;
-    unsigned char target_ip[4];   // 타겟 IP 주소 저장
 
     /////////////////////// ARP
     // ARP 요청 패킷 생성 함수
@@ -112,6 +111,13 @@ private:
     const unsigned char broadcast_mac[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
     unsigned char defaultMac[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     unsigned char defaultIp[4] = { 0, 0, 0, 0 };
+
+    struct _temp{
+        unsigned char target_ip[4] = { 0 };
+        unsigned char target_mac[6] = { 0 };
+        bool check = { false };
+    } m_temp;
+
 
 protected:
     ARP_HEADER   arpHeader[2];   /// 객체 ARP 해더

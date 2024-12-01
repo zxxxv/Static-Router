@@ -31,7 +31,7 @@ void CIPLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* ipAddr1,
 }
 
 void CIPLayer::SetTargetInfo(const unsigned char* targetIp) {
-    memcpy(target_ip, targetIp, 4);                 // 타겟 IP 주소 설정
+    memcpy(m_temp.target_ip, targetIp, 4);                 // 타겟 IP 주소 설정
 }
 
 unsigned char* CIPLayer::CheckProxyTable(const unsigned char* destIp, int io) {
@@ -114,9 +114,8 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
     if (destMAC == nullptr) { //ARP cache table에서 해당 ip 주소가 없을 때
         destMAC = CheckProxyTable(destIp, io);
         if (destMAC == nullptr) { //Proxy table에서 찾아보고 없으면,
-
             // ARP requst보낸 후 ARP reply를 제대로 받은 경우에
-
+            memcpy(m_temp.target_ip, data->dest_ip, 4);
            /* if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
                 AfxMessageBox(_T("ARP request로 srcMAC과 destMAC 설정됨."), MB_ICONERROR | MB_OK);
                 return true;
@@ -130,26 +129,18 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data) {
             if (createArpRequestPacket(destIp, io)) {
                 // ARP 요청이 성공적으로 전송되었음을 알림
                 AfxMessageBox(_T("ARP 요청 전송 완료"), MB_ICONINFORMATION | MB_OK);
+                
+                while(!m_temp.check) // check가 false이면, 대기 // check가 true이면 아래 코드 수행.
 
-                // ARP 응답 기다림
-                //if (ArpReceive(payload_data, io)) {
-                //    // 응답 성공 시, ARP 테이블에서 다시 MAC 조회
-                //    destMAC = CheckArpTable(destIp, io);
-                //    if (destMAC) {
-                //        if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
-                //            AfxMessageBox(_T("ARP 요청 성공: EthernetAddr 업데이트 완료"), MB_ICONINFORMATION | MB_OK);
-                //            return TRUE;
-                //        }
-                //        else {
-                //            AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
-                //            return FALSE;
-                //        }
-                //    }
-                //}
-                /*else {
-                    AfxMessageBox(_T("ARP 응답을 받지 못했습니다."), MB_ICONERROR | MB_OK);
+                if (IpSetEhternetAddr(srcMAC, destMAC, io)) {
+                    AfxMessageBox(_T("ARP 요청 성공: EthernetAddr 업데이트 완료"), MB_ICONINFORMATION | MB_OK);
+                    IpSend(payload_data, IP_HEADER + ICMP_HEADER_SIZE + ICMP_DATA_SIZE);
+                    return TRUE;
+                }
+                else {
+                    AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
                     return FALSE;
-                }*/
+                }
             }
             
         }
@@ -303,31 +294,25 @@ BOOL CIPLayer::ArpReceive(unsigned char* payload_data, int io)
     }
     // ARP OP code가 2 - ARP cashe table 업데이트
     else if (op == 2) {
-        if (arpRequest) {
-            bool isMine = false;
-            for (int i = 0; i < 2; i++) {
-                if (memcmp(data->target_ip, interfaces[i].ipAddr, data->ip_len) == 0) {
-                    isMine = true;
-                }
-                if (isMine) {
-                    //addOrUpdate(data->source_ip, data->source_mac, true, true);
-                    handleArpReply(data->source_ip);                            // incomplete->complete
-                    editEntryMacAddress(data->source_ip, data->source_mac);   // mac 주소 변경, 해당 ip 주소가 없으면 exception 발생
-                    ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg 업데이트
-                    if (memcmp(target_ip, data->source_ip, 4) == 0) {
-                        // ip 한테 mac 주소 받았다고 알림
-                    }
-                    return TRUE;
-                }
-            }
-            //return FALSE;
-            return TRUE;
+        if (!arpRequest) return false; // false여도 되나?
+        
+        bool isMine = false;
+        for (int i = 0; i < 2; i++) {
+            if (memcmp(data->target_ip, interfaces[i].ipAddr, data->ip_len) == 0) isMine = true;
         }
-        //return FALSE;
+        if (!isMine) return false;
+
+        //addOrUpdate(data->source_ip, data->source_mac, true, true);
+        handleArpReply(data->source_ip);                            // incomplete->complete
+        editEntryMacAddress(data->source_ip, data->source_mac);   // mac 주소 변경, 해당 ip 주소가 없으면 exception 발생
+        ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();   // dlg 업데이트
+        if (memcmp(m_temp.target_ip, data->source_ip, 4) == 0) {
+            // ip 한테 mac 주소 받았다고 알림
+            memcpy(m_temp.target_mac, data->source_mac, 6);
+            m_temp.check = true;
+        }
         return TRUE;
-    };
-    //return FALSE;
-    return TRUE;
+    }
 }
 
 void CIPLayer::onEntryTimeout(const unsigned char* ip) {
