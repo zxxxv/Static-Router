@@ -20,16 +20,28 @@ std::string ARPCacheTable::binaryToString(const unsigned char* ip) {
         std::to_string(ip[3]);
 }
 
-void ARPCacheTable::addOrUpdate(const unsigned char* ip, const unsigned char* mac, const bool& state, const bool& isPermanent) {
+bool ARPCacheTable::add(const unsigned char* ip, const unsigned char* mac, const bool& state, const bool& isPermanent) {
     std::string strIP = binaryToString(ip);
     auto it = cache.find(strIP);
     if (it != cache.end()) {
-        // AfxMessageBox(_T("exist"));
-        // 수정
-        editEntryMacAddress(ip, mac);
+        // AfxMessageBox(_T("exist")); 이미존재
+        return false;
     }
     else {
         cache[strIP] = new ARPCacheEntry(ip, mac, state, this, isPermanent);
+        return true;
+    }
+}
+
+bool ARPCacheTable::update(const unsigned char* ip, const unsigned char* mac) {
+    std::string strIP = binaryToString(ip);
+    auto it = cache.find(strIP);
+    if (it != cache.end()) {
+        editEntryMacAddress(ip, mac);
+        return true;
+    }
+    else {
+        return false;
     }
 }
 
