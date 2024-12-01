@@ -15,35 +15,34 @@ public:
 
     /////////////////////// IP
     
-    //¸ñÀûÁö IP¸¦ ±âÁØÀ¸·Î Ethernet Çì´õÀÇ ¸ñÀûÁö MAC ÁÖ¼Ò¸¦ ¾÷µ¥ÀÌÆ®ÇÏ´Â ÇÔ¼ö
-    unsigned char* UpdateEthernetDestMac(const unsigned char* destIp, int io);
-    BOOL IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac);
+    //ëª©ì ì§€ IPë¥¼ ê¸°ì¤€ìœ¼ë¡œ Ethernet í—¤ë”ì˜ ëª©ì ì§€ MAC ì£¼ì†Œë¥¼ ì—…ë°ì´íŠ¸í•˜ëŠ” í•¨ìˆ˜
+    unsigned char* CheckArpTable(const unsigned char* destIp, int io);
 
-    // ¼ö½ÅÇÑ IP ÆĞÅ¶ Ã³¸®ÇÏ´Â ÇÔ¼ö
-    BOOL IpReceive(unsigned char* payload_data, int io);
+    // ìˆ˜ì‹ í•œ IP íŒ¨í‚· ì²˜ë¦¬í•˜ëŠ” í•¨ìˆ˜
+    BOOL IpReceive(unsigned char* payload_data);
     BOOL IpSend(unsigned char* ppayload, int nlength, int io);
     unsigned char* CheckProxyTable(const unsigned char* destIp, int io);
     unsigned char* Routing(unsigned char* ip);
+    BOOL IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac,int io);
 
     bool arpRequest;
-    unsigned char target_ip[4];   // Å¸°Ù IP ÁÖ¼Ò ÀúÀå
 
     /////////////////////// ARP
-    // ARP ¿äÃ» ÆĞÅ¶ »ı¼º ÇÔ¼ö
+    // ARP ìš”ì²­ íŒ¨í‚· ìƒì„± í•¨ìˆ˜
     BOOL createArpRequestPacket(unsigned char* target_ip, int io);
     /*
-    createArpRequestPacket: ±Ã±İÇÑ mac ÁÖ¼Ò¿¡ ÇØ´çÇÏ´Â ip ÁÖ¼Ò ÀÔ·Â ¹× ¾î´ğÅÍ(³»ºÎ, ¿ÜºÎ) ¼±ÅÃ
-    ³»ºÎ ÀÔ·Â -> INNER == 0
-    ¿ÜºÎ ÀÔ·Â -> OUTER == 1
+    createArpRequestPacket: ê¶ê¸ˆí•œ mac ì£¼ì†Œì— í•´ë‹¹í•˜ëŠ” ip ì£¼ì†Œ ì…ë ¥ ë° ì–´ëŒ‘í„°(ë‚´ë¶€, ì™¸ë¶€) ì„ íƒ
+    ë‚´ë¶€ ì…ë ¥ -> INNER == 0
+    ì™¸ë¶€ ì…ë ¥ -> OUTER == 1
     */
 
-    // ARP ÀÀ´ä ÆĞÅ¶ »ı¼º ÇÔ¼ö
+    // ARP ì‘ë‹µ íŒ¨í‚· ìƒì„± í•¨ìˆ˜
     BOOL createArpReplyPacket(unsigned char* payload_data, int io);
 
-    // ARP ÆĞÅ¶À» Àü¼ÛÇÏ´Â ÇÔ¼ö
+    // ARP íŒ¨í‚·ì„ ì „ì†¡í•˜ëŠ” í•¨ìˆ˜
     BOOL ArpSend(unsigned char* ppayload, int nlength, int io);
 
-    // ¼ö½ÅÇÑ ARP ÆĞÅ¶À» Ã³¸®ÇÏ´Â ÇÔ¼ö
+    // ìˆ˜ì‹ í•œ ARP íŒ¨í‚·ì„ ì²˜ë¦¬í•˜ëŠ” í•¨ìˆ˜
     BOOL ArpReceive(unsigned char* payload_data, int io);
 
     BOOL createArpPacket(unsigned short op_code, int io);
@@ -51,7 +50,7 @@ public:
     void SetEthernetDst(unsigned char* target_mac, int io);
     void SetEthernetSrc(int io);
 
-    //dlg¿¡¼­ ¼³Á¤ÇÑ mac, ip
+    //dlgì—ì„œ ì„¤ì •í•œ mac, ip
     void CIPLayer::SetInterfaceInfo(unsigned char* macAddr1, unsigned char* ipAddr1, unsigned char* macAddr2, unsigned char* ipAddr2);
 
     //void SetSenderMac(const unsigned char* macAddress);
@@ -60,9 +59,9 @@ public:
 
     void onEntryTimeout(const unsigned char* ip) override;
     /*
-    onEntryTimeout: Å¸ÀÓ¾Æ¿ôµÈ Ç×¸ñÀ» »èÁ¦ÇÏ´Â ÇÔ¼ö. Entry°¡ Å¸ÀÓ¾Æ¿ôµÇ¸é Æ®¸®°ÅµÈ´Ù.
+    onEntryTimeout: íƒ€ì„ì•„ì›ƒëœ í•­ëª©ì„ ì‚­ì œí•˜ëŠ” í•¨ìˆ˜. Entryê°€ íƒ€ì„ì•„ì›ƒë˜ë©´ íŠ¸ë¦¬ê±°ëœë‹¤.
         # parameter
-        - binary ip ÁÖ¼Ò, °¢ entryÀÇ OnTimer ÇÔ¼ö ³»¿¡¼­ ÀÔ·ÂµÈ´Ù.
+        - binary ip ì£¼ì†Œ, ê° entryì˜ OnTimer í•¨ìˆ˜ ë‚´ì—ì„œ ì…ë ¥ëœë‹¤.
     */
 
     BOOL CIPLayer::createGarpPacket(int io);
@@ -77,29 +76,29 @@ public:
 
     } INTERFACE_CARD;
 
-    // ÃÑ 60 bytes = IP Çì´õ 20 bytes + ICMP Çì´õ 8 bytes + ICMP data 32 bytes
+    // ì´ 60 bytes = IP í—¤ë” 20 bytes + ICMP í—¤ë” 8 bytes + ICMP data 32 bytes
     typedef struct _IP_HEADER {
-        unsigned char       version_ihl;                                // ¹öÀü(4ºñÆ®) + Çì´õ ±æÀÌ(1 byte)
-        unsigned char       tos;                                        // ¼­ºñ½º Å¸ÀÔ (1 byte)
-        unsigned short      total_length;                               // ÀüÃ¼ ÆĞÅ¶ ±æÀÌ (2 bytes)
-        unsigned short      identification_field;                       // ½Äº°ÀÚ (2 bytes)
+        unsigned char       version_ihl;                                // ë²„ì „(4ë¹„íŠ¸) + í—¤ë” ê¸¸ì´(1 byte)
+        unsigned char       tos;                                        // ì„œë¹„ìŠ¤ íƒ€ì… (1 byte)
+        unsigned short      total_length;                               // ì „ì²´ íŒ¨í‚· ê¸¸ì´ (2 bytes)
+        unsigned short      identification_field;                       // ì‹ë³„ì (2 bytes)
         unsigned short      unused;                                     // 3-bit flags + 13-bit fragment offset (2 bytes)
         unsigned char       ttl;                                        // TTL (1 bytes)
-        unsigned char       protocol_field;                             // ÇÁ·ÎÅäÄİ (ICMP=1, TCP=6 µî) (1 bytes)
-        unsigned short      header_checksum;                            // Çì´õ Ã¼Å©¼¶ (2 bytes)
-        unsigned char       source_ip[4];                               // Ãâ¹ßÁö IP ÁÖ¼Ò (4 bytes)
-        unsigned char       dest_ip[4];                                 // ¸ñÀûÁö IP ÁÖ¼Ò (4 bytes)
-        unsigned char       icmp[ICMP_HEADER_SIZE + ICMP_DATA_SIZE];    // ICMP Çì´õ 8 bytes + ICMP data 32 bytes
+        unsigned char       protocol_field;                             // í”„ë¡œí† ì½œ (ICMP=1, TCP=6 ë“±) (1 bytes)
+        unsigned short      header_checksum;                            // í—¤ë” ì²´í¬ì„¬ (2 bytes)
+        unsigned char       source_ip[4];                               // ì¶œë°œì§€ IP ì£¼ì†Œ (4 bytes)
+        unsigned char       dest_ip[4];                                 // ëª©ì ì§€ IP ì£¼ì†Œ (4 bytes)
+        unsigned char       icmp[ICMP_HEADER_SIZE + ICMP_DATA_SIZE];    // ICMP í—¤ë” 8 bytes + ICMP data 32 bytes
     } IP_HEADER, *PIP_HEADER;
 
 
-    // ÃÑ 28 bytes
+    // ì´ 28 bytes
     typedef struct _APR_HEADER {
-        unsigned short      hard_type;              // hardware type ÀÌ´õ³İ ¼ÒÅëÀÌ¹Ç·Î 1 (2 bytes)
+        unsigned short      hard_type;              // hardware type ì´ë”ë„· ì†Œí†µì´ë¯€ë¡œ 1 (2 bytes)
         unsigned short      prot_type;              // protocol type (2 bytes)
         unsigned char       mac_len;                // hardware address length (1 byte)
         unsigned char       ip_len;                 // protocol address length (1 byte)
-        unsigned short      op_code;                // ¿ÀÆÛ·¹ÀÌ¼Ç ÄÚµå (2 bytes)
+        unsigned short      op_code;                // ì˜¤í¼ë ˆì´ì…˜ ì½”ë“œ (2 bytes)
         unsigned char       source_mac[6];          // source hardware address (6 bytes)
         unsigned char       source_ip[4];           // source protocol address (4 bytes)
         unsigned char       target_mac[6];          // target hardware address (6 bytes)
@@ -114,8 +113,15 @@ private:
     unsigned char defaultMac[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     unsigned char defaultIp[4] = { 0, 0, 0, 0 };
 
+    struct _temp{
+        unsigned char target_ip[4] = { 0 };
+        unsigned char target_mac[6] = { 0 };
+        bool check = { false };
+    } m_temp;
+
+
 protected:
-    ARP_HEADER   arpHeader[2];   /// °´Ã¼ ARP ÇØ´õ
+    ARP_HEADER   arpHeader[2];   /// ê°ì²´ ARP í•´ë”
     IP_HEADER    ipHeader;
 
     std::unordered_map<std::string, ARPCacheEntry*> cache;
