@@ -57,11 +57,10 @@ BOOL CEthernetLayer::Send(unsigned char* payload_data, int payload_data_len, uns
     // ChatApp 계층에서 받은 App 계층의 Frame 길이만큼 Ethernet계층의 data로 넣는다
     memcpy(m_sHeader[io].enet_data, payload_data, payload_data_len);
     m_sHeader[io].enet_type = TO_BIG_ENDIAN_16(type);
-    //m_sHeader.enet_type = type;
     BOOL bSuccess = FALSE;
 
     // 만든 이더넷 data에 이더넷 헤드를 추가해서 NI 계층으로 보냄
-    bSuccess = ((CNILayer*)this->GetUnderLayer())->GetAdapterObject(io).Send((unsigned char*)&m_sHeader, payload_data_len + ETHER_HEADER_SIZE); // 1514
+    bSuccess = ((CNILayer*)this->GetUnderLayer())->GetAdapterObject(io).Send((unsigned char*)&m_sHeader[io], payload_data_len + ETHER_HEADER_SIZE); // 1514
 
     return bSuccess;
 }

@@ -343,7 +343,7 @@ void Cipc2023Dlg::UpdateRoutingTable() // 라우팅 테이블 출력
 		strNetmask.Format(_T("%d.%d.%d.%d"), entry.m_subnetMask[0], entry.m_subnetMask[1], entry.m_subnetMask[2], entry.m_subnetMask[3]);
 		strGateway.Format(_T("%d.%d.%d.%d"), entry.m_gateway[0], entry.m_gateway[1], entry.m_gateway[2], entry.m_gateway[3]);
 		strFlag = GetFlagString(entry.m_flag);
-		//strInterface = CString(m_NI->GetAdapterObject(entry.m_interfaceFlag).getDescription().c_str());
+		strInterface = CString(m_NI->m_pAdapterList[entry.m_interfaceFlag]->description);
 		strMetric.Format(_T("%d"), entry.m_metric);
 
 		int nIndex = m_ListCtrlR.InsertItem(index++, strDestination);
@@ -386,10 +386,7 @@ void Cipc2023Dlg::UpdateARPTable() // ARP 테이블 출력
 		line = arpentries.Tokenize(_T("\r\n"), start);
 
 	}
-	//m_IP->printCache();
 }
-
-
 
 CString Cipc2023Dlg::GetFlagString(e_flag flag)
 {
@@ -404,11 +401,6 @@ CString Cipc2023Dlg::GetFlagString(e_flag flag)
 		return _T("");
 	}
 }
-
-//void Cipc2023Dlg::OnBnClickedArpTable()
-//{
-//	UpdateARPTable();
-//}
 
 void Cipc2023Dlg::OnBnClickedProxyAdd() // 프록시 테이블 추가
 {
@@ -457,11 +449,6 @@ void Cipc2023Dlg::OnBnClickedProxyDelete() // 프록시 테이블 삭제
 		if (!proxyTable.RemoveEntryByIP(value)) AfxMessageBox(_T("삭제 실패"));
 	}
 }
-
-//void Cipc2023Dlg::OnBnClickedProxyTable()
-//{	
-//	proxyTable.DisplayAllEntries();
-//}
 
 void Cipc2023Dlg::OnBnClickedButtonEnd()
 {
@@ -569,4 +556,6 @@ void Cipc2023Dlg::OnBnClickedButtonArpDelete() // ARP Entry 삭제
 void Cipc2023Dlg::OnBnClickedButton1()
 {
 	m_IP->print();
+	unsigned char tip[4] = { 1,1,2,2 };
+	m_IP->createArpRequestPacket(tip, 1);
 }

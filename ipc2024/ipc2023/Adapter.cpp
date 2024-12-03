@@ -4,11 +4,6 @@
 bool Adapter::StopPacketDriver()
 {   
     m_thrdSwitch = FALSE; // 스레드 실행 플래그 비활성화
-    if (m_pThread) {
-        // 스레드가 종료될 때까지 대기
-        WaitForSingleObject((HANDLE)m_pThread->m_hThread, INFINITE);
-        m_pThread = nullptr; // 스레드 핸들 초기화
-    }
     if (m_adapterHandler) {
         pcap_close(m_adapterHandler); // 어댑터 핸들 닫기
         m_adapterHandler = nullptr;
