@@ -119,7 +119,7 @@ UINT Adapter::ReadingThreadB(LPVOID pParam) //
 
         if (result < 0)
         {
-            AfxMessageBox(_T("Packet Read Error"));
+            //AfxMessageBox(_T("Packet Read Error"));
             break;
         }
     }

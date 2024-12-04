@@ -104,14 +104,16 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data, int io) {
 
     unsigned char srcMAC[6]; // interface의 MAC 주소 저장
     int ios = 0; //interface 번호
-    //
-    //PIP_HEADER* data = reinterpret_cast<PIP_HEADER*>(payload_data);
-    unsigned char* srcMAC_ip = Routing(data->dest_ip); //Source MAC주소를 해당 NI Card MAC주소로 바꾸려고 가져옴
+    unsigned char srcMAC_ip[4] = { 0,0,0,0 };
+    //unsigned char* srcMAC_ip = Routing(data->dest_ip); //Source MAC주소를 해당 NI Card MAC주소로 바꾸려고 가져옴
+
+    if (!Routing(data->dest_ip)) return false;
+    memcpy(srcMAC_ip, Routing(data->dest_ip), 4);
 
     for (int i = 0; i < 2; i++) {
         if (memcmp(srcMAC_ip, interfaces[i].ipAddr, 4) == 0) { //둘이 같으면
             memcpy(srcMAC, interfaces[i].macAddr, 6);
-            ios = i; //interface 번호 저장
+            //ios = i; //interface 번호 저장
             break;
         }
     }
@@ -135,10 +137,11 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data, int io) {
             // check가 true이면 아래 코드 수행.
             // arpReceive에서 올바르게 수행되었을 때, true로 바뀜
 
-            memcpy(destMAC, m_temp.target_mac, 6);
+            unsigned char tmp[6] = { 0 };
+            memcpy(tmp, m_temp.target_mac, 6);
             // arp Receive에서 찾아낸 mac주소를 destMAC에 넣어주기.
 
-            if (!IpSetEhternetAddr(srcMAC, destMAC, ios)) {
+            if (!IpSetEhternetAddr(srcMAC, tmp, ios)) {
                 AfxMessageBox(_T("EthernetAddr 설정 실패"), MB_ICONERROR | MB_OK);
                 return false;
             }
@@ -300,6 +303,7 @@ BOOL CIPLayer::ArpReceive(unsigned char* payload_data, int io)
             // ip 한테 mac 주소 받았다고 알림
             memcpy(m_temp.target_mac, data->source_mac, 6);
             m_temp.check = true;
+            arpRequest = true;
         }
         return TRUE;
     }
@@ -310,7 +314,6 @@ void CIPLayer::onEntryTimeout(const unsigned char* ip) {
     removeEntry(ip);
     ((Cipc2023Dlg*)this->GetUpperLayer(0))->UpdateARPTable();
 }
-
 
 void CIPLayer::SetEthernetDst(unsigned char* target_mac, int io) {
 

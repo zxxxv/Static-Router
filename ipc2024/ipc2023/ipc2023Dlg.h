@@ -120,5 +120,7 @@ public:
 
 	} INTERFACE_CARD;
 	
+	INTERFACE_CARD interfaces[2];
+
 	afx_msg void OnBnClickedButton1();
 };

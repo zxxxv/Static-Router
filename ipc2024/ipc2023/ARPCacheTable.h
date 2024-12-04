@@ -10,9 +10,8 @@
 
 // ARPCacheTable 클래스 정의
 class ARPCacheTable : public TimeoutObserver {
-private:
+protected:
     std::unordered_map<std::string, ARPCacheEntry*> cache;
-
 public:
     // 기본 생성자 추가
     ARPCacheTable();

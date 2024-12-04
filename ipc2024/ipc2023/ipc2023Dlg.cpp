@@ -462,7 +462,7 @@ void Cipc2023Dlg::OnBnClickedButtonEnd()
 void Cipc2023Dlg::OnBnClickedButtonStart()
 {
 	// GARP Send
-	INTERFACE_CARD interfaces[2];
+	//INTERFACE_CARD interfaces[2];
 	
 	// 내부 인터페이스 IP 설정
 	unsigned char ip1[4] = {0};
@@ -555,7 +555,47 @@ void Cipc2023Dlg::OnBnClickedButtonArpDelete() // ARP Entry 삭제
 
 void Cipc2023Dlg::OnBnClickedButton1()
 {
-	m_IP->print();
-	unsigned char tip[4] = { 1,1,2,2 };
-	m_IP->createArpRequestPacket(tip, 1);
+	//m_IP->print();
+	//unsigned char tip[4] = { 1,1,2,2 };
+	//m_IP->createArpRequestPacket(tip, 1);
+
+	
+	//unsigned char dest_ip[4] = { 1,1,2,1 };
+	//unsigned char b = 128;
+
+	//unsigned char srcMac_ip[4] = {0,0,0,0};
+
+	//if (m_IP->Routing(dest_ip)) {
+	//	memcpy(srcMac_ip, m_IP->Routing(dest_ip), 4);
+	//}
+	//unsigned char srcMAC[6];
+
+	//int ios = 0;
+
+	//for (int i = 0; i < 2; i++) {
+	//	if (memcmp(srcMac_ip, interfaces[i].ipAddr, 4) == 0) { //둘이 같으면
+	//		memcpy(srcMAC, interfaces[i].macAddr, 6);
+	//		ios = i;
+	//		break;
+	//	}
+	//}
+
+	unsigned char dest_ip[4] = { 1,1,2,1 };
+	unsigned char* srcMac_ip = nullptr;
+	//
+	if (m_IP->Routing(dest_ip)) {
+		srcMac_ip = m_IP->Routing(dest_ip);
+	}
+	unsigned char srcMAC[6];
+
+	int ios = 0;
+
+	for (int i = 0; i < 2; i++) {
+		if (memcmp(srcMac_ip, interfaces[i].ipAddr, 4) == 0) { //둘이 같으면
+			memcpy(srcMAC, interfaces[i].macAddr, 6);
+			ios = i;
+			break;
+		}
+	}
+
 }
