@@ -581,11 +581,10 @@ void Cipc2023Dlg::OnBnClickedButton1()
 	//}
 
 	unsigned char dest_ip[4] = { 1,1,2,1 };
-	unsigned char* srcMac_ip = nullptr;
-	//
-	if (m_IP->Routing(dest_ip)) {
-		srcMac_ip = m_IP->Routing(dest_ip);
-	}
+	unsigned char srcMac_ip[4] = { 0,0,0,0 };
+
+	if(!m_IP->Routing(dest_ip, srcMac_ip)) AfxMessageBox("wrong");
+
 	unsigned char srcMAC[6];
 
 	int ios = 0;

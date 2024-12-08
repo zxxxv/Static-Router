@@ -81,12 +81,15 @@ BOOL CIPLayer::IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac, i
     return true;
 }
 
-unsigned char* CIPLayer::Routing(unsigned char* ip) {
+bool CIPLayer::Routing(unsigned char* ip, unsigned char* output) {
     Fields entry = routingTable.findEntry(ip);
     if (entry.m_flag == e_flag::none) {
-        return nullptr;
+        return false;
     }
-    return entry.m_gateway;
+    else {
+        memcpy(output, entry.m_gateway, 4);
+        return true;
+    }
 }
 
 BOOL CIPLayer::IpReceive(unsigned char* payload_data, int io) {
@@ -107,8 +110,7 @@ BOOL CIPLayer::IpReceive(unsigned char* payload_data, int io) {
     unsigned char srcMAC_ip[4] = { 0,0,0,0 };
     //unsigned char* srcMAC_ip = Routing(data->dest_ip); //Source MAC주소를 해당 NI Card MAC주소로 바꾸려고 가져옴
 
-    if (!Routing(data->dest_ip)) return false;
-    memcpy(srcMAC_ip, Routing(data->dest_ip), 4);
+    if(!Routing(data->dest_ip, srcMAC_ip)) return false;
 
     for (int i = 0; i < 2; i++) {
         if (memcmp(srcMAC_ip, interfaces[i].ipAddr, 4) == 0) { //둘이 같으면

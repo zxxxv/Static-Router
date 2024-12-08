@@ -114,20 +114,32 @@ Fields RoutingList::findEntry(const unsigned char* dst)
 	// 리스트의 처음부터 탐색 시작
 	std::list<Fields>::iterator it = m_list.begin();
 
+	Fields temp_field;
+	temp_field.m_metric = 60000;
+
 	while (it != m_list.end()) {
 		// 현재 엔트리가 목적지 주소와 일치하는지 확인
 		if (isMatchingEntry(it, dst)) {
-			// 일치하는 엔트리를 찾은 경우 현재 엔트리를 반환
-			return *it;
+			// temp_field의 metric보다 현재 엔트리의 metric이 작은 경우, temp_field에 현재 엔트리를 임시 저장.
+			// 이후 다음 엔트리 탐색
+			if (temp_field.m_metric > it->m_metric) {
+				temp_field = *it;
+				it = getNextEntry(it);
+			}
+			// temp_field의 metric보다 현재 엔트리의 metric이 크거나 같은 경우, 그냥 넘어감.
+			else it = getNextEntry(it);
 		}
 		else {
-			// getNextEntry는 현재 엔트리에서 다음 엔트리를 반환하는 함수
-			// optional 반환이므로 값이 존재하는지 확인 후 언랩
+			// 현재 엔트리가 dst와 매칭되지 않으면, 다음 엔트리로 넘어감.
 			it = getNextEntry(it);
 		}
 	}
+
+	// 최종적으로 temp_field에 남아있는 엔트리는 매칭된 엔트리들 중 최소 metric을 가진 것이 됨.
+	if (temp_field.m_metric != 60000) return temp_field;
 	// 일치하는 엔트리가 없는 경우, 기본 엔트리 반환
-	return m_buffEnty;
+	// temp_field.m_metric == 60000이라면, 어떠한 매칭도 되지 않았다는 의미이다.
+	else return m_buffEnty;
 }
 
 //Fields RoutingList::findEntry(const unsigned char* dst)

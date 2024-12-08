@@ -26,7 +26,7 @@ public:
     BOOL IpSend(unsigned char* ppayload, int nlength, int io);
     unsigned char* CheckProxyTable(const unsigned char* destIp, int io);
     //Fields Routing(unsigned char* ip, unsigned char ttl);
-    unsigned char* Routing(unsigned char* ip);
+    bool Routing(unsigned char* ip, unsigned char* output);
     BOOL IpSetEhternetAddr(unsigned char* srcMac, unsigned char* dstMac,int io);
 
     bool arpRequest;
